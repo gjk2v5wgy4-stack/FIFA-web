@@ -29,7 +29,7 @@ button {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 208px minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -40,7 +40,7 @@ button {
   flex-direction: column;
   gap: 24px;
   height: 100vh;
-  padding: 24px 18px;
+  padding: 22px 14px;
   border-right: 1px solid #dce3d7;
   background: #ffffff;
 }
@@ -48,13 +48,14 @@ button {
 .brand-mark {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .brand-mark__icon {
   display: grid;
-  width: 44px;
-  height: 44px;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
   place-items: center;
   border-radius: 8px;
   background: #0b7a53;
@@ -65,6 +66,11 @@ button {
 .brand-mark strong,
 .brand-mark small {
   display: block;
+}
+
+.brand-mark strong {
+  font-size: 15px;
+  line-height: 1.15;
 }
 
 .brand-mark small {
@@ -100,7 +106,7 @@ button {
 .nav-item {
   justify-content: flex-start;
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   background: transparent;
   color: #40504a;
   text-align: left;
@@ -117,7 +123,7 @@ button {
   align-items: center;
   gap: 8px;
   margin-top: auto;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid #dce3d7;
   border-radius: 8px;
   color: #40504a;

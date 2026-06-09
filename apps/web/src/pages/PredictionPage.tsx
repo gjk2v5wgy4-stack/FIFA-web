@@ -1,4 +1,5 @@
 import { ArrowDownRight, CalendarDays, FileText, MapPin } from "lucide-react";
+import { AdvancedPredictionInsights } from "../components/AdvancedPredictionInsights";
 import { ResultPreview } from "../components/ResultPreview";
 import type { MatchPredictionStub } from "../services/apiStubs";
 
@@ -19,10 +20,10 @@ export function PredictionPage({ prediction }: PredictionPageProps) {
     <div className="page-stack">
       <section className="page-header">
         <div>
-          <p className="eyebrow">Prediction Stub</p>
-          <h1>比赛概率预测结果</h1>
+          <p className="eyebrow">高阶预测</p>
+          <h1>单场概率预测报告</h1>
           <p className="muted">
-            数据来自前端 stub，字段对齐 `POST /api/predictions/match` 响应，可替换为 T2 后端请求。
+            面向审批用户展示比分参考、历史交锋、阵容置信度、关键对位、战术克制和模型分歧。
           </p>
         </div>
         <div className="header-facts">
@@ -63,6 +64,8 @@ export function PredictionPage({ prediction }: PredictionPageProps) {
           </dl>
         </section>
       </div>
+
+      <AdvancedPredictionInsights prediction={prediction} />
 
       <section className="score-panel">
         <div className="section-heading">

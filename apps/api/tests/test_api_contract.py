@@ -162,6 +162,27 @@ def test_football_stub_endpoints_return_seed_data(client: TestClient) -> None:
     assert responses[3].json()["data"]["playerId"] == "player_001"
 
 
+def test_weather_forecast_endpoint_returns_region_forecast(client: TestClient) -> None:
+    response = client.get("/api/weather/forecast", params={"region": "beijing", "days": 3})
+
+    assert response.status_code == 200, response.text
+    data = response.json()["data"]
+    assert data["region"] == "Beijing"
+    assert data["latitude"] == 39.9042
+    assert data["longitude"] == 116.4074
+    assert data["current"]["condition"]
+    assert len(data["daily"]) == 3
+    assert data["daily"][0]["date"]
+    assert data["source"] == "local-fallback"
+
+
+def test_weather_forecast_requires_region_or_coordinates(client: TestClient) -> None:
+    response = client.get("/api/weather/forecast")
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
 def test_admin_skeleton_routes_exist(client: TestClient, admin_headers: dict[str, str]) -> None:
     users = client.get("/api/admin/users", headers=admin_headers)
     pending = client.get("/api/admin/users/pending", headers=admin_headers)
@@ -215,4 +236,3 @@ def test_prediction_simulation_and_report_stubs_are_metered(
         response = client.post(path, headers=headers, json=payload)
         assert response.status_code in {200, 202}, response.text
         assert response.json()["data"]["usage"]["tokensCharged"] == expected_charge
-

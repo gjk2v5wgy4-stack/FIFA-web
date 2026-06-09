@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   UsersRound,
 } from "lucide-react";
+import { useState } from "react";
 import { TeamDisplayName } from "./TeamDisplayName";
 import type { MatchPredictionStub } from "../services/apiStubs";
 import { getTeamDisplay } from "../services/teamDisplay";
@@ -19,11 +20,18 @@ interface ResultPreviewProps {
   prediction: MatchPredictionStub | null;
 }
 
+type AnalysisSide = "home" | "away";
+
 function formatPercent(value: number) {
   return `${Math.round(value * 100)}%`;
 }
 
 export function ResultPreview({ prediction }: ResultPreviewProps) {
+  const [analysisSelection, setAnalysisSelection] = useState<{
+    matchId: string;
+    side: AnalysisSide;
+  } | null>(null);
+
   if (!prediction) {
     return <section className="result-preview result-preview--loading">加载中...</section>;
   }
@@ -55,18 +63,29 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
   const leader = outcomeCards.reduce((currentLeader, row) =>
     row.value > currentLeader.value ? row : currentLeader,
   );
+  const defaultAnalysisSide: AnalysisSide =
+    prediction.probabilities.homeWin >= prediction.probabilities.awayWin ? "home" : "away";
+  const selectedAnalysisSide =
+    analysisSelection?.matchId === prediction.matchId
+      ? analysisSelection.side
+      : defaultAnalysisSide;
+  const homeAnalysisOption = {
+    side: "home" as const,
+    sideLabel: "主队",
+    team: prediction.homeTeam,
+    title: homeTeam.name,
+    probability: prediction.probabilities.homeWin,
+  };
+  const awayAnalysisOption = {
+    side: "away" as const,
+    sideLabel: "客队",
+    team: prediction.awayTeam,
+    title: awayTeam.name,
+    probability: prediction.probabilities.awayWin,
+  };
+  const analysisOptions = [homeAnalysisOption, awayAnalysisOption];
   const analysisTarget =
-    prediction.probabilities.homeWin >= prediction.probabilities.awayWin
-      ? {
-          side: "主队",
-          team: prediction.homeTeam,
-          title: homeTeam.name,
-        }
-      : {
-          side: "客队",
-          team: prediction.awayTeam,
-          title: awayTeam.name,
-        };
+    selectedAnalysisSide === "home" ? homeAnalysisOption : awayAnalysisOption;
   const analysisModules = [
     {
       icon: ShieldCheck,
@@ -198,11 +217,34 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
 
       <section className="result-analysis" aria-label={`${analysisTarget.title}胜负分析`}>
         <div className="section-heading">
-          <p className="eyebrow">胜负分析 · {analysisTarget.side}</p>
+          <p className="eyebrow">胜负分析 · {analysisTarget.sideLabel}</p>
           <h2 className="result-analysis-title">
             <TeamDisplayName team={analysisTarget.team} />
             <span>胜负分析</span>
           </h2>
+        </div>
+        <div className="analysis-selector" role="group" aria-label="选择胜负分析对象">
+          {analysisOptions.map((option) => (
+            <button
+              aria-pressed={option.side === selectedAnalysisSide}
+              className={`analysis-selector__button${
+                option.side === selectedAnalysisSide
+                  ? " analysis-selector__button--active"
+                  : ""
+              }`}
+              key={option.side}
+              onClick={() =>
+                setAnalysisSelection({ matchId: prediction.matchId, side: option.side })
+              }
+              type="button"
+            >
+              <span>{option.sideLabel}</span>
+              <strong>
+                <TeamDisplayName team={option.team} />
+              </strong>
+              <small>{formatPercent(option.probability)}</small>
+            </button>
+          ))}
         </div>
         <div className="result-analysis-grid">
           {analysisModules.map((module) => {

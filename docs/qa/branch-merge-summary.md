@@ -39,4 +39,4 @@ Reason:
 - Frontend route/page coverage is incomplete against the final QA checklist.
 - Prediction engine output contract is incomplete against the final QA checklist.
 - Docker config validation is environment-limited because Docker CLI is unavailable.
-- Frontend audit has unresolved dev-tooling vulnerabilities.
+- Frontend audit dev-tooling vulnerabilities were resolved on `fix/qa-devops-audit-review`; rerun audit during T6 merge retest.

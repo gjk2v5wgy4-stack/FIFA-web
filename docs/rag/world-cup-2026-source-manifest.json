@@ -1,0 +1,131 @@
+{
+  "manifestId": "wc2026_rag_source_manifest_2026_06_10",
+  "generatedAt": "2026-06-10T00:00:00+08:00",
+  "competition": "FIFA World Cup 2026",
+  "qualifiedTeamsSource": {
+    "sourceName": "FIFA - Qualified teams for the FIFA World Cup 2026",
+    "sourceUrl": "https://www.fifa.com/en/articles/world-cup-2026-who-has-qualified?searchOverlay=1",
+    "capturedAt": "2026-06-10T00:00:00+08:00",
+    "reliability": "official"
+  },
+  "qualifiedTeams": [
+    { "teamName": "Canada", "confederation": "Co-host" },
+    { "teamName": "Mexico", "confederation": "Co-host" },
+    { "teamName": "USA", "confederation": "Co-host" },
+    { "teamName": "Australia", "confederation": "AFC" },
+    { "teamName": "Iraq", "confederation": "AFC" },
+    { "teamName": "IR Iran", "confederation": "AFC" },
+    { "teamName": "Japan", "confederation": "AFC" },
+    { "teamName": "Jordan", "confederation": "AFC" },
+    { "teamName": "Korea Republic", "confederation": "AFC" },
+    { "teamName": "Qatar", "confederation": "AFC" },
+    { "teamName": "Saudi Arabia", "confederation": "AFC" },
+    { "teamName": "Uzbekistan", "confederation": "AFC" },
+    { "teamName": "Algeria", "confederation": "CAF" },
+    { "teamName": "Cabo Verde", "confederation": "CAF" },
+    { "teamName": "Congo DR", "confederation": "CAF" },
+    { "teamName": "Côte d'Ivoire", "confederation": "CAF" },
+    { "teamName": "Egypt", "confederation": "CAF" },
+    { "teamName": "Ghana", "confederation": "CAF" },
+    { "teamName": "Morocco", "confederation": "CAF" },
+    { "teamName": "Senegal", "confederation": "CAF" },
+    { "teamName": "South Africa", "confederation": "CAF" },
+    { "teamName": "Tunisia", "confederation": "CAF" },
+    { "teamName": "Curaçao", "confederation": "Concacaf" },
+    { "teamName": "Haiti", "confederation": "Concacaf" },
+    { "teamName": "Panama", "confederation": "Concacaf" },
+    { "teamName": "Argentina", "confederation": "CONMEBOL" },
+    { "teamName": "Brazil", "confederation": "CONMEBOL" },
+    { "teamName": "Colombia", "confederation": "CONMEBOL" },
+    { "teamName": "Ecuador", "confederation": "CONMEBOL" },
+    { "teamName": "Paraguay", "confederation": "CONMEBOL" },
+    { "teamName": "Uruguay", "confederation": "CONMEBOL" },
+    { "teamName": "New Zealand", "confederation": "OFC" },
+    { "teamName": "Austria", "confederation": "UEFA" },
+    { "teamName": "Belgium", "confederation": "UEFA" },
+    { "teamName": "Bosnia and Herzegovina", "confederation": "UEFA" },
+    { "teamName": "Croatia", "confederation": "UEFA" },
+    { "teamName": "Czechia", "confederation": "UEFA" },
+    { "teamName": "England", "confederation": "UEFA" },
+    { "teamName": "France", "confederation": "UEFA" },
+    { "teamName": "Germany", "confederation": "UEFA" },
+    { "teamName": "Netherlands", "confederation": "UEFA" },
+    { "teamName": "Norway", "confederation": "UEFA" },
+    { "teamName": "Portugal", "confederation": "UEFA" },
+    { "teamName": "Scotland", "confederation": "UEFA" },
+    { "teamName": "Spain", "confederation": "UEFA" },
+    { "teamName": "Sweden", "confederation": "UEFA" },
+    { "teamName": "Switzerland", "confederation": "UEFA" },
+    { "teamName": "Türkiye", "confederation": "UEFA" }
+  ],
+  "sourceCatalog": [
+    {
+      "sourceName": "FIFA qualified teams",
+      "sourceUrl": "https://www.fifa.com/en/articles/world-cup-2026-who-has-qualified?searchOverlay=1",
+      "sourceType": "official_release",
+      "recommendedFor": ["qualified_teams", "qualification_status", "team_scope"],
+      "coverageStatus": "public_core"
+    },
+    {
+      "sourceName": "FIFA groups and tie-breakers",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+      "sourceType": "official_release",
+      "recommendedFor": ["groups", "knockout_qualification_rules", "tie_breakers"],
+      "coverageStatus": "public_core"
+    },
+    {
+      "sourceName": "FIFA match schedule",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/updated-fifa-world-cup-2026-match-schedule-now-available?searchOverlay=1",
+      "sourceType": "official_release",
+      "recommendedFor": ["fixtures", "venues", "kickoff_times"],
+      "coverageStatus": "public_core"
+    },
+    {
+      "sourceName": "FIFA/Coca-Cola Men's World Ranking",
+      "sourceUrl": "https://inside.fifa.com/fifa-world-ranking/men",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["opponent_strength", "ranking_snapshot"],
+      "coverageStatus": "public_core"
+    },
+    {
+      "sourceName": "StatsBomb Open Data",
+      "sourceUrl": "https://github.com/statsbomb/open-data",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["event_schema_reference", "xg_reference", "open_data_examples"],
+      "coverageStatus": "public_partial"
+    },
+    {
+      "sourceName": "Sportradar Soccer API",
+      "sourceUrl": "https://developer.sportradar.com/soccer/reference/soccer-overview",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["fixtures", "lineups", "match_statistics", "injuries", "odds_if_licensed"],
+      "coverageStatus": "licensed_api"
+    },
+    {
+      "sourceName": "SkillCorner Football",
+      "sourceUrl": "https://skillcorner.com/sports/football",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["xy_tracking", "physical_data", "high_intensity_runs", "sprints"],
+      "coverageStatus": "licensed_api"
+    },
+    {
+      "sourceName": "The Odds API",
+      "sourceUrl": "https://the-odds-api.com/",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["market_prices", "historical_market_snapshots", "implied_probability"],
+      "coverageStatus": "paid_api_for_historical"
+    }
+  ],
+  "fieldCoveragePolicy": {
+    "public_core": "Can be collected from official or openly documented sources with source URL.",
+    "public_partial": "May be public for some matches or competitions; missing values must remain null.",
+    "licensed_api": "Requires provider credentials or paid data contract.",
+    "requires_modeling": "Must be computed from validated event/tracking data and model version must be recorded.",
+    "paid_api_for_historical": "Requires paid or metered API access for historical market movement."
+  },
+  "safetyPolicy": {
+    "marketDataUse": "Market prices are context only.",
+    "forbiddenOutput": ["guaranteed_outcome", "market_action_recommendation", "follow_market_instruction"],
+    "requiredOutput": ["probability_analysis", "risk_factors", "uncertainty", "model_basis", "citations"]
+  }
+}

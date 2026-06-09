@@ -290,12 +290,6 @@ button {
   white-space: nowrap;
 }
 
-.match-selection-hint {
-  margin: -4px 0 0;
-  color: #5d6b65;
-  font-size: 13px;
-}
-
 .eyebrow {
   margin: 0 0 8px;
   color: #0a6747;

@@ -93,7 +93,6 @@ export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
             );
           })}
         </div>
-        <p className="match-selection-hint">点击任意比赛卡片，下方会生成对应的概率预测和胜负分析。</p>
       </section>
 
       <ResultPreview prediction={selectedPrediction} />

@@ -107,8 +107,23 @@ class PredictionInterfaceTest(unittest.TestCase):
         self.assertIn("probabilities", payload)
         self.assertIn("expectedGoals", payload)
         self.assertIn("scoreDistribution", payload)
+        self.assertIn("confidence", payload)
+        self.assertIn("riskFactors", payload)
+        self.assertIn("keyDrivers", payload)
+        self.assertIn("metering", payload)
+        self.assertIn("estimate", payload["metering"])
+        self.assertGreaterEqual(payload["confidence"], 0.0)
+        self.assertLessEqual(payload["confidence"], 1.0)
+        self.assertGreater(len(payload["riskFactors"]), 0)
+        self.assertGreater(len(payload["keyDrivers"]), 0)
+        self.assertGreater(payload["metering"]["estimate"]["tokens"], 0)
+        self.assertEqual(payload["metering"]["estimate"]["ledgerAction"], "match_prediction")
         self.assertNotIn("usage", payload)
         self.assertAlmostEqual(sum(payload["probabilities"].values()), 1.0)
+        forbidden_terms = ("必中", "稳胜", "稳赚", "必胜", "包中", "投注建议", "跟单")
+        payload_text = str(payload)
+        for term in forbidden_terms:
+            self.assertNotIn(term, payload_text)
 
     def test_what_if_reduces_home_attack_when_key_home_player_is_out(self) -> None:
         baseline = MatchPredictionInput(
@@ -152,6 +167,13 @@ class PredictionInterfaceTest(unittest.TestCase):
             scenario.delta.home_win,
             scenario.scenario.probabilities.home_win - scenario.baseline.probabilities.home_win,
         )
+        payload = scenario.to_api_dict()
+        self.assertIn("confidence", payload)
+        self.assertIn("riskFactors", payload)
+        self.assertIn("keyDrivers", payload)
+        self.assertIn("metering", payload)
+        self.assertIn("estimate", payload["metering"])
+        self.assertEqual(payload["metering"]["estimate"]["ledgerAction"], "what_if_prediction")
 
 
 if __name__ == "__main__":

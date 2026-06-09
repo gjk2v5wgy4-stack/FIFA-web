@@ -102,6 +102,11 @@ class MatchPredictionResult:
     score_distribution: tuple[ScoreProbability, ...]
     monte_carlo: MonteCarloOutcome
     explanations: tuple[str, ...]
+    confidence: float
+    risk_factors: tuple[str, ...]
+    key_drivers: tuple[str, ...]
+    metering_estimate_tokens: int
+    metering_ledger_action: str
 
     def to_api_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -109,7 +114,16 @@ class MatchPredictionResult:
             "modelVersion": self.model_version or MODEL_VERSION,
             "probabilities": self.probabilities.to_api_dict(),
             "expectedGoals": self.expected_goals.to_api_dict(),
+            "confidence": _rounded(self.confidence),
+            "riskFactors": list(self.risk_factors),
+            "keyDrivers": list(self.key_drivers),
             "explanations": list(self.explanations),
+            "metering": {
+                "estimate": {
+                    "tokens": self.metering_estimate_tokens,
+                    "ledgerAction": self.metering_ledger_action,
+                }
+            },
         }
         if self.score_distribution:
             payload["scoreDistribution"] = [
@@ -157,6 +171,15 @@ class WhatIfResult:
             "baseline": self.baseline.probabilities.to_api_dict(),
             "scenario": self.scenario.probabilities.to_api_dict(),
             "delta": self.delta.to_api_dict(),
+            "confidence": _rounded(self.scenario.confidence),
+            "riskFactors": list(self.scenario.risk_factors),
+            "keyDrivers": list(self.scenario.key_drivers),
+            "metering": {
+                "estimate": {
+                    "tokens": 1000,
+                    "ledgerAction": "what_if_prediction",
+                }
+            },
         }
         if self.note:
             payload["note"] = self.note

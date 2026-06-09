@@ -382,6 +382,14 @@ Response `200`:
       "home": 1.42,
       "away": 1.16
     },
+    "confidence": 0.58,
+    "riskFactors": [
+      "Draw probability is material and raises scenario uncertainty."
+    ],
+    "keyDrivers": [
+      "xG profile projects United States at 1.42 and Wales at 1.16 expected goals.",
+      "Elo gap is 62 points before blending with Poisson score probabilities."
+    ],
     "scoreDistribution": [
       {
         "homeGoals": 1,
@@ -389,6 +397,12 @@ Response `200`:
         "probability": 0.12
       }
     ],
+    "metering": {
+      "estimate": {
+        "tokens": 800,
+        "ledgerAction": "match_prediction"
+      }
+    },
     "usage": {
       "tokensCharged": 800,
       "remainingTokens": 76000,
@@ -437,6 +451,19 @@ Response `200`:
       "homeWin": -0.07,
       "draw": 0.02,
       "awayWin": 0.05
+    },
+    "confidence": 0.54,
+    "riskFactors": [
+      "Outcome probabilities are close, so small match events may change the result."
+    ],
+    "keyDrivers": [
+      "Scenario changes reduce the home team's attacking xG profile."
+    ],
+    "metering": {
+      "estimate": {
+        "tokens": 1000,
+        "ledgerAction": "what_if_prediction"
+      }
     },
     "usage": {
       "tokensCharged": 1000,

@@ -27,10 +27,14 @@ tokens, or touch admin approval logic.
 - `probabilities`
 - `expectedGoals`
 - `scoreDistribution` when requested
+- `confidence`
+- `riskFactors`
+- `keyDrivers`
 - `explanations`
+- `metering.estimate`
 
-Usage fields are intentionally omitted. Token charging and ledger writes belong
-to `apps/api`.
+`metering.estimate` is advisory metadata for the API layer. Usage fields,
+token charging, balance updates, and ledger writes belong to `apps/api`.
 
 ## Example
 

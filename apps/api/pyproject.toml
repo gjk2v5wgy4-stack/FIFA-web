@@ -1,0 +1,40 @@
+[project]
+name = "worldcup-ai-prediction-api"
+version = "0.1.0"
+description = "FastAPI backend for World Cup AI prediction MVP"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "pydantic>=2.8.0",
+    "uvicorn[standard]>=0.30.0",
+]
+
+[dependency-groups]
+test = [
+    "httpx>=0.27.0",
+    "pytest>=8.3.0",
+]
+lint = [
+    "ruff>=0.6.0",
+]
+typecheck = [
+    "mypy>=1.11.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP"]
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = []
+files = ["app", "tests"]

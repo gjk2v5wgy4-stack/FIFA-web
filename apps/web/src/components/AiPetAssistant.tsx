@@ -45,7 +45,7 @@ export function AiPetAssistant() {
     <>
       <button
         aria-expanded={isOpen}
-        aria-label="打开AI对话栏"
+        aria-label="打开预测助手对话栏"
         className={`ai-pet${isOpen ? " ai-pet--open" : ""}`}
         onClick={() => setIsOpen((current) => !current)}
         type="button"
@@ -53,20 +53,20 @@ export function AiPetAssistant() {
         <span className="ai-pet__face">
           <Bot aria-hidden="true" size={24} />
         </span>
-        <span>AI助手</span>
+        <span>预测助手</span>
       </button>
 
       <aside
-        aria-label="AI对话栏"
+        aria-label="预测助手对话栏"
         className={`ai-drawer${isOpen ? " ai-drawer--open" : ""}`}
       >
         <div className="ai-drawer__header">
           <div>
-            <p className="eyebrow">AI助手</p>
+            <p className="eyebrow">预测助手</p>
             <h2>赛前数据对话</h2>
           </div>
           <button
-            aria-label="关闭AI对话栏"
+            aria-label="关闭预测助手对话栏"
             className="icon-button icon-button--light"
             onClick={() => setIsOpen(false)}
             type="button"

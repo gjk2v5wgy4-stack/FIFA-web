@@ -71,13 +71,14 @@ QA base commit before reports: `3f6303c`
 
 ## Prediction Engine
 
-- [ ] Confirm probabilities sum to a valid total.
-- [ ] Add or verify `confidence`.
-- [ ] Add or verify `riskFactors`.
-- [ ] Add or verify `keyDrivers`.
-- [ ] Add or verify metering estimate.
-- [ ] Confirm package does not directly deduct tokens.
-- [ ] Confirm no guaranteed prediction wording.
+- [x] Confirm probabilities sum to a valid total on fix branch `fix/qa-prediction-contract`.
+- [x] Add or verify `prediction.confidence` as `low`, `medium`, or `high`.
+- [x] Add or verify `prediction.riskFactors` array.
+- [x] Add or verify `prediction.keyDrivers` array.
+- [x] Add or verify `metering.featureType`, `metering.complexity`, and `metering.estimatedInternalTokens`.
+- [x] Confirm package does not directly deduct tokens.
+- [x] Confirm no guaranteed prediction wording in tested outputs.
+- [ ] T6 automatic QA retest confirms final PASS.
 
 ## DevOps
 

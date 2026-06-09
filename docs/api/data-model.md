@@ -322,6 +322,22 @@ Required `metadata`:
 | `ai_usage_log_id` | uuid/string | Nullable |
 | `created_at` | timestamptz | Required |
 
+`result` for match predictions must preserve the QA contract fields returned by
+the prediction adapter:
+
+- `prediction.homeWinProbability`, `prediction.drawProbability`, and
+  `prediction.awayWinProbability`, with probability mass close to 1.
+- `prediction.expectedGoals`.
+- `prediction.scorelineProbabilities[]` with `score` and valid `probability`.
+- `prediction.confidence` as `low`, `medium`, or `high`.
+- `prediction.riskFactors[]` and `prediction.keyDrivers[]`.
+- `metering.featureType`, `metering.complexity`, and
+  `metering.estimatedInternalTokens`.
+
+Prediction model output and metering estimates do not write token ledger rows.
+Actual token deduction remains the responsibility of backend token quota and
+metering services.
+
 ### reports
 
 | Field | Type | Notes |

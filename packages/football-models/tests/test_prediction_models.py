@@ -104,11 +104,38 @@ class PredictionInterfaceTest(unittest.TestCase):
 
         self.assertEqual(payload["matchId"], "match_001")
         self.assertEqual(payload["modelVersion"], "football-models-0.1.0")
-        self.assertIn("probabilities", payload)
-        self.assertIn("expectedGoals", payload)
-        self.assertIn("scoreDistribution", payload)
+        self.assertIn("prediction", payload)
+        self.assertIn("metering", payload)
+        prediction = payload["prediction"]
+        self.assertIn(prediction["confidence"], {"low", "medium", "high"})
+        self.assertIsInstance(prediction["riskFactors"], list)
+        self.assertIsInstance(prediction["keyDrivers"], list)
+        self.assertIn("expectedGoals", prediction)
+        self.assertIn("scorelineProbabilities", prediction)
+        self.assertAlmostEqual(
+            prediction["homeWinProbability"]
+            + prediction["drawProbability"]
+            + prediction["awayWinProbability"],
+            1.0,
+        )
+        self.assertTrue(
+            all(0.0 <= row["probability"] <= 1.0 for row in prediction["scorelineProbabilities"])
+        )
+        self.assertEqual(payload["metering"]["featureType"], "match_full_prediction")
+        self.assertIn(payload["metering"]["complexity"], {"basic", "standard", "advanced"})
+        self.assertGreater(payload["metering"]["estimatedInternalTokens"], 0)
         self.assertNotIn("usage", payload)
-        self.assertAlmostEqual(sum(payload["probabilities"].values()), 1.0)
+        forbidden_terms = (
+            "\u5fc5\u4e2d",
+            "\u7a33\u8d62",
+            "\u7a33\u8d5a",
+            "\u7a33\u80dc",
+            "\u6295\u6ce8\u5efa\u8bae",
+            "\u4fdd\u8bc1\u547d\u4e2d",
+        )
+        payload_text = str(payload)
+        for term in forbidden_terms:
+            self.assertNotIn(term, payload_text)
 
     def test_what_if_reduces_home_attack_when_key_home_player_is_out(self) -> None:
         baseline = MatchPredictionInput(
@@ -152,6 +179,13 @@ class PredictionInterfaceTest(unittest.TestCase):
             scenario.delta.home_win,
             scenario.scenario.probabilities.home_win - scenario.baseline.probabilities.home_win,
         )
+        payload = scenario.to_api_dict()
+        self.assertIn("baseline", payload)
+        self.assertIn("adjusted", payload)
+        self.assertIn("delta", payload)
+        self.assertIn("metering", payload)
+        self.assertEqual(payload["metering"]["featureType"], "what_if_simulation")
+        self.assertGreater(payload["metering"]["estimatedInternalTokens"], 0)
 
 
 if __name__ == "__main__":

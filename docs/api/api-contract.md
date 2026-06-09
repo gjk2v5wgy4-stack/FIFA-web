@@ -373,22 +373,34 @@ Response `200`:
     "predictionId": "pred_001",
     "matchId": "match_001",
     "modelVersion": "football-models-0.1.0",
-    "probabilities": {
-      "homeWin": 0.43,
-      "draw": 0.28,
-      "awayWin": 0.29
+    "prediction": {
+      "homeWinProbability": 0.43,
+      "drawProbability": 0.28,
+      "awayWinProbability": 0.29,
+      "expectedGoals": {
+        "home": 1.42,
+        "away": 1.16
+      },
+      "scorelineProbabilities": [
+        {
+          "score": "1-1",
+          "probability": 0.12
+        }
+      ],
+      "confidence": "medium",
+      "riskFactors": [
+        "Draw probability is material and raises scenario uncertainty."
+      ],
+      "keyDrivers": [
+        "xG profile projects the home side at 1.42 and the away side at 1.16 expected goals.",
+        "Elo and Poisson score probabilities are blended for a probability estimate."
+      ]
     },
-    "expectedGoals": {
-      "home": 1.42,
-      "away": 1.16
+    "metering": {
+      "featureType": "match_full_prediction",
+      "complexity": "standard",
+      "estimatedInternalTokens": 800
     },
-    "scoreDistribution": [
-      {
-        "homeGoals": 1,
-        "awayGoals": 1,
-        "probability": 0.12
-      }
-    ],
     "usage": {
       "tokensCharged": 800,
       "remainingTokens": 76000,
@@ -428,7 +440,7 @@ Response `200`:
       "draw": 0.28,
       "awayWin": 0.29
     },
-    "scenario": {
+    "adjusted": {
       "homeWin": 0.36,
       "draw": 0.3,
       "awayWin": 0.34
@@ -437,6 +449,11 @@ Response `200`:
       "homeWin": -0.07,
       "draw": 0.02,
       "awayWin": 0.05
+    },
+    "metering": {
+      "featureType": "what_if_simulation",
+      "complexity": "standard",
+      "estimatedInternalTokens": 1000
     },
     "usage": {
       "tokensCharged": 1000,
@@ -484,6 +501,11 @@ Response `200`:
         "groupWinnerProbability": 0.42
       }
     ],
+    "metering": {
+      "featureType": "group_simulation",
+      "complexity": "standard",
+      "estimatedInternalTokens": 1500
+    },
     "usage": {
       "tokensCharged": 1500,
       "remainingTokens": 73500,

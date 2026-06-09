@@ -119,3 +119,127 @@ export interface RagUsage {
   model: string;
   usageSource: RagUsageSource;
 }
+
+export interface LiveTeamRef {
+  teamId?: string | null;
+  name: string;
+}
+
+export interface LiveMatchClock {
+  minute?: number | null;
+  addedTime?: number | null;
+  period?: string | null;
+  status: string;
+}
+
+export interface LiveSidePair {
+  home: number;
+  away: number;
+}
+
+export interface LiveMatchEvent {
+  type: string;
+  minute?: number | null;
+  teamId?: string | null;
+  playerId?: string | null;
+  description: string;
+}
+
+export interface LiveMarketContext {
+  source?: string | null;
+  capturedAt?: string | null;
+  status: string;
+  usage: "market_context_only";
+  fullTimeMoneyline: {
+    home?: number | null;
+    draw?: number | null;
+    away?: number | null;
+  };
+  handicap: {
+    homeLine?: string | null;
+    homePrice?: number | null;
+    awayLine?: string | null;
+    awayPrice?: number | null;
+  };
+  total: {
+    line?: string | null;
+    over?: number | null;
+    under?: number | null;
+  };
+}
+
+export interface LiveMatchSnapshot {
+  matchId: string;
+  competition?: string | null;
+  source?: string | null;
+  observedAt: string;
+  matchClock: LiveMatchClock;
+  score: LiveSidePair;
+  teams: {
+    home: LiveTeamRef;
+    away: LiveTeamRef;
+  };
+  matchEvents: LiveMatchEvent[];
+  stats: {
+    possessionPct: LiveSidePair;
+    shots: LiveSidePair;
+    shotsOnTarget: LiveSidePair;
+    xG: LiveSidePair;
+    redCards: LiveSidePair;
+    yellowCards: LiveSidePair;
+  };
+  market: LiveMarketContext;
+  safety: {
+    allowedUse: "risk_analysis_only";
+    prohibitedUse: string[];
+    notice: string;
+  };
+}
+
+export interface LiveSnapshotChanges {
+  matchId: string;
+  previousObservedAt: string;
+  currentObservedAt: string;
+  scoreChanged: boolean;
+  scoreDelta: LiveSidePair;
+  eventFlags: string[];
+  marketMovements: Array<{
+    field: string;
+    previous: number;
+    current: number;
+    delta: number;
+  }>;
+  statDeltas: {
+    xG: LiveSidePair;
+    shots: LiveSidePair;
+    shotsOnTarget: LiveSidePair;
+  };
+  safety: {
+    marketUsage: "context_only";
+    restrictedActions: string[];
+  };
+}
+
+export interface LiveMatchRiskReport {
+  status: "risk_analysis_only";
+  summary: string;
+  evidenceQuality: {
+    level: "medium" | "limited";
+    missing: string[];
+  };
+  riskFactors: string[];
+  marketContext: string;
+  score: LiveSidePair;
+  changes: LiveSnapshotChanges | null;
+  safetyNotice: string;
+  restrictedActions: string[];
+  citations: Array<{
+    index: number;
+    documentId: string;
+    title: string;
+    sourceType: RagSourceType;
+    publishedAt: string;
+    metadata: Record<string, unknown>;
+  }>;
+  questionReceived?: string | null;
+}

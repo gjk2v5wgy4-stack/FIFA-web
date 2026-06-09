@@ -3,6 +3,13 @@ export { cosineSimilarity, deterministicEmbedder, embedTextDeterministic } from 
 export { ingestDocument } from "./ingestion/index.js";
 export { buildCitations } from "./citations/index.js";
 export { buildRagPrompt, estimateRagUsage } from "./prompting/index.js";
+export {
+  buildLiveMatchRiskReport,
+  buildLiveSnapshotRagDocument,
+  createLiveSnapshotPoller,
+  detectLiveSnapshotChanges,
+  normalizeLiveMatchSnapshot
+} from "./live/index.js";
 export { retrieveContext } from "./retrieval/index.js";
 export { askWithRag } from "./retrieval/ask-with-rag.js";
 export { identityRerank } from "./reranking/index.js";

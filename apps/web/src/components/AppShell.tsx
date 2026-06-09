@@ -43,7 +43,7 @@ export function AppShell({
         <div className="brand-mark" aria-label="World Cup AI Prediction">
           <span className="brand-mark__icon">AI</span>
           <span>
-            <strong>WorldCup AI</strong>
+            <strong>2026世界杯预测ragAI</strong>
             <small>Football intelligence</small>
           </span>
         </div>

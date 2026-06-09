@@ -1,0 +1,47 @@
+[project]
+name = "worldcup-ai-prediction-api"
+version = "0.1.0"
+description = "FastAPI backend for World Cup AI prediction MVP"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.16.0",
+    "email-validator>=2.2.0",
+    "fastapi>=0.116.0",
+    "httpx>=0.28.0",
+    "psycopg[binary]>=3.2.0",
+    "pydantic-settings>=2.10.0",
+    "python-multipart>=0.0.20",
+    "redis>=6.0.0",
+    "sqlalchemy>=2.0.40",
+    "uvicorn[standard]>=0.35.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16.0",
+    "pytest>=8.4.0",
+    "pytest-cov>=6.2.0",
+    "ruff>=0.11.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+packages = ["app"]
+ignore_missing_imports = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+

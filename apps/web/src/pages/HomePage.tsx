@@ -1,94 +1,67 @@
-import { CalendarDays, Clock3, LogIn, MapPin, UserPlus } from "lucide-react";
+import { CalendarDays, Clock3, MapPin } from "lucide-react";
 import { ResultPreview } from "../components/ResultPreview";
-import type { MatchPredictionStub, TodayMatchStub } from "../services/apiStubs";
+import type { MatchPredictionStub } from "../services/apiStubs";
+import type { TournamentMatchStub } from "../services/worldCupSchedule";
 
 interface HomePageProps {
   prediction: MatchPredictionStub | null;
-  todayMatches: TodayMatchStub[];
-  onOpenLogin: () => void;
-  onOpenRegister: () => void;
+  tournamentMatches: TournamentMatchStub[];
 }
 
-export function HomePage({
-  prediction,
-  todayMatches,
-  onOpenLogin,
-  onOpenRegister,
-}: HomePageProps) {
-  const checkedAt = new Date();
-  const checkedDate = checkedAt.toLocaleDateString("zh-CN", {
-    dateStyle: "full",
+function formatMatchDate(kickoffAt: string) {
+  return new Date(kickoffAt).toLocaleDateString("zh-CN", {
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
   });
-  const checkedTime = checkedAt.toLocaleTimeString("zh-CN", {
+}
+
+function formatMatchTime(kickoffAt: string) {
+  return new Date(kickoffAt).toLocaleTimeString("zh-CN", {
     hour: "2-digit",
     minute: "2-digit",
   });
-  const statusLabels: Record<TodayMatchStub["status"], string> = {
-    scheduled: "待开赛",
-    live: "进行中",
-    finished: "已结束",
-    postponed: "延期",
-    cancelled: "取消",
-  };
+}
 
+export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
   return (
     <div className="page-stack">
-      <div className="page-top-actions" aria-label="账号操作">
-        <button className="secondary-button" onClick={onOpenLogin} type="button">
-          <LogIn aria-hidden="true" size={16} />
-          登录
-        </button>
-        <button className="primary-button" onClick={onOpenRegister} type="button">
-          <UserPlus aria-hidden="true" size={16} />
-          注册
-        </button>
-      </div>
-
-      <section className="today-schedule" aria-label="今日赛程">
-        <div className="today-schedule__header">
+      <section
+        aria-label="6月13日至7月20日比赛信息"
+        className="tournament-schedule"
+      >
+        <div className="tournament-schedule__header">
           <div>
-            <p className="eyebrow">Today Schedule</p>
-            <h1>今日赛程</h1>
+            <p className="eyebrow">Full Schedule</p>
+            <h1>6月13日 - 7月20日赛程</h1>
           </div>
-          <div className="schedule-check">
-            <span>
-              <CalendarDays aria-hidden="true" size={18} />
-              {checkedDate}
-            </span>
-            <span>
-              <Clock3 aria-hidden="true" size={18} />
-              校对时间 {checkedTime}
-            </span>
-          </div>
+          <span>{tournamentMatches.length} 场比赛</span>
         </div>
-        <div className="schedule-summary">今日共 {todayMatches.length} 场比赛</div>
-        <div className="schedule-list">
-          {todayMatches.map((match, index) => (
-            <article className="schedule-card" key={match.matchId}>
-              <span className="schedule-card__index">第 {index + 1} 场</span>
-              <div>
+
+        <div className="tournament-carousel" aria-label="可左右滑动查看全部比赛">
+          {tournamentMatches.map((match) => (
+            <article className="tournament-card" key={match.matchId}>
+              <div className="tournament-card__time">
+                <span>
+                  <CalendarDays aria-hidden="true" size={16} />
+                  {formatMatchDate(match.kickoffAt)}
+                </span>
                 <strong>
-                  {match.homeTeam.name} <span>vs</span> {match.awayTeam.name}
-                </strong>
-                <small>
-                  {match.homeTeam.code} - {match.awayTeam.code}
-                </small>
-              </div>
-              <div className="schedule-card__meta">
-                <span>
                   <Clock3 aria-hidden="true" size={16} />
-                  {new Date(match.kickoffAt).toLocaleTimeString("zh-CN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-                <span>
-                  <MapPin aria-hidden="true" size={16} />
-                  {match.venue}
-                </span>
-                <span>
-                  {match.group} 组 · {statusLabels[match.status]}
-                </span>
+                  {formatMatchTime(match.kickoffAt)}
+                </strong>
+              </div>
+
+              <div className="tournament-card__teams">
+                <span>{match.homeTeam}</span>
+                <strong>vs</strong>
+                <span>{match.awayTeam}</span>
+              </div>
+
+              <div className="tournament-card__region">
+                <MapPin aria-hidden="true" size={16} />
+                <span>{match.region}</span>
+                <small>{match.stage}</small>
               </div>
             </article>
           ))}

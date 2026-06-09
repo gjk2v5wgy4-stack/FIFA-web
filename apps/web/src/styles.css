@@ -155,7 +155,7 @@ button {
 .dashboard-hero__content,
 .cover-preview,
 .result-preview,
-.today-schedule,
+.tournament-schedule,
 .workflow-panel,
 .auth-panel,
 .auth-side,
@@ -173,91 +173,113 @@ button {
   padding: 34px;
 }
 
-.today-schedule {
+.tournament-schedule {
   display: grid;
-  gap: 18px;
-  padding: 24px;
+  gap: 16px;
+  padding: 18px;
 }
 
-.today-schedule__header {
+.tournament-schedule__header {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
-  align-items: flex-start;
-}
-
-.today-schedule h1 {
-  margin-bottom: 0;
-  font-size: 34px;
-  line-height: 1.08;
-}
-
-.schedule-check {
-  display: grid;
-  gap: 8px;
-  min-width: 260px;
-}
-
-.schedule-check span,
-.schedule-card__meta span {
-  display: inline-flex;
+  gap: 16px;
   align-items: center;
-  gap: 8px;
-  color: #40504a;
 }
 
-.schedule-summary {
-  width: fit-content;
-  padding: 8px 12px;
+.tournament-schedule h1 {
+  margin-bottom: 0;
+  font-size: 24px;
+  line-height: 1.14;
+}
+
+.tournament-schedule__header > span {
+  flex: 0 0 auto;
+  padding: 7px 10px;
   border-radius: 8px;
   background: #e7f3ec;
   color: #0a6747;
+  font-size: 13px;
   font-weight: 800;
 }
 
-.schedule-list {
-  display: grid;
+.tournament-carousel {
+  display: flex;
   gap: 12px;
+  overflow-x: auto;
+  padding: 2px 2px 10px;
+  scroll-snap-type: x mandatory;
+  scrollbar-color: #aebbb4 transparent;
 }
 
-.schedule-card {
+.tournament-card {
   display: grid;
-  grid-template-columns: 86px minmax(180px, 1fr) minmax(260px, 1.2fr);
-  gap: 14px;
-  align-items: center;
+  flex: 0 0 224px;
+  gap: 12px;
+  align-content: start;
+  min-height: 184px;
   padding: 14px;
   border: 1px solid #dce3d7;
   border-radius: 8px;
   background: #fbfcfa;
+  scroll-snap-align: start;
 }
 
-.schedule-card__index {
+.tournament-card__time,
+.tournament-card__teams,
+.tournament-card__region {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tournament-card__time span,
+.tournament-card__time strong,
+.tournament-card__region {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.tournament-card__time span {
   color: #0a6747;
   font-size: 13px;
   font-weight: 800;
 }
 
-.schedule-card strong,
-.schedule-card small {
-  display: block;
+.tournament-card__time strong {
+  color: #17201c;
+  font-size: 20px;
 }
 
-.schedule-card strong span {
+.tournament-card__teams {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.tournament-card__teams strong {
   color: #d94f30;
   font-size: 13px;
+  text-transform: uppercase;
 }
 
-.schedule-card small {
-  margin-top: 4px;
+.tournament-card__teams span,
+.tournament-card__region span {
+  overflow-wrap: anywhere;
+}
+
+.tournament-card__region {
+  margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px solid #dce3d7;
   color: #65726c;
+  font-size: 13px;
 }
 
-.schedule-card__meta {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 10px;
-  font-size: 13px;
+.tournament-card__region small {
+  margin-left: auto;
+  color: #0a6747;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .eyebrow {
@@ -888,17 +910,12 @@ h2 {
     display: grid;
   }
 
-  .today-schedule__header,
-  .schedule-card {
+  .tournament-schedule__header {
     grid-template-columns: 1fr;
   }
 
-  .today-schedule__header {
+  .tournament-schedule__header {
     display: grid;
-  }
-
-  .schedule-card__meta {
-    justify-content: flex-start;
   }
 
   .admin-table {

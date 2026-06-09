@@ -55,6 +55,18 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
   const leader = outcomeCards.reduce((currentLeader, row) =>
     row.value > currentLeader.value ? row : currentLeader,
   );
+  const analysisTarget =
+    prediction.probabilities.homeWin >= prediction.probabilities.awayWin
+      ? {
+          side: "主队",
+          team: prediction.homeTeam,
+          title: homeTeam.name,
+        }
+      : {
+          side: "客队",
+          team: prediction.awayTeam,
+          title: awayTeam.name,
+        };
   const analysisModules = [
     {
       icon: ShieldCheck,
@@ -184,10 +196,13 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
         </div>
       </div>
 
-      <section className="result-analysis" aria-label="胜负分析">
+      <section className="result-analysis" aria-label={`${analysisTarget.title}胜负分析`}>
         <div className="section-heading">
-          <p className="eyebrow">胜负分析</p>
-          <h2>模型关注的关键子模块</h2>
+          <p className="eyebrow">胜负分析 · {analysisTarget.side}</p>
+          <h2 className="result-analysis-title">
+            <TeamDisplayName team={analysisTarget.team} />
+            <span>胜负分析</span>
+          </h2>
         </div>
         <div className="result-analysis-grid">
           {analysisModules.map((module) => {

@@ -874,6 +874,13 @@ h2 {
   margin-top: 24px;
 }
 
+.result-analysis-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
 .result-analysis-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

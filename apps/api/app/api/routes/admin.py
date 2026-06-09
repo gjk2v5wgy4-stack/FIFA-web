@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from sqlalchemy import select
 
 from app.api.deps import AdminUser, DbSession
@@ -8,12 +8,19 @@ from app.api.serializers import (
     usage_contract,
     user_admin_contract,
 )
-from app.models import AdminActionLog, AIUsageLog
+from app.models import AdminActionLog, AIUsageLog, User
+from app.models.access_contracts import UserRecord
 from app.schemas.requests import ApproveUserRequest, ReasonRequest, TokenChangeRequest
 from app.services.admin_user import admin_user_service
 from app.services.token_quota import token_quota_service
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+
+def _require_db_admin(admin: AdminUser) -> User:
+    if isinstance(admin, UserRecord):
+        raise ValueError("Compatibility admin requests must be handled before DB service calls.")
+    return admin
 
 
 @router.get("/users")
@@ -44,12 +51,31 @@ def list_pending_users(admin: AdminUser, session: DbSession) -> dict[str, object
 def approve_user(
     user_id: str,
     payload: ApproveUserRequest,
+    request: Request,
     admin: AdminUser,
     session: DbSession,
 ) -> dict[str, object]:
+    if isinstance(admin, UserRecord):
+        result = request.app.state.compat_services.admin_users.approveUser(
+            adminId=admin.id,
+            userId=user_id,
+            initialTokens=payload.initial_token_grant,
+            lowThreshold=payload.low_balance_threshold,
+            note=payload.reason,
+        )
+        return {
+            "data": {
+                "userId": result.user_id,
+                "status": result.status.value,
+                "adminActionId": result.admin_action_id,
+                "tokenLedgerId": result.token_ledger_id,
+                "tokenBalance": result.token_balance,
+            }
+        }
+    db_admin = _require_db_admin(admin)
     target, action, ledger_id, balance = admin_user_service.approve_user(
         session,
-        admin,
+        db_admin,
         user_id,
         payload.reason,
         payload.initial_token_grant,
@@ -73,9 +99,10 @@ def reject_user(
     admin: AdminUser,
     session: DbSession,
 ) -> dict[str, object]:
+    db_admin = _require_db_admin(admin)
     target, action = admin_user_service.set_status(
         session,
-        admin,
+        db_admin,
         user_id,
         "rejected",
         "reject_user",
@@ -92,9 +119,10 @@ def suspend_user(
     admin: AdminUser,
     session: DbSession,
 ) -> dict[str, object]:
+    db_admin = _require_db_admin(admin)
     target, action = admin_user_service.set_status(
         session,
-        admin,
+        db_admin,
         user_id,
         "suspended",
         "suspend_user",
@@ -111,9 +139,10 @@ def reactivate_user(
     admin: AdminUser,
     session: DbSession,
 ) -> dict[str, object]:
+    db_admin = _require_db_admin(admin)
     target, action = admin_user_service.set_status(
         session,
-        admin,
+        db_admin,
         user_id,
         "approved",
         "reactivate_user",
@@ -130,9 +159,10 @@ def grant_tokens(
     admin: AdminUser,
     session: DbSession,
 ) -> dict[str, object]:
+    db_admin = _require_db_admin(admin)
     action, ledger_id, balance = admin_user_service.change_tokens(
         session,
-        admin,
+        db_admin,
         user_id,
         payload.amount_tokens,
         payload.reason,
@@ -158,9 +188,10 @@ def adjust_tokens(
     admin: AdminUser,
     session: DbSession,
 ) -> dict[str, object]:
+    db_admin = _require_db_admin(admin)
     action, ledger_id, balance = admin_user_service.change_tokens(
         session,
-        admin,
+        db_admin,
         user_id,
         payload.amount_tokens,
         payload.reason,
@@ -187,9 +218,10 @@ def revoke_tokens(
     session: DbSession,
 ) -> dict[str, object]:
     amount = -abs(payload.amount_tokens)
+    db_admin = _require_db_admin(admin)
     action, ledger_id, balance = admin_user_service.change_tokens(
         session,
-        admin,
+        db_admin,
         user_id,
         amount,
         payload.reason,

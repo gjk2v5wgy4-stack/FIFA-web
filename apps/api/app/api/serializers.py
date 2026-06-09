@@ -4,6 +4,7 @@ from typing import Any
 
 from app.core.config import get_settings
 from app.models import AdminActionLog, AIUsageLog, TokenLedger, User
+from app.models.access_contracts import UserRecord
 from app.services.access_control import access_control_service
 from app.services.token_quota import token_quota_service
 
@@ -16,7 +17,7 @@ def iso_utc(value: datetime | None) -> str | None:
     return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
-def user_contract(user: User) -> dict[str, object]:
+def user_contract(user: User | UserRecord) -> dict[str, object]:
     return {
         "userId": user.id,
         "email": user.email,

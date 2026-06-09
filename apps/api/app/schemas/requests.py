@@ -20,10 +20,17 @@ class ReasonRequest(BaseModel):
 
 class ApproveUserRequest(ReasonRequest):
     initial_token_grant: int = Field(default=0, alias="initialTokenGrant", ge=0)
+    low_balance_threshold: int = Field(default=10_000, alias="lowBalanceThreshold", ge=0)
 
 
 class TokenChangeRequest(ReasonRequest):
     amount_tokens: int = Field(alias="amountTokens")
+
+
+class MeteredConsumeRequest(BaseModel):
+    request_id: str = Field(alias="requestId", min_length=1)
+    amount_tokens: int | None = Field(default=None, alias="amountTokens", gt=0)
+    payload: dict[str, Any] = Field(default_factory=dict)
 
 
 class RagAskRequest(BaseModel):

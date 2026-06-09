@@ -1184,6 +1184,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "httpx" },
     { name = "psycopg", extra = ["binary"] },
+    { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-multipart" },
     { name = "redis" },
@@ -1198,6 +1199,16 @@ dev = [
     { name = "pytest-cov" },
     { name = "ruff" },
 ]
+lint = [
+    { name = "ruff" },
+]
+test = [
+    { name = "httpx" },
+    { name = "pytest" },
+]
+typecheck = [
+    { name = "mypy" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -1206,6 +1217,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.116.0" },
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2.0" },
+    { name = "pydantic", specifier = ">=2.8.0" },
     { name = "pydantic-settings", specifier = ">=2.10.0" },
     { name = "python-multipart", specifier = ">=0.0.20" },
     { name = "redis", specifier = ">=6.0.0" },
@@ -1220,3 +1232,9 @@ dev = [
     { name = "pytest-cov", specifier = ">=6.2.0" },
     { name = "ruff", specifier = ">=0.11.0" },
 ]
+lint = [{ name = "ruff", specifier = ">=0.11.0" }]
+test = [
+    { name = "httpx", specifier = ">=0.28.0" },
+    { name = "pytest", specifier = ">=8.4.0" },
+]
+typecheck = [{ name = "mypy", specifier = ">=1.16.0" }]

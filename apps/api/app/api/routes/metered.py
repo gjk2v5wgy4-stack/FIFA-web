@@ -1,14 +1,17 @@
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 from app.api.deps import CurrentUser, DbSession
+from app.core.errors import ApiException
 from app.core.ids import new_id
-from app.models import Prediction, RagQuery, Report
+from app.models import Prediction, RagQuery, Report, User
+from app.models.access_contracts import FeatureType, UserRecord
 from app.schemas.requests import (
     GroupSimulationRequest,
     MatchPredictionRequest,
+    MeteredConsumeRequest,
     RagAskRequest,
     ReportGenerateRequest,
     WhatIfPredictionRequest,
@@ -20,12 +23,89 @@ router = APIRouter(tags=["metered"])
 MODEL_VERSION = "football-models-0.1.0"
 
 
+def _require_db_user(user: CurrentUser) -> User:
+    if isinstance(user, UserRecord):
+        raise ApiException("UNAUTHORIZED", "Bearer authentication is required for this API.", 401)
+    return user
+
+
+@router.post("/features/{feature_type}/consume")
+def consume_feature_tokens(
+    feature_type: str,
+    payload: MeteredConsumeRequest,
+    request: Request,
+    user: CurrentUser,
+    session: DbSession,
+) -> dict[str, object]:
+    try:
+        parsed_feature_type = FeatureType(feature_type)
+    except ValueError as exc:
+        raise ApiException(
+            "VALIDATION_ERROR",
+            "Unsupported feature type.",
+            422,
+            {"featureType": feature_type},
+        ) from exc
+
+    if isinstance(user, UserRecord):
+        services = request.app.state.compat_services
+        amount = payload.amount_tokens or services.tokens.estimateFeatureCost(
+            parsed_feature_type,
+            payload.payload,
+        )
+        result = services.tokens.consumeTokens(
+            userId=user.id,
+            amount=amount,
+            requestId=payload.request_id,
+            featureType=parsed_feature_type,
+        )
+        return {
+            "data": {
+                "tokensCharged": result.tokens_charged,
+                "remainingTokens": result.remaining_tokens,
+                "lowBalance": result.lowTokenWarning,
+                "lowTokenWarning": result.lowTokenWarning,
+                "tokenLedgerId": result.token_ledger_id,
+                "apiUsageLogId": result.api_usage_log_id,
+                "duplicate": result.duplicate,
+            }
+        }
+
+    access_control_service.ensure_metered_access(user)
+    amount = payload.amount_tokens or token_quota_service.estimateFeatureCost(
+        parsed_feature_type,
+        payload.payload,
+    )
+    charge = token_quota_service.charge_for_usage(
+        session,
+        user,
+        parsed_feature_type.value,
+        parsed_feature_type.value,
+        payload.request_id,
+        amount,
+        MODEL_VERSION,
+    )
+    session.commit()
+    return {
+        "data": {
+            "tokensCharged": charge.tokens_charged,
+            "remainingTokens": charge.remaining_tokens,
+            "lowBalance": charge.low_balance,
+            "lowTokenWarning": charge.low_token_warning,
+            "tokenLedgerId": charge.token_ledger_id,
+            "apiUsageLogId": charge.ai_usage_log_id,
+            "duplicate": charge.duplicate,
+        }
+    }
+
+
 @router.post("/rag/ask")
 def ask_rag(payload: RagAskRequest, user: CurrentUser, session: DbSession) -> dict[str, object]:
-    access_control_service.ensure_metered_access(user)
+    db_user = _require_db_user(user)
+    access_control_service.ensure_metered_access(db_user)
     rag_query = RagQuery(
         id=new_id("ragq"),
-        user_id=user.id,
+        user_id=db_user.id,
         question=payload.question,
         answer=(
             "Stub analysis based on available football data. "
@@ -40,7 +120,7 @@ def ask_rag(payload: RagAskRequest, user: CurrentUser, session: DbSession) -> di
     session.flush()
     charge = token_quota_service.charge_for_usage(
         session,
-        user,
+        db_user,
         "rag_query",
         "rag_query",
         rag_query.id,
@@ -74,10 +154,11 @@ def predict_match(
     user: CurrentUser,
     session: DbSession,
 ) -> dict[str, object]:
-    access_control_service.ensure_metered_access(user)
+    db_user = _require_db_user(user)
+    access_control_service.ensure_metered_access(db_user)
     prediction = Prediction(
         id=new_id("pred"),
-        user_id=user.id,
+        user_id=db_user.id,
         prediction_type="match",
         match_id=payload.match_id,
         team_ids=[],
@@ -89,7 +170,7 @@ def predict_match(
     session.flush()
     charge = token_quota_service.charge_for_usage(
         session,
-        user,
+        db_user,
         "match_prediction",
         "prediction",
         prediction.id,
@@ -117,10 +198,11 @@ def predict_what_if(
     user: CurrentUser,
     session: DbSession,
 ) -> dict[str, object]:
-    access_control_service.ensure_metered_access(user)
+    db_user = _require_db_user(user)
+    access_control_service.ensure_metered_access(db_user)
     prediction = Prediction(
         id=new_id("scenario"),
-        user_id=user.id,
+        user_id=db_user.id,
         prediction_type="what_if",
         match_id=payload.match_id,
         team_ids=[],
@@ -132,7 +214,7 @@ def predict_what_if(
     session.flush()
     charge = token_quota_service.charge_for_usage(
         session,
-        user,
+        db_user,
         "what_if_prediction",
         "prediction",
         prediction.id,
@@ -158,10 +240,11 @@ def simulate_group(
     user: CurrentUser,
     session: DbSession,
 ) -> dict[str, object]:
-    access_control_service.ensure_metered_access(user)
+    db_user = _require_db_user(user)
+    access_control_service.ensure_metered_access(db_user)
     prediction = Prediction(
         id=new_id("sim_group"),
-        user_id=user.id,
+        user_id=db_user.id,
         prediction_type="group_simulation",
         match_id=None,
         team_ids=[],
@@ -173,7 +256,7 @@ def simulate_group(
     session.flush()
     charge = token_quota_service.charge_for_usage(
         session,
-        user,
+        db_user,
         "group_simulation",
         "prediction",
         prediction.id,
@@ -207,10 +290,11 @@ def generate_report(
     user: CurrentUser,
     session: DbSession,
 ) -> dict[str, object]:
-    access_control_service.ensure_metered_access(user)
+    db_user = _require_db_user(user)
+    access_control_service.ensure_metered_access(db_user)
     report = Report(
         id=new_id("report"),
-        user_id=user.id,
+        user_id=db_user.id,
         report_type=payload.report_type,
         status="queued",
         context=payload.context,
@@ -224,7 +308,7 @@ def generate_report(
     session.flush()
     charge = token_quota_service.charge_for_usage(
         session,
-        user,
+        db_user,
         "report_generation",
         "report",
         report.id,

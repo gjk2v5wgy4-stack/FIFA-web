@@ -216,3 +216,85 @@ def test_prediction_simulation_and_report_stubs_are_metered(
         assert response.status_code in {200, 202}, response.text
         assert response.json()["data"]["usage"]["tokensCharged"] == expected_charge
 
+
+def test_prediction_contract_exposes_qa_fields(
+    client: TestClient,
+    admin_headers: dict[str, str],
+) -> None:
+    user = register_user(client, email="prediction-contract@example.com")
+    client.post(
+        f"/api/admin/users/{user['userId']}/approve",
+        headers=admin_headers,
+        json={"reason": "Approved.", "initialTokenGrant": 10_000},
+    )
+    headers = auth_headers(client, "prediction-contract@example.com")
+
+    response = client.post(
+        "/api/predictions/match",
+        headers=headers,
+        json={"matchId": "match_001", "options": {"includeScoreDistribution": True}},
+    )
+
+    assert response.status_code == 200, response.text
+    data = response.json()["data"]
+    prediction = data["prediction"]
+    assert prediction["confidence"] in {"low", "medium", "high"}
+    assert isinstance(prediction["riskFactors"], list)
+    assert isinstance(prediction["keyDrivers"], list)
+    assert data["metering"]["featureType"] == "match_full_prediction"
+    assert data["metering"]["complexity"] in {"basic", "standard", "advanced"}
+    assert data["metering"]["estimatedInternalTokens"] > 0
+    assert (
+        prediction["homeWinProbability"]
+        + prediction["drawProbability"]
+        + prediction["awayWinProbability"]
+    ) == 1.0
+    assert all(0.0 <= row["probability"] <= 1.0 for row in prediction["scorelineProbabilities"])
+    forbidden_terms = (
+        "\u5fc5\u4e2d",
+        "\u7a33\u8d62",
+        "\u7a33\u8d5a",
+        "\u7a33\u80dc",
+        "\u6295\u6ce8\u5efa\u8bae",
+        "\u4fdd\u8bc1\u547d\u4e2d",
+    )
+    payload_text = str(data)
+    assert all(term not in payload_text for term in forbidden_terms)
+
+
+def test_what_if_and_group_simulation_contracts_include_metering(
+    client: TestClient,
+    admin_headers: dict[str, str],
+) -> None:
+    user = register_user(client, email="simulation-contract@example.com")
+    client.post(
+        f"/api/admin/users/{user['userId']}/approve",
+        headers=admin_headers,
+        json={"reason": "Approved.", "initialTokenGrant": 10_000},
+    )
+    headers = auth_headers(client, "simulation-contract@example.com")
+
+    what_if = client.post(
+        "/api/predictions/what-if",
+        headers=headers,
+        json={"matchId": "match_001", "scenario": {"homeLineupChanges": []}},
+    )
+    group = client.post(
+        "/api/simulations/group",
+        headers=headers,
+        json={"group": "A", "fixedResults": [], "options": {"iterations": 1000}},
+    )
+
+    assert what_if.status_code == 200, what_if.text
+    what_if_data = what_if.json()["data"]
+    assert {"baseline", "adjusted", "delta", "metering"}.issubset(what_if_data)
+    assert what_if_data["metering"]["featureType"] == "what_if_simulation"
+    assert what_if_data["metering"]["estimatedInternalTokens"] > 0
+
+    assert group.status_code == 200, group.text
+    group_data = group.json()["data"]
+    assert group_data["group"] == "A"
+    assert isinstance(group_data["table"], list)
+    assert group_data["metering"]["featureType"] == "group_simulation"
+    assert group_data["metering"]["estimatedInternalTokens"] > 0
+

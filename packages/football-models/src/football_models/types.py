@@ -70,6 +70,12 @@ class ScoreProbability:
             "probability": _rounded(self.probability),
         }
 
+    def to_scoreline_api_dict(self) -> dict[str, float | str]:
+        return {
+            "score": f"{self.home_goals}-{self.away_goals}",
+            "probability": _rounded(self.probability),
+        }
+
 
 @dataclass(frozen=True)
 class MonteCarloOutcome:
@@ -102,33 +108,37 @@ class MatchPredictionResult:
     score_distribution: tuple[ScoreProbability, ...]
     monte_carlo: MonteCarloOutcome
     explanations: tuple[str, ...]
-    confidence: float
+    confidence: str
     risk_factors: tuple[str, ...]
     key_drivers: tuple[str, ...]
     metering_estimate_tokens: int
-    metering_ledger_action: str
+    metering_feature_type: str
+    metering_complexity: str
 
     def to_api_dict(self) -> dict[str, Any]:
+        probabilities = self.probabilities.to_api_dict()
         payload: dict[str, Any] = {
             "matchId": self.match_id,
             "modelVersion": self.model_version or MODEL_VERSION,
-            "probabilities": self.probabilities.to_api_dict(),
-            "expectedGoals": self.expected_goals.to_api_dict(),
-            "confidence": _rounded(self.confidence),
-            "riskFactors": list(self.risk_factors),
-            "keyDrivers": list(self.key_drivers),
             "explanations": list(self.explanations),
+            "prediction": {
+                "homeWinProbability": probabilities["homeWin"],
+                "drawProbability": probabilities["draw"],
+                "awayWinProbability": probabilities["awayWin"],
+                "expectedGoals": self.expected_goals.to_api_dict(),
+                "scorelineProbabilities": [
+                    score.to_scoreline_api_dict() for score in self.score_distribution
+                ],
+                "confidence": self.confidence,
+                "riskFactors": list(self.risk_factors),
+                "keyDrivers": list(self.key_drivers),
+            },
             "metering": {
-                "estimate": {
-                    "tokens": self.metering_estimate_tokens,
-                    "ledgerAction": self.metering_ledger_action,
-                }
+                "featureType": self.metering_feature_type,
+                "complexity": self.metering_complexity,
+                "estimatedInternalTokens": self.metering_estimate_tokens,
             },
         }
-        if self.score_distribution:
-            payload["scoreDistribution"] = [
-                score.to_api_dict() for score in self.score_distribution
-            ]
         return payload
 
 
@@ -169,16 +179,12 @@ class WhatIfResult:
             "modelVersion": self.scenario.model_version,
             "matchId": self.scenario.match_id,
             "baseline": self.baseline.probabilities.to_api_dict(),
-            "scenario": self.scenario.probabilities.to_api_dict(),
+            "adjusted": self.scenario.probabilities.to_api_dict(),
             "delta": self.delta.to_api_dict(),
-            "confidence": _rounded(self.scenario.confidence),
-            "riskFactors": list(self.scenario.risk_factors),
-            "keyDrivers": list(self.scenario.key_drivers),
             "metering": {
-                "estimate": {
-                    "tokens": 1000,
-                    "ledgerAction": "what_if_prediction",
-                }
+                "featureType": "what_if_simulation",
+                "complexity": "standard",
+                "estimatedInternalTokens": 1000,
             },
         }
         if self.note:

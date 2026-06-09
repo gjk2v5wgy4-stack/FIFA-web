@@ -27,7 +27,7 @@ Merge-to-main recommendation: Do not merge to `main` yet.
 | Backend API | PASS | FastAPI routes, tests, typecheck, lint, and smoke test pass. |
 | Admin Token Access | PASS | Tests cover approval, rejection/suspension blocking, admin role blocking, ledger writes, idempotent consumption, low balance warning, and insufficient token handling. |
 | RAG | PASS | Unit tests and smoke test pass. RAG returns usage and sources/citations and does not directly deduct internal quota. |
-| Prediction Engine | FAIL | Unit tests pass, but package output does not yet expose required `confidence`, `riskFactors`, `keyDrivers`, or metering estimate fields. |
+| Prediction Engine | FAIL_PENDING_T6_RETEST | Fix branch `fix/qa-prediction-contract` now exposes `confidence`, `riskFactors`, `keyDrivers`, and `metering` estimates in prediction outputs. Final PASS remains pending T6 automatic QA. |
 | DevOps | PASS_WITH_ENV_LIMITATION | Static DevOps lint/typecheck pass. Docker config could not run because Docker CLI is unavailable in this environment. |
 
 ## Commands And Results
@@ -119,18 +119,22 @@ Evidence:
 
 ## Prediction Engine
 
-Prediction engine status: FAIL.
+Prediction engine status: FAIL_PENDING_T6_RETEST.
 
 Passing evidence:
 
 - Probability outputs are normalized in tests.
 - Monte Carlo, Poisson, Elo, xG, and what-if behavior have tests or examples.
 - Package does not directly deduct tokens.
+- Fix branch `fix/qa-prediction-contract` adds stable match prediction
+  `prediction.confidence`, `prediction.riskFactors`,
+  `prediction.keyDrivers`, and `metering` fields.
+- What-if output includes `baseline`, `adjusted`, `delta`, and `metering`.
+- Group simulation API output includes `metering`.
 
-Blocking gap:
+Pending verification:
 
-- Current API-ready payload tests explicitly assert no `usage` field.
-- Current package output does not expose required `confidence`, `riskFactors`, `keyDrivers`, or metering estimate fields.
+- T6 must re-run final QA before marking the prediction engine PASS.
 
 ## Frontend
 
@@ -157,7 +161,7 @@ Blocking gap:
 ## Required Before Main Merge
 
 1. Add or scope down the required frontend route/page coverage.
-2. Extend prediction engine output contract with `confidence`, `riskFactors`, `keyDrivers`, and metering estimate, or update the contract if this is intentionally deferred.
+2. Re-run T6 QA against `fix/qa-prediction-contract` or after merging it back into the QA integration branch.
 3. Re-run Docker config check in an environment with Docker CLI.
 4. Address or formally accept the frontend `vitest`/Vite/esbuild audit risk.
 

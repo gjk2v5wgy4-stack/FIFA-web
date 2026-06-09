@@ -59,7 +59,7 @@ def _clamped(value: float, lower: float = 0.0, upper: float = 1.0) -> float:
 def _prediction_confidence(
     probabilities: OutcomeProbabilities,
     monte_carlo: MonteCarloOutcome,
-) -> float:
+) -> str:
     normalized = probabilities.normalized()
     ordered = sorted(
         (normalized.home_win, normalized.draw, normalized.away_win),
@@ -71,11 +71,16 @@ def _prediction_confidence(
         + abs(normalized.draw - monte_carlo.draw_probability)
         + abs(normalized.away_win - monte_carlo.away_win_probability)
     ) / 3
-    return _clamped(
+    score = _clamped(
         0.48 + probability_margin * 0.65 - monte_carlo_gap * 0.8,
         0.25,
         0.90,
     )
+    if score >= 0.70:
+        return "high"
+    if score >= 0.50:
+        return "medium"
+    return "low"
 
 
 def _risk_factors(
@@ -173,5 +178,6 @@ def predict_match(input_data: MatchPredictionInput) -> MatchPredictionResult:
         risk_factors=_risk_factors(probabilities, expected_goals),
         key_drivers=_key_drivers(input_data, probabilities, expected_goals, monte_carlo),
         metering_estimate_tokens=MATCH_PREDICTION_ESTIMATE_TOKENS,
-        metering_ledger_action="match_prediction",
+        metering_feature_type="match_full_prediction",
+        metering_complexity="standard",
     )

@@ -373,35 +373,33 @@ Response `200`:
     "predictionId": "pred_001",
     "matchId": "match_001",
     "modelVersion": "football-models-0.1.0",
-    "probabilities": {
-      "homeWin": 0.43,
-      "draw": 0.28,
-      "awayWin": 0.29
+    "prediction": {
+      "homeWinProbability": 0.43,
+      "drawProbability": 0.28,
+      "awayWinProbability": 0.29,
+      "expectedGoals": {
+        "home": 1.42,
+        "away": 1.16
+      },
+      "scorelineProbabilities": [
+        {
+          "score": "1-1",
+          "probability": 0.12
+        }
+      ],
+      "confidence": "medium",
+      "riskFactors": [
+        "Draw probability is material and raises scenario uncertainty."
+      ],
+      "keyDrivers": [
+        "xG profile projects the home side at 1.42 and the away side at 1.16 expected goals.",
+        "Elo and Poisson score probabilities are blended for a probability estimate."
+      ]
     },
-    "expectedGoals": {
-      "home": 1.42,
-      "away": 1.16
-    },
-    "confidence": 0.58,
-    "riskFactors": [
-      "Draw probability is material and raises scenario uncertainty."
-    ],
-    "keyDrivers": [
-      "xG profile projects United States at 1.42 and Wales at 1.16 expected goals.",
-      "Elo gap is 62 points before blending with Poisson score probabilities."
-    ],
-    "scoreDistribution": [
-      {
-        "homeGoals": 1,
-        "awayGoals": 1,
-        "probability": 0.12
-      }
-    ],
     "metering": {
-      "estimate": {
-        "tokens": 800,
-        "ledgerAction": "match_prediction"
-      }
+      "featureType": "match_full_prediction",
+      "complexity": "standard",
+      "estimatedInternalTokens": 800
     },
     "usage": {
       "tokensCharged": 800,
@@ -442,7 +440,7 @@ Response `200`:
       "draw": 0.28,
       "awayWin": 0.29
     },
-    "scenario": {
+    "adjusted": {
       "homeWin": 0.36,
       "draw": 0.3,
       "awayWin": 0.34
@@ -452,18 +450,10 @@ Response `200`:
       "draw": 0.02,
       "awayWin": 0.05
     },
-    "confidence": 0.54,
-    "riskFactors": [
-      "Outcome probabilities are close, so small match events may change the result."
-    ],
-    "keyDrivers": [
-      "Scenario changes reduce the home team's attacking xG profile."
-    ],
     "metering": {
-      "estimate": {
-        "tokens": 1000,
-        "ledgerAction": "what_if_prediction"
-      }
+      "featureType": "what_if_simulation",
+      "complexity": "standard",
+      "estimatedInternalTokens": 1000
     },
     "usage": {
       "tokensCharged": 1000,
@@ -511,6 +501,11 @@ Response `200`:
         "groupWinnerProbability": 0.42
       }
     ],
+    "metering": {
+      "featureType": "group_simulation",
+      "complexity": "standard",
+      "estimatedInternalTokens": 1500
+    },
     "usage": {
       "tokensCharged": 1500,
       "remainingTokens": 73500,

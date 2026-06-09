@@ -24,17 +24,21 @@ tokens, or touch admin approval logic.
 
 - `matchId`
 - `modelVersion`
-- `probabilities`
-- `expectedGoals`
-- `scoreDistribution` when requested
-- `confidence`
-- `riskFactors`
-- `keyDrivers`
+- `prediction.homeWinProbability`
+- `prediction.drawProbability`
+- `prediction.awayWinProbability`
+- `prediction.expectedGoals`
+- `prediction.scorelineProbabilities`
+- `prediction.confidence`
+- `prediction.riskFactors`
+- `prediction.keyDrivers`
 - `explanations`
-- `metering.estimate`
+- `metering.featureType`
+- `metering.complexity`
+- `metering.estimatedInternalTokens`
 
-`metering.estimate` is advisory metadata for the API layer. Usage fields,
-token charging, balance updates, and ledger writes belong to `apps/api`.
+`metering` is advisory metadata for the API layer. Usage fields, token charging,
+balance updates, and ledger writes belong to `apps/api`.
 
 ## Example
 

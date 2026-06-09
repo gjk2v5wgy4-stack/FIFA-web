@@ -21,6 +21,36 @@ from app.services.token_quota import token_quota_service
 
 router = APIRouter(tags=["metered"])
 MODEL_VERSION = "football-models-0.1.0"
+MATCH_PREDICTION_OUTPUT = {
+    "homeWinProbability": 0.43,
+    "drawProbability": 0.28,
+    "awayWinProbability": 0.29,
+    "expectedGoals": {"home": 1.42, "away": 1.16},
+    "scorelineProbabilities": [{"score": "1-1", "probability": 0.12}],
+    "confidence": "medium",
+    "riskFactors": [
+        "Draw probability is material and raises scenario uncertainty.",
+    ],
+    "keyDrivers": [
+        "xG profile projects the home side at 1.42 and the away side at 1.16 expected goals.",
+        "Elo and Poisson score probabilities are blended for a probability estimate.",
+    ],
+}
+MATCH_PREDICTION_METERING = {
+    "featureType": "match_full_prediction",
+    "complexity": "standard",
+    "estimatedInternalTokens": 800,
+}
+WHAT_IF_METERING = {
+    "featureType": "what_if_simulation",
+    "complexity": "standard",
+    "estimatedInternalTokens": 1000,
+}
+GROUP_SIMULATION_METERING = {
+    "featureType": "group_simulation",
+    "complexity": "standard",
+    "estimatedInternalTokens": 1500,
+}
 
 
 def _require_db_user(user: CurrentUser) -> User:
@@ -163,7 +193,7 @@ def predict_match(
         match_id=payload.match_id,
         team_ids=[],
         input_snapshot=payload.model_dump(by_alias=True),
-        result={"homeWin": 0.43, "draw": 0.28, "awayWin": 0.29},
+        result={"prediction": MATCH_PREDICTION_OUTPUT, "metering": MATCH_PREDICTION_METERING},
         model_version=MODEL_VERSION,
     )
     session.add(prediction)
@@ -184,9 +214,8 @@ def predict_match(
             "predictionId": prediction.id,
             "matchId": payload.match_id,
             "modelVersion": MODEL_VERSION,
-            "probabilities": {"homeWin": 0.43, "draw": 0.28, "awayWin": 0.29},
-            "expectedGoals": {"home": 1.42, "away": 1.16},
-            "scoreDistribution": [{"homeGoals": 1, "awayGoals": 1, "probability": 0.12}],
+            "prediction": MATCH_PREDICTION_OUTPUT,
+            "metering": MATCH_PREDICTION_METERING,
             "usage": charge.to_contract(),
         }
     }
@@ -207,7 +236,12 @@ def predict_what_if(
         match_id=payload.match_id,
         team_ids=[],
         input_snapshot=payload.model_dump(by_alias=True),
-        result={"homeWin": 0.36, "draw": 0.30, "awayWin": 0.34},
+        result={
+            "baseline": {"homeWin": 0.43, "draw": 0.28, "awayWin": 0.29},
+            "adjusted": {"homeWin": 0.36, "draw": 0.30, "awayWin": 0.34},
+            "delta": {"homeWin": -0.07, "draw": 0.02, "awayWin": 0.05},
+            "metering": WHAT_IF_METERING,
+        },
         model_version=MODEL_VERSION,
     )
     session.add(prediction)
@@ -227,8 +261,9 @@ def predict_what_if(
         "data": {
             "scenarioId": prediction.id,
             "baseline": {"homeWin": 0.43, "draw": 0.28, "awayWin": 0.29},
-            "scenario": {"homeWin": 0.36, "draw": 0.30, "awayWin": 0.34},
+            "adjusted": {"homeWin": 0.36, "draw": 0.30, "awayWin": 0.34},
             "delta": {"homeWin": -0.07, "draw": 0.02, "awayWin": 0.05},
+            "metering": WHAT_IF_METERING,
             "usage": charge.to_contract(),
         }
     }
@@ -249,7 +284,7 @@ def simulate_group(
         match_id=None,
         team_ids=[],
         input_snapshot=payload.model_dump(by_alias=True),
-        result={"group": payload.group},
+        result={"group": payload.group, "metering": GROUP_SIMULATION_METERING},
         model_version=MODEL_VERSION,
     )
     session.add(prediction)
@@ -279,6 +314,7 @@ def simulate_group(
                     "groupWinnerProbability": 0.42,
                 }
             ],
+            "metering": GROUP_SIMULATION_METERING,
             "usage": charge.to_contract(),
         }
     }

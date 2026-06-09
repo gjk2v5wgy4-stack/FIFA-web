@@ -7,12 +7,12 @@ import {
   Users,
   WalletCards,
 } from "lucide-react";
+import { TeamDisplayName } from "../components/TeamDisplayName";
 import type {
   AccountStatusSummary,
   MatchPredictionStub,
   TokenSummary,
 } from "../services/apiStubs";
-import { formatTeamDisplay } from "../services/teamDisplay";
 
 interface MatchesPageProps {
   onOpenMatch: () => void;
@@ -75,11 +75,15 @@ export function MatchesPage({ onOpenMatch, prediction }: MatchesPageProps) {
           <div className="section-heading">
             <p className="eyebrow">Featured Match</p>
             <h2>
-              {prediction
-                ? `${formatTeamDisplay(prediction.homeTeam)} 对阵 ${formatTeamDisplay(
-                    prediction.awayTeam,
-                  )}`
-                : "加载比赛 stub..."}
+              {prediction ? (
+                <span className="inline-match-title">
+                  <TeamDisplayName team={prediction.homeTeam} />
+                  <strong>对阵</strong>
+                  <TeamDisplayName team={prediction.awayTeam} />
+                </span>
+              ) : (
+                "加载比赛 stub..."
+              )}
             </h2>
           </div>
           <p className="muted">
@@ -189,15 +193,20 @@ export function ReportsPage({ prediction }: { prediction: MatchPredictionStub | 
         <FileText aria-hidden="true" size={24} />
         <h2>赛前报告预览</h2>
         <p className="muted">
-          {prediction
-            ? `${formatTeamDisplay(prediction.homeTeam)} 对阵 ${formatTeamDisplay(
-                prediction.awayTeam,
-              )}，主队胜率 ${formatPercent(
-                prediction.probabilities.homeWin,
-              )}，平局概率 ${formatPercent(prediction.probabilities.draw)}，客队胜率 ${formatPercent(
-                prediction.probabilities.awayWin,
-              )}。`
-            : "加载报告 stub..."}
+          {prediction ? (
+            <>
+              <TeamDisplayName team={prediction.homeTeam} />
+              <span> 对阵 </span>
+              <TeamDisplayName team={prediction.awayTeam} />
+              <span>
+                ，主队胜率 {formatPercent(prediction.probabilities.homeWin)}，平局概率{" "}
+                {formatPercent(prediction.probabilities.draw)}，客队胜率{" "}
+                {formatPercent(prediction.probabilities.awayWin)}。
+              </span>
+            </>
+          ) : (
+            "加载报告 stub..."
+          )}
         </p>
       </section>
     </div>

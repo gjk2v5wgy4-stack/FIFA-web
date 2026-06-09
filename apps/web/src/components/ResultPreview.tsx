@@ -11,8 +11,9 @@ import {
   ShieldCheck,
   UsersRound,
 } from "lucide-react";
+import { TeamDisplayName } from "./TeamDisplayName";
 import type { MatchPredictionStub } from "../services/apiStubs";
-import { formatTeamDisplay } from "../services/teamDisplay";
+import { getTeamDisplay } from "../services/teamDisplay";
 
 interface ResultPreviewProps {
   prediction: MatchPredictionStub | null;
@@ -27,12 +28,13 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
     return <section className="result-preview result-preview--loading">加载中...</section>;
   }
 
-  const homeTeam = formatTeamDisplay(prediction.homeTeam);
-  const awayTeam = formatTeamDisplay(prediction.awayTeam);
+  const homeTeam = getTeamDisplay(prediction.homeTeam);
+  const awayTeam = getTeamDisplay(prediction.awayTeam);
   const outcomeCards = [
     {
       label: "主队胜率",
-      title: homeTeam,
+      title: homeTeam.name,
+      team: prediction.homeTeam,
       value: prediction.probabilities.homeWin,
       tone: "green",
     },
@@ -44,7 +46,8 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
     },
     {
       label: "客队胜率",
-      title: awayTeam,
+      title: awayTeam.name,
+      team: prediction.awayTeam,
       value: prediction.probabilities.awayWin,
       tone: "amber",
     },
@@ -129,19 +132,20 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
     <section className="result-preview" aria-label="预测结果预览">
       <div className="section-heading">
         <p className="eyebrow">概率预测</p>
-        <h2>预测结果展示</h2>
       </div>
       <div className="match-title match-title--large">
-        <span>{homeTeam}</span>
+        <TeamDisplayName team={prediction.homeTeam} />
         <strong>对阵</strong>
-        <span>{awayTeam}</span>
+        <TeamDisplayName team={prediction.awayTeam} />
       </div>
 
       <div className="outcome-summary">
         <div className="outcome-summary__lead">
           <Activity aria-hidden="true" size={20} />
           <span>当前倾向</span>
-          <strong>{leader.title}</strong>
+          <strong>
+            {leader.team ? <TeamDisplayName team={leader.team} /> : leader.title}
+          </strong>
         </div>
         <div className="outcome-grid">
           {outcomeCards.map((row) => (
@@ -153,7 +157,7 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
             >
               <span>{row.label}</span>
               <strong>{formatPercent(row.value)}</strong>
-              <small>{row.title}</small>
+              <small>{row.team ? <TeamDisplayName team={row.team} /> : row.title}</small>
               <div className="mini-meter">
                 <span style={{ width: formatPercent(row.value) }} />
               </div>

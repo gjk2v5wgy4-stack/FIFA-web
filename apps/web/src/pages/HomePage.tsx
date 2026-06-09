@@ -1,8 +1,9 @@
 import { CalendarDays, Clock3, MapPin } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ResultPreview } from "../components/ResultPreview";
+import { TeamDisplayName } from "../components/TeamDisplayName";
 import type { MatchPredictionStub } from "../services/apiStubs";
-import { formatTeamDisplay, getVenueDisplay } from "../services/teamDisplay";
+import { getVenueDisplay } from "../services/teamDisplay";
 import {
   createPredictionFromSchedule,
   type TournamentMatchStub,
@@ -79,9 +80,9 @@ export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
                 </div>
 
                 <div className="tournament-card__teams">
-                  <span>{formatTeamDisplay(match.homeTeam)}</span>
+                  <TeamDisplayName team={match.homeTeam} />
                   <strong>对阵</strong>
-                  <span>{formatTeamDisplay(match.awayTeam)}</span>
+                  <TeamDisplayName team={match.awayTeam} />
                 </div>
 
                 <div className="tournament-card__region">

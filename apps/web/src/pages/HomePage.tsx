@@ -1,5 +1,4 @@
 import { LogIn, UserPlus } from "lucide-react";
-import { CoverPreview } from "../components/CoverPreview";
 import { ResultPreview } from "../components/ResultPreview";
 import type { MatchPredictionStub } from "../services/apiStubs";
 
@@ -26,10 +25,6 @@ export function HomePage({
           注册
         </button>
       </div>
-
-      <section className="dashboard-hero">
-        <CoverPreview />
-      </section>
 
       <ResultPreview prediction={prediction} />
     </div>

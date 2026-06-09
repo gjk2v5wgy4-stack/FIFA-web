@@ -4,7 +4,15 @@ import { AdminPage } from "./pages/AdminPage";
 import { AuthPage } from "./pages/AuthPage";
 import { HomePage } from "./pages/HomePage";
 import { PredictionPage } from "./pages/PredictionPage";
-import { routeFromHash, routeToHash, type RouteId } from "./routes";
+import {
+  AccessPage,
+  AccountPage,
+  EntityDetailPage,
+  MatchesPage,
+  ReportsPage,
+  SimulatorPage,
+} from "./pages/RouteCoveragePages";
+import { routeFromLocation, routeToPath, type RouteId, type RouteMatch } from "./routes";
 import {
   getAccountStatus,
   getAdminUsers,
@@ -17,17 +25,31 @@ import {
 } from "./services/apiStubs";
 
 export function App() {
-  const [route, setRoute] = useState<RouteId>(() => routeFromHash(window.location.hash));
+  const [route, setRoute] = useState<RouteMatch>(() =>
+    routeFromLocation(window.location.pathname, window.location.hash),
+  );
   const [accountStatus, setAccountStatus] = useState<AccountStatusSummary | null>(null);
   const [tokenSummary, setTokenSummary] = useState<TokenSummary | null>(null);
   const [prediction, setPrediction] = useState<MatchPredictionStub | null>(null);
   const [adminUsers, setAdminUsers] = useState<AdminUserStub[]>([]);
 
   useEffect(() => {
-    const handleHashChange = () => setRoute(routeFromHash(window.location.hash));
-    window.addEventListener("hashchange", handleHashChange);
+    const handleLocationChange = () =>
+      setRoute(routeFromLocation(window.location.pathname, window.location.hash));
 
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    const handleHashChange = () => {
+      const nextRoute = routeFromLocation(window.location.pathname, window.location.hash);
+      window.history.replaceState({}, "", routeToPath(nextRoute.id));
+      setRoute(nextRoute);
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    window.addEventListener("popstate", handleLocationChange);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+      window.removeEventListener("popstate", handleLocationChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -55,24 +77,51 @@ export function App() {
   }, []);
 
   const navigate = (nextRoute: RouteId) => {
-    window.location.hash = routeToHash(nextRoute);
-    setRoute(nextRoute);
+    const nextPath = routeToPath(nextRoute);
+    window.history.pushState({}, "", nextPath);
+    setRoute(routeFromLocation(nextPath, ""));
   };
 
   return (
-    <AppShell activeRoute={route} onNavigate={navigate}>
-      {route === "home" && (
+    <AppShell activeRoute={route.id} onNavigate={navigate}>
+      {route.id === "home" && (
         <HomePage
           accountStatus={accountStatus}
-          onOpenPrediction={() => navigate("prediction")}
+          onOpenPrediction={() => navigate("matchDetail")}
           prediction={prediction}
           tokenSummary={tokenSummary}
         />
       )}
-      {route === "login" && <AuthPage mode="login" />}
-      {route === "register" && <AuthPage mode="register" />}
-      {route === "prediction" && <PredictionPage prediction={prediction} />}
-      {route === "admin" && <AdminPage users={adminUsers} />}
+      {route.id === "matches" && (
+        <MatchesPage onOpenMatch={() => navigate("matchDetail")} prediction={prediction} />
+      )}
+      {route.id === "matchDetail" && <PredictionPage prediction={prediction} />}
+      {route.id === "teamDetail" && (
+        <EntityDetailPage
+          entityId={route.params.teamId}
+          prediction={prediction}
+          type="team"
+        />
+      )}
+      {route.id === "playerDetail" && (
+        <EntityDetailPage
+          entityId={route.params.playerId}
+          prediction={prediction}
+          type="player"
+        />
+      )}
+      {route.id === "groupSimulator" && <SimulatorPage mode="group" />}
+      {route.id === "knockoutSimulator" && <SimulatorPage mode="knockout" />}
+      {route.id === "reports" && <ReportsPage prediction={prediction} />}
+      {route.id === "access" && (
+        <AccessPage accountStatus={accountStatus} tokenSummary={tokenSummary} />
+      )}
+      {route.id === "account" && (
+        <AccountPage accountStatus={accountStatus} tokenSummary={tokenSummary} />
+      )}
+      {route.id === "login" && <AuthPage mode="login" />}
+      {route.id === "register" && <AuthPage mode="register" />}
+      {route.id === "admin" && <AdminPage users={adminUsers} />}
     </AppShell>
   );
 }

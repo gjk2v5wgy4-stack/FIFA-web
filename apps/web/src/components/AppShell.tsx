@@ -1,10 +1,12 @@
 import {
   BarChart3,
   CheckCircle2,
+  FileText,
   Home,
-  LogIn,
+  Layers,
+  ListChecks,
   ShieldCheck,
-  UserPlus,
+  UserCircle,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import type { RouteId } from "../routes";
@@ -21,10 +23,13 @@ const navItems: Array<{
   icon: typeof Home;
 }> = [
   { route: "home", label: "首页", icon: Home },
-  { route: "login", label: "登录", icon: LogIn },
-  { route: "register", label: "注册", icon: UserPlus },
-  { route: "prediction", label: "预测结果", icon: BarChart3 },
-  { route: "admin", label: "审批后台", icon: ShieldCheck },
+  { route: "matches", label: "比赛", icon: ListChecks },
+  { route: "groupSimulator", label: "模拟器", icon: Layers },
+  { route: "reports", label: "报告", icon: FileText },
+  { route: "access", label: "访问", icon: ShieldCheck },
+  { route: "account", label: "账户", icon: UserCircle },
+  { route: "matchDetail", label: "概率预测", icon: BarChart3 },
+  { route: "admin", label: "后台", icon: ShieldCheck },
 ];
 
 export function AppShell({

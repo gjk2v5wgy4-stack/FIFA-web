@@ -723,6 +723,44 @@ h2 {
   gap: 8px;
 }
 
+.coverage-grid,
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.status-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.info-panel,
+.status-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 22px;
+  border: 1px solid #dce3d7;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.info-panel svg,
+.status-card svg {
+  color: #1a6fb3;
+}
+
+.info-panel h2,
+.status-card h2,
+.status-card p {
+  margin: 0;
+}
+
+.status-card p {
+  color: #5d6b65;
+  line-height: 1.6;
+}
+
 @media (max-width: 980px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -748,7 +786,9 @@ h2 {
   .dashboard-hero,
   .two-column,
   .auth-layout,
-  .insight-grid {
+  .insight-grid,
+  .coverage-grid,
+  .status-grid {
     grid-template-columns: 1fr;
   }
 

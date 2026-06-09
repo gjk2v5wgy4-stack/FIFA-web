@@ -317,5 +317,14 @@ export async function getAdminUsers(): Promise<AdminUserStub[]> {
       requestedAt: "2026-06-08T08:10:00Z",
       availableActions: ["reactivate_user", "adjust_tokens"],
     },
+    {
+      userId: "user_rejected",
+      email: "rejected@example.com",
+      displayName: "已拒绝申请用户",
+      status: "rejected",
+      tokenBalance: 0,
+      requestedAt: "2026-06-07T14:20:00Z",
+      availableActions: ["reactivate_user"],
+    },
   ];
 }

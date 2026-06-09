@@ -47,6 +47,7 @@ export function AppShell({
             <small>Football intelligence</small>
           </span>
         </div>
+        <div className="nav-section-title">功能区</div>
         <nav className="nav-list">
           {navItems.map((item) => {
             const Icon = item.icon;

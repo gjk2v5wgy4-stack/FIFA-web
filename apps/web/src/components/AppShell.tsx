@@ -42,7 +42,7 @@ export function AppShell({
     <div className="app-shell">
       <aside className="sidebar" aria-label="主导航">
         <div className="brand-mark" aria-label="World Cup AI Prediction">
-          <span className="brand-mark__icon">AI</span>
+          <span className="brand-mark__icon">FIFA</span>
           <span>
             <strong>2026世界杯预测ragAI</strong>
             <small>赛前数据智能</small>

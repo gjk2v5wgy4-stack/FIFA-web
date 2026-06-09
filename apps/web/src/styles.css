@@ -54,12 +54,13 @@ button {
 .brand-mark__icon {
   display: grid;
   flex: 0 0 auto;
-  width: 40px;
+  width: 46px;
   height: 40px;
   place-items: center;
   border-radius: 8px;
   background: #0b7a53;
   color: #ffffff;
+  font-size: 13px;
   font-weight: 800;
 }
 

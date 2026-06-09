@@ -1,0 +1,4 @@
+MODEL_VERSION = "football-models-0.1.0"
+
+MIN_EXPECTED_GOALS = 0.05
+MAX_EXPECTED_GOALS = 5.0

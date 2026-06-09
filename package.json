@@ -1,0 +1,13 @@
+{
+  "name": "worldcup-ai-prediction",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "node scripts/quality/lint.mjs",
+    "typecheck": "node scripts/quality/typecheck.mjs",
+    "test": "node --test packages/rag-core/tests/*.test.js",
+    "rag:dry-run": "node scripts/rag/sample-ingestion-dry-run.mjs",
+    "rag:smoke": "node scripts/rag/retrieval-smoke-test.mjs"
+  }
+}

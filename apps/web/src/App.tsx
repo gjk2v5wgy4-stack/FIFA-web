@@ -17,10 +17,12 @@ import {
   getAccountStatus,
   getAdminUsers,
   getMatchPrediction,
+  getTodayMatches,
   getTokenSummary,
   type AccountStatusSummary,
   type AdminUserStub,
   type MatchPredictionStub,
+  type TodayMatchStub,
   type TokenSummary,
 } from "./services/apiStubs";
 
@@ -31,6 +33,7 @@ export function App() {
   const [accountStatus, setAccountStatus] = useState<AccountStatusSummary | null>(null);
   const [tokenSummary, setTokenSummary] = useState<TokenSummary | null>(null);
   const [prediction, setPrediction] = useState<MatchPredictionStub | null>(null);
+  const [todayMatches, setTodayMatches] = useState<TodayMatchStub[]>([]);
   const [adminUsers, setAdminUsers] = useState<AdminUserStub[]>([]);
 
   useEffect(() => {
@@ -59,8 +62,9 @@ export function App() {
       getAccountStatus(),
       getTokenSummary(),
       getMatchPrediction("match_001"),
+      getTodayMatches(),
       getAdminUsers(),
-    ]).then(([nextStatus, nextTokens, nextPrediction, nextUsers]) => {
+    ]).then(([nextStatus, nextTokens, nextPrediction, nextMatches, nextUsers]) => {
       if (!isCurrent) {
         return;
       }
@@ -68,6 +72,7 @@ export function App() {
       setAccountStatus(nextStatus);
       setTokenSummary(nextTokens);
       setPrediction(nextPrediction);
+      setTodayMatches(nextMatches);
       setAdminUsers(nextUsers);
     });
 
@@ -89,6 +94,7 @@ export function App() {
           onOpenLogin={() => navigate("login")}
           onOpenRegister={() => navigate("register")}
           prediction={prediction}
+          todayMatches={todayMatches}
         />
       )}
       {route.id === "matches" && (

@@ -1,0 +1,87 @@
+# Manual Verification Checklist
+
+Branch: `feature/06-qa-integration`
+
+QA base commit before reports: `3f6303c`
+
+## Merge Gate
+
+- [ ] Do not merge to `main` until frontend route coverage is resolved or formally descoped.
+- [ ] Do not merge to `main` until prediction output contract gaps are resolved or formally descoped.
+- [ ] Run `docker compose config` on a machine with Docker CLI.
+- [ ] Review frontend npm audit findings and decide whether to upgrade `vitest` before main merge.
+
+## Functional Verification
+
+- [ ] Register a new user and confirm status is `pending_approval`.
+- [ ] Confirm pending user can log in but cannot call RAG/prediction/simulation/report APIs.
+- [ ] Admin approves user and grants initial tokens.
+- [ ] Approved user can call RAG/prediction/simulation/report APIs when balance is sufficient.
+- [ ] Rejected and suspended users cannot call metered APIs.
+- [ ] Insufficient token balance returns `INSUFFICIENT_TOKENS`.
+- [ ] Low balance returns `lowTokenWarning=true`.
+- [ ] Token grants, adjustments, revokes, and consumption create `token_ledger` entries.
+- [ ] Metered API calls create `api_usage_logs`.
+- [ ] Admin approval/token actions create `admin_action_logs`.
+- [ ] Non-admin users receive `FORBIDDEN` on admin routes.
+
+## API Contract
+
+- [ ] `POST /api/auth/register`
+- [ ] `POST /api/auth/login`
+- [ ] `GET /api/auth/me`
+- [ ] `GET /api/account/access-status`
+- [ ] `GET /api/account/tokens`
+- [ ] `GET /api/account/usage`
+- [ ] `GET /api/admin/users`
+- [ ] `GET /api/admin/users/pending`
+- [ ] `POST /api/admin/users/:userId/approve`
+- [ ] `POST /api/admin/users/:userId/reject`
+- [ ] `POST /api/admin/users/:userId/suspend`
+- [ ] `POST /api/admin/users/:userId/reactivate`
+- [ ] `POST /api/admin/users/:userId/tokens/grant`
+- [ ] `POST /api/admin/users/:userId/tokens/adjust`
+- [ ] `GET /api/admin/users/:userId/usage`
+- [ ] `GET /api/admin/users/:userId/token-ledger`
+- [ ] `GET /api/admin/audit-logs`
+- [ ] `GET /api/matches`
+- [ ] `GET /api/matches/:matchId`
+- [ ] `GET /api/teams/:teamId`
+- [ ] `GET /api/players/:playerId`
+- [ ] `POST /api/rag/ask`
+- [ ] `POST /api/predictions/match`
+- [ ] `POST /api/predictions/what-if`
+- [ ] `POST /api/simulations/group`
+- [ ] `POST /api/reports/generate`
+
+## Frontend
+
+- [ ] Add or verify `/`.
+- [ ] Add or verify `/matches`.
+- [ ] Add or verify `/matches/[matchId]`.
+- [ ] Add or verify `/teams/[teamId]`.
+- [ ] Add or verify `/players/[playerId]`.
+- [ ] Add or verify `/simulator/group`.
+- [ ] Add or verify `/simulator/knockout`.
+- [ ] Add or verify `/reports`.
+- [ ] Add or verify `/access`.
+- [ ] Add or verify `/account`.
+- [ ] Add or verify `/admin`.
+- [ ] Confirm no UI text offers Stripe, self-service recharge, checkout, automatic payment, betting advice, or guaranteed outcomes.
+
+## Prediction Engine
+
+- [ ] Confirm probabilities sum to a valid total.
+- [ ] Add or verify `confidence`.
+- [ ] Add or verify `riskFactors`.
+- [ ] Add or verify `keyDrivers`.
+- [ ] Add or verify metering estimate.
+- [ ] Confirm package does not directly deduct tokens.
+- [ ] Confirm no guaranteed prediction wording.
+
+## DevOps
+
+- [ ] Run `docker compose config`.
+- [ ] Confirm local-dev documentation covers admin approval and token quota workflow.
+- [ ] Confirm seed/admin setup is documented.
+- [ ] Confirm `.env.example` uses placeholders only.

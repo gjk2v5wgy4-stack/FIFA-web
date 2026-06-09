@@ -216,7 +216,7 @@ button {
   flex: 0 0 224px;
   gap: 12px;
   align-content: start;
-  min-height: 184px;
+  min-height: 226px;
   padding: 14px;
   border: 1px solid #dce3d7;
   border-radius: 8px;
@@ -235,7 +235,8 @@ button {
 
 .tournament-card__time,
 .tournament-card__teams,
-.tournament-card__region {
+.tournament-card__region,
+.tournament-card__weather {
   display: grid;
   gap: 6px;
   min-width: 0;
@@ -243,7 +244,8 @@ button {
 
 .tournament-card__time span,
 .tournament-card__time strong,
-.tournament-card__region {
+.tournament-card__region,
+.tournament-card__weather {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -288,6 +290,25 @@ button {
   color: #0a6747;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.tournament-card__weather {
+  flex-wrap: wrap;
+  padding: 8px;
+  border-radius: 8px;
+  background: #e7f3ec;
+  color: #0a6747;
+  font-size: 12px;
+}
+
+.tournament-card__weather span {
+  font-weight: 800;
+}
+
+.tournament-card__weather small {
+  color: #40504a;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .team-display,

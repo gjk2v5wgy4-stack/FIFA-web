@@ -1,9 +1,10 @@
-import { CalendarDays, Clock3, MapPin } from "lucide-react";
-import { useMemo, useState } from "react";
+import { CalendarDays, CloudSun, Clock3, MapPin } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { ResultPreview } from "../components/ResultPreview";
 import { TeamDisplayName } from "../components/TeamDisplayName";
 import type { MatchPredictionStub } from "../services/apiStubs";
 import { getVenueDisplay } from "../services/teamDisplay";
+import { createMatchWeatherForecast } from "../services/weatherForecast";
 import {
   createPredictionFromSchedule,
   type TournamentMatchStub,
@@ -33,6 +34,7 @@ function formatMatchTime(kickoffAt: string) {
 
 export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  const [weatherRefreshedAt, setWeatherRefreshedAt] = useState(() => new Date());
   const selectedMatch =
     tournamentMatches.find((match) => match.matchId === selectedMatchId) ??
     tournamentMatches[0] ??
@@ -41,6 +43,14 @@ export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
     () => (selectedMatch ? createPredictionFromSchedule(selectedMatch) : prediction),
     [prediction, selectedMatch],
   );
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setWeatherRefreshedAt(new Date());
+    }, 60 * 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   return (
     <div className="page-stack">
@@ -59,6 +69,7 @@ export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
         <div className="tournament-carousel" aria-label="左右滑动查看全部比赛">
           {tournamentMatches.map((match) => {
             const isSelected = selectedMatch?.matchId === match.matchId;
+            const weather = createMatchWeatherForecast(match, weatherRefreshedAt);
 
             return (
               <button
@@ -89,6 +100,16 @@ export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
                   <MapPin aria-hidden="true" size={16} />
                   <span>{getVenueDisplay(match.region)}</span>
                   <small>{match.stage}</small>
+                </div>
+
+                <div className="tournament-card__weather" aria-label="天气预测">
+                  <CloudSun aria-hidden="true" size={16} />
+                  <span>
+                    {weather.condition} {weather.temperatureC}°C
+                  </span>
+                  <small>
+                    湿度{weather.humidityPct}% · 风{weather.windKph}km/h
+                  </small>
                 </div>
               </button>
             );

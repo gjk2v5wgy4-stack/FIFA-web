@@ -6,6 +6,9 @@ const [ragDocument, manifest] = await Promise.all([
   readFile("docs/rag/world-cup-2026-national-team-data-rag.md", "utf8"),
   readFile("docs/rag/world-cup-2026-source-manifest.json", "utf8")
 ]);
+const expandedSeeds = JSON.parse(
+  await readFile("docs/rag/world-cup-2026-expanded-web-source-seeds.json", "utf8")
+);
 
 const parsedManifest = JSON.parse(manifest);
 
@@ -42,6 +45,9 @@ console.log(
       chunkCount: result.diagnostics.chunkCount,
       qualifiedTeamCount: parsedManifest.qualifiedTeams.length,
       sourceCount: parsedManifest.sourceCatalog.length,
+      expandedOfficialSourceCount: expandedSeeds.officialCompetitionSources.length,
+      expandedPublicStatsSourceCount: expandedSeeds.publicStatisticsSources.length,
+      expandedLicensedSourceCount: expandedSeeds.licensedDataSources.length,
       firstChunkMetadata: result.chunks[0]?.metadata
     },
     null,

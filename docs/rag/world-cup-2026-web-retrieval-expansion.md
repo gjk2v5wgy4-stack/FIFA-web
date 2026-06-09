@@ -10,7 +10,7 @@
   "teamId": null,
   "playerId": null,
   "matchId": null,
-  "competition": "FIFA World Cup 2026",
+  "competition": "2026 FIFA 世界杯",
   "publishedAt": "2026-06-10T00:00:00+08:00",
   "url": "docs/rag/world-cup-2026-web-retrieval-expansion.md",
   "reliability": "high_for_source_mapping_medium_for_public_data_coverage",
@@ -35,21 +35,21 @@
 
 | 来源 | 用途 | 覆盖状态 |
 | --- | --- | --- |
-| FIFA qualified teams | 48 队范围、资格确认 | public_core |
-| FIFA groups and tie-breakers | 小组规则、出线规则、同分规则 | public_core |
-| FIFA match schedule | 赛程、比赛城市、球场、开球时间 | public_core |
-| FIFA men ranking | 对手强度、排名快照 | public_core |
-| UEFA European Qualifiers | UEFA 世界杯预选赛赛果、积分、比赛页面 | public_core |
-| UEFA Nations League | 欧国联近期正式比赛、比赛技术统计入口 | public_core |
-| CONMEBOL qualifiers | 南美预选赛赛果、积分、比赛入口 | public_core |
-| Copa America | 美洲杯赛程、赛果、球队新闻 | public_core |
-| AFC World Cup Qualifiers | 亚洲区预选赛赛果、积分、比赛入口 | public_core |
-| AFC Asian Cup | 亚洲杯历史/近期正式比赛、球队页 | public_core |
-| CAF World Cup Qualifiers | 非洲区预选赛赛果、分组 | public_core |
-| CAF AFCON | 非洲杯赛程、赛果、球队新闻 | public_core |
-| Concacaf World Cup Qualifiers | 中北美及加勒比预选赛赛程、赛果 | public_core |
-| Concacaf Gold Cup | 金杯赛赛程、赛果、球队新闻 | public_core |
-| OFC competitions | 大洋洲预选赛和国家队比赛入口 | public_core |
+| FIFA 参赛队页面 | 48 队范围、资格确认 | 公开核心数据 |
+| FIFA 小组和同分规则页面 | 小组规则、出线规则、同分规则 | 公开核心数据 |
+| FIFA 赛程页面 | 赛程、比赛城市、球场、开球时间 | 公开核心数据 |
+| FIFA 男足排名 | 对手强度、排名快照 | 公开核心数据 |
+| 欧足联欧洲区预选赛 | 欧足联世界杯预选赛赛果、积分、比赛页面 | 公开核心数据 |
+| 欧国联 | 欧国联近期正式比赛、比赛技术统计入口 | 公开核心数据 |
+| 南美世预赛 | 南美预选赛赛果、积分、比赛入口 | 公开核心数据 |
+| 美洲杯 | 美洲杯赛程、赛果、球队新闻 | 公开核心数据 |
+| 亚足联世界杯预选赛 | 亚洲区预选赛赛果、积分、比赛入口 | 公开核心数据 |
+| 亚洲杯 | 亚洲杯历史/近期正式比赛、球队页 | 公开核心数据 |
+| 非洲世界杯预选赛 | 非洲区预选赛赛果、分组 | 公开核心数据 |
+| 非洲杯 | 非洲杯赛程、赛果、球队新闻 | 公开核心数据 |
+| 中北美及加勒比世界杯预选赛 | 中北美及加勒比预选赛赛程、赛果 | 公开核心数据 |
+| 中北美及加勒比金杯赛 | 金杯赛赛程、赛果、球队新闻 | 公开核心数据 |
+| 大洋洲赛事 | 大洋洲预选赛和国家队比赛入口 | 公开核心数据 |
 
 ## 公开统计与补充来源
 
@@ -66,22 +66,22 @@
 
 | 来源 | 适合字段 | 状态 |
 | --- | --- | --- |
-| Sportradar Soccer API | fixtures, lineups, match statistics, player statistics, injuries, odds packages | licensed_api |
-| Stats Perform / Opta | xG, xGA, non-penalty xG, set-piece xG, fast-break xG, open-play xG, big chances, tactical event data | licensed_api |
+| Sportradar 足球 API | 赛程、阵容、比赛统计、球员统计、伤病、授权后赔率数据包 | 需授权 API |
+| Stats Perform / Opta | xG、xGA、非点球 xG、定位球 xG、反击 xG、开放战 xG、重大机会、战术事件数据 | 需授权 API |
 | StatsBomb | xG/event schema reference, selected open-data competitions, commercial event data | public_partial_or_licensed |
-| Wyscout | player/team event data, scouting reports, tactical reports | licensed_api |
-| SkillCorner | tracking, sprint count, high-intensity running, physical load | licensed_api |
-| The Odds API | odds snapshots, bookmaker markets, implied probability inputs | paid_api_for_historical |
+| Wyscout | 球员/球队事件数据、球探报告、战术报告 | 需授权 API |
+| SkillCorner | 跟踪数据、冲刺次数、高强度跑动、体能负荷 | 需授权 API |
+| The Odds API | 赔率快照、博彩公司市场、隐含概率输入 | 历史数据需付费 API |
 | Pinnacle API | odds, market movement if account and terms allow | licensed_or_account_api |
 
 ## 天气、地点、旅行来源
 
 | 来源 | 可采字段 | 状态 |
 | --- | --- | --- |
-| FIFA match schedule | match city, venue, kickoff time | public_core |
-| Open-Meteo historical/forecast APIs | temperature, humidity, wind, weather condition | public_core |
-| OpenStreetMap Nominatim | city/venue geocoding seed | public_core |
-| GeoNames elevation | altitude/elevation seed | public_core |
+| FIFA 赛程页面 | 比赛城市、球场、开球时间 | 公开核心数据 |
+| Open-Meteo 历史/预报 API | 温度、湿度、风速、天气情况 | 公开核心数据 |
+| OpenStreetMap Nominatim | 城市/球场地理编码种子 | 公开核心数据 |
+| GeoNames 海拔数据 | 海拔种子 | 公开核心数据 |
 | Great-circle distance calculation | two-match travel distance after geocoding | computed_from_public_inputs |
 
 ## RAG 入库策略

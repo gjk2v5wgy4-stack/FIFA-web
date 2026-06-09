@@ -28,10 +28,10 @@ const result = await ingestDocument({
     metadata: {
       sourceType: "analysis",
       title: "2026 世界杯国家队数据 RAG 采集说明",
-      competition: "FIFA World Cup 2026",
+      competition: "2026 FIFA 世界杯",
       publishedAt: parsedManifest.generatedAt,
       url: "docs/rag/world-cup-2026-national-team-data-rag.md",
-      reliability: "high_for_schema_medium_for_source_availability",
+      reliability: "高：字段口径明确；中等：来源覆盖不完整",
       language: "zh-CN",
       tags: ["world_cup_2026", "rag", "data_requirements", "national_teams"],
       page: 1
@@ -48,18 +48,18 @@ const usaResult = await ingestDocument({
   document: {
     documentId: "wc2026_team_usa_data_001",
     sourceType: "analysis",
-    title: "USA 2026 World Cup public data sample",
+    title: "美国 2026 世界杯公开数据样本",
     content: usaDocument,
     metadata: {
       sourceType: "analysis",
-      title: "USA 2026 World Cup public data sample",
+      title: "美国 2026 世界杯公开数据样本",
       teamId: "team_usa",
-      competition: "FIFA World Cup 2026",
+      competition: "2026 FIFA 世界杯",
       publishedAt: parsedManifest.generatedAt,
       url: "docs/rag/teams/wc2026-usa-data.md",
-      reliability: "medium_public_sources_cross_checked",
+      reliability: "中等：公开来源已交叉核验",
       language: "zh-CN",
-      tags: ["world_cup_2026", "team_profile", "usa", "public_data"],
+      tags: ["world_cup_2026", "team_profile", "usa", "public_data", "美国"],
       page: 1
     }
   },
@@ -74,17 +74,17 @@ const historicalResult = await ingestDocument({
   document: {
     documentId: "rag_world_cup_historical_matchups_001",
     sourceType: "analysis",
-    title: "World Cup historical matchups sample",
+    title: "世界杯历史对战样本",
     content: historicalDocument,
     metadata: {
       sourceType: "analysis",
-      title: "World Cup historical matchups sample",
-      competition: "FIFA World Cup historical finals",
+      title: "世界杯历史对战样本",
+      competition: "FIFA 世界杯历届正赛",
       publishedAt: parsedManifest.generatedAt,
       url: "docs/rag/historical/world-cup-historical-matchups.md",
-      reliability: "medium_public_sources_cross_checked",
+      reliability: "中等：公开来源已交叉核验",
       language: "zh-CN",
-      tags: ["world_cup", "historical_matchups", "head_to_head", "usa"],
+      tags: ["world_cup", "historical_matchups", "head_to_head", "usa", "美国"],
       page: 1
     }
   },
@@ -97,21 +97,21 @@ const historicalResult = await ingestDocument({
 console.log(
   JSON.stringify(
     {
-      documentId: result.diagnostics.documentId,
-      dryRun: result.diagnostics.dryRun,
-      chunkCount: result.diagnostics.chunkCount,
-      qualifiedTeamCount: parsedManifest.qualifiedTeams.length,
-      sourceCount: parsedManifest.sourceCatalog.length,
-      expandedOfficialSourceCount: expandedSeeds.officialCompetitionSources.length,
-      expandedPublicStatsSourceCount: expandedSeeds.publicStatisticsSources.length,
-      expandedLicensedSourceCount: expandedSeeds.licensedDataSources.length,
-      usaChunkCount: usaResult.diagnostics.chunkCount,
-      usaOfficialSourceCount: usaSeeds.officialSources.length,
-      usaPublicStatsSourceCount: usaSeeds.publicStatsSources.length,
-      historicalChunkCount: historicalResult.diagnostics.chunkCount,
-      historicalUsaGroupDWorldCupH2HCount: historicalSeeds.usaGroupDWorldCupHeadToHead.length,
-      historicalUsaAnchorMatchCount: historicalSeeds.usaHistoricalAnchorMatches.length,
-      firstChunkMetadata: result.chunks[0]?.metadata
+      文档ID: result.diagnostics.documentId,
+      是否DryRun: result.diagnostics.dryRun,
+      国家队数据Chunk数量: result.diagnostics.chunkCount,
+      参赛队数量: parsedManifest.qualifiedTeams.length,
+      基础来源数量: parsedManifest.sourceCatalog.length,
+      扩展官方来源数量: expandedSeeds.officialCompetitionSources.length,
+      扩展公开统计来源数量: expandedSeeds.publicStatisticsSources.length,
+      扩展授权来源数量: expandedSeeds.licensedDataSources.length,
+      美国队Chunk数量: usaResult.diagnostics.chunkCount,
+      美国队官方来源数量: usaSeeds.officialSources.length,
+      美国队公开统计来源数量: usaSeeds.publicStatsSources.length,
+      历史对战Chunk数量: historicalResult.diagnostics.chunkCount,
+      美国D组世界杯历史交锋记录数量: historicalSeeds.usaGroupDWorldCupHeadToHead.length,
+      美国历史世界杯锚点比赛数量: historicalSeeds.usaHistoricalAnchorMatches.length,
+      首个Chunk元数据: result.chunks[0]?.metadata
     },
     null,
     2

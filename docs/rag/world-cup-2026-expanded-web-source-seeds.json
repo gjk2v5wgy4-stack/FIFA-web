@@ -34,7 +34,7 @@
       "recommendedFor": ["nationsLeague", "matchStats", "fixtures", "results"]
     },
     {
-      "name": "CONMEBOL World Cup qualifiers",
+      "name": "南美足联世界杯预选赛",
       "url": "https://www.conmebol.com/eliminatorias-sudamericanas/",
       "recommendedFor": ["conmebolQualifiers", "fixtures", "results", "standings"]
     },
@@ -44,7 +44,7 @@
       "recommendedFor": ["copaAmerica", "fixtures", "results", "teamNews"]
     },
     {
-      "name": "AFC World Cup qualifying",
+      "name": "亚足联世界杯预选赛",
       "url": "https://www.the-afc.com/en/national/fifa_world_cup.html",
       "recommendedFor": ["afcQualifiers", "fixtures", "results", "standings"]
     },
@@ -54,7 +54,7 @@
       "recommendedFor": ["asianCup", "fixtures", "results", "teamNews"]
     },
     {
-      "name": "CAF World Cup qualifiers",
+      "name": "非洲足联世界杯预选赛",
       "url": "https://www.cafonline.com/fifa-world-cup/",
       "recommendedFor": ["cafQualifiers", "fixtures", "results", "standings"]
     },
@@ -64,7 +64,7 @@
       "recommendedFor": ["afcon", "fixtures", "results", "teamNews"]
     },
     {
-      "name": "Concacaf World Cup qualifying",
+      "name": "中北美及加勒比足联世界杯预选赛",
       "url": "https://www.concacaf.com/world-cup-qualifying-men/",
       "recommendedFor": ["concacafQualifiers", "fixtures", "results", "standings"]
     },
@@ -122,19 +122,19 @@
       "name": "Sportradar Soccer API",
       "url": "https://developer.sportradar.com/soccer/reference/soccer-overview",
       "recommendedFor": ["fixtures", "lineups", "statistics", "injuries", "oddsPackages"],
-      "coverageStatus": "licensed_api"
+      "coverageStatus": "需授权 API"
     },
     {
       "name": "Stats Perform Opta",
       "url": "https://www.statsperform.com/opta/",
       "recommendedFor": ["xG", "xGA", "setPieceXG", "openPlayXG", "bigChances", "eventData"],
-      "coverageStatus": "licensed_api"
+      "coverageStatus": "需授权 API"
     },
     {
       "name": "StatsBomb",
       "url": "https://statsbomb.com/",
       "recommendedFor": ["eventData", "xG", "xA", "pressure", "scoutingReports"],
-      "coverageStatus": "licensed_api"
+      "coverageStatus": "需授权 API"
     },
     {
       "name": "StatsBomb Open Data",
@@ -146,20 +146,20 @@
       "name": "Wyscout",
       "url": "https://wyscout.com/",
       "recommendedFor": ["scoutingReports", "eventData", "teamReports", "playerReports"],
-      "coverageStatus": "licensed_api"
+      "coverageStatus": "需授权 API"
     },
     {
       "name": "SkillCorner",
       "url": "https://skillcorner.com/sports/football",
       "recommendedFor": ["tracking", "sprints", "highIntensityRuns", "physicalLoad"],
-      "coverageStatus": "licensed_api"
+      "coverageStatus": "需授权 API"
     }
   ],
   "weatherTravelSources": [
     {
       "name": "Open-Meteo",
       "url": "https://open-meteo.com/",
-      "recommendedFor": ["temperature", "humidity", "wind", "weatherCondition"],
+      "recommendedFor": ["温度", "湿度", "风速", "天气情况"],
       "coverageStatus": "public_api"
     },
     {
@@ -180,7 +180,7 @@
       "name": "The Odds API",
       "url": "https://the-odds-api.com/",
       "recommendedFor": ["oddsSnapshot", "bookmakerMarkets", "impliedProbability"],
-      "coverageStatus": "paid_api_for_historical"
+      "coverageStatus": "历史数据需付费 API"
     },
     {
       "name": "Pinnacle API",

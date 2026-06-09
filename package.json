@@ -1,0 +1,14 @@
+{
+  "name": "worldcup-ai-prediction",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "lint": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/lint.ps1",
+    "typecheck": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/typecheck.ps1",
+    "dev:up": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-up.ps1",
+    "dev:down": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-down.ps1",
+    "dev:init": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-init.ps1",
+    "dev:health": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-health.ps1"
+  }
+}
+

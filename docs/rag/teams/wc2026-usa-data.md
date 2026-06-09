@@ -94,6 +94,15 @@
 - 纪律端：2024 Copa America 对 Panama 的红牌改变比赛走势，该类风险应作为淘汰赛或高压比赛的情境变量。
 - 赛程端：小组赛在 Los Angeles、Seattle、Los Angeles，base camp 在 Irvine，公开信息显示旅行压力相对可控。
 
+## 往年世界杯对战补充
+
+历史世界杯对战数据已单独写入：
+
+- `docs/rag/historical/world-cup-historical-matchups.md`
+- `docs/rag/historical/world-cup-historical-matchups-seeds.json`
+
+美国队与 2026 小组对手的世界杯正赛直接交锋中，当前可核验样本是 1930 年 USA 3-0 Paraguay。Australia 和 Türkiye 的历史交锋应先在 FIFA archive 中核验；若只找到友谊赛、联合会杯或全部赛事 head-to-head，不得写入 World Cup finals head-to-head 表。
+
 ## 需要授权数据源的字段
 
 | 字段 | 状态 | 推荐来源 |

@@ -2,15 +2,19 @@ import { readFile } from "node:fs/promises";
 
 import { ingestDocument } from "../../packages/rag-core/index.js";
 
-const [ragDocument, usaDocument, manifest] = await Promise.all([
+const [ragDocument, usaDocument, historicalDocument, manifest] = await Promise.all([
   readFile("docs/rag/world-cup-2026-national-team-data-rag.md", "utf8"),
   readFile("docs/rag/teams/wc2026-usa-data.md", "utf8"),
+  readFile("docs/rag/historical/world-cup-historical-matchups.md", "utf8"),
   readFile("docs/rag/world-cup-2026-source-manifest.json", "utf8")
 ]);
 const expandedSeeds = JSON.parse(
   await readFile("docs/rag/world-cup-2026-expanded-web-source-seeds.json", "utf8")
 );
 const usaSeeds = JSON.parse(await readFile("docs/rag/teams/wc2026-usa-search-seeds.json", "utf8"));
+const historicalSeeds = JSON.parse(
+  await readFile("docs/rag/historical/world-cup-historical-matchups-seeds.json", "utf8")
+);
 
 const parsedManifest = JSON.parse(manifest);
 
@@ -65,6 +69,31 @@ const usaResult = await ingestDocument({
   }
 });
 
+const historicalResult = await ingestDocument({
+  dryRun: true,
+  document: {
+    documentId: "rag_world_cup_historical_matchups_001",
+    sourceType: "analysis",
+    title: "World Cup historical matchups sample",
+    content: historicalDocument,
+    metadata: {
+      sourceType: "analysis",
+      title: "World Cup historical matchups sample",
+      competition: "FIFA World Cup historical finals",
+      publishedAt: parsedManifest.generatedAt,
+      url: "docs/rag/historical/world-cup-historical-matchups.md",
+      reliability: "medium_public_sources_cross_checked",
+      language: "zh-CN",
+      tags: ["world_cup", "historical_matchups", "head_to_head", "usa"],
+      page: 1
+    }
+  },
+  chunkOptions: {
+    chunkSize: 180,
+    overlap: 25
+  }
+});
+
 console.log(
   JSON.stringify(
     {
@@ -79,6 +108,9 @@ console.log(
       usaChunkCount: usaResult.diagnostics.chunkCount,
       usaOfficialSourceCount: usaSeeds.officialSources.length,
       usaPublicStatsSourceCount: usaSeeds.publicStatsSources.length,
+      historicalChunkCount: historicalResult.diagnostics.chunkCount,
+      historicalUsaGroupDWorldCupH2HCount: historicalSeeds.usaGroupDWorldCupHeadToHead.length,
+      historicalUsaAnchorMatchCount: historicalSeeds.usaHistoricalAnchorMatches.length,
       firstChunkMetadata: result.chunks[0]?.metadata
     },
     null,

@@ -1,0 +1,146 @@
+{
+  "documentId": "rag_world_cup_historical_matchups_001",
+  "generatedAt": "2026-06-10T00:00:00+08:00",
+  "competitionScope": "FIFA World Cup finals only",
+  "sourcePolicy": {
+    "primary": ["FIFA archive", "FIFA tournament history articles"],
+    "secondary": ["ESPN historical match pages"],
+    "excludedAsFacts": ["search snippets", "social posts", "forums"],
+    "nonWorldCupCompetitionsExcluded": ["friendlies", "qualifiers", "Confederations Cup", "continental cups"]
+  },
+  "usaGroupDWorldCupHeadToHead": [
+    {
+      "matchupId": "wc_1930_usa_paraguay",
+      "tournamentYear": 1930,
+      "round": "Group 4",
+      "matchDate": "1930-07-17",
+      "teamAId": "team_usa",
+      "teamAName": "USA",
+      "teamBId": "team_paraguay",
+      "teamBName": "Paraguay",
+      "score": "USA 3-0 Paraguay",
+      "resultForTeamA": "win",
+      "extraTime": false,
+      "penalties": false,
+      "venue": null,
+      "city": "Montevideo",
+      "country": "Uruguay",
+      "sourceUrls": [
+        "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/usa-team-profile-history",
+        "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/usa-paraguay-history",
+        "https://www.espn.com/soccer/match/_/gameId/197178/paraguay-united-states"
+      ],
+      "reliability": "public_cross_checked",
+      "notes": "Bert Patenaude hat-trick; direct historical World Cup finals meeting with 2026 Group D opponent."
+    },
+    {
+      "matchupId": "wc_history_usa_australia_none_found",
+      "teamAId": "team_usa",
+      "teamAName": "USA",
+      "teamBId": "team_australia",
+      "teamBName": "Australia",
+      "worldCupFinalsMeetingsFound": 0,
+      "sourceUrls": [
+        "https://www.fifa.com/en/archive",
+        "https://socceroos.com.au/news/our-head-head-record-against-our-fifa-world-cuptm-2026-group-stage-opponents"
+      ],
+      "reliability": "needs_cross_check",
+      "notes": "All-match head-to-head exists, but no World Cup finals match should be inserted without FIFA archive verification."
+    },
+    {
+      "matchupId": "wc_history_usa_turkiye_none_found",
+      "teamAId": "team_usa",
+      "teamAName": "USA",
+      "teamBId": "team_turkiye",
+      "teamBName": "Türkiye",
+      "worldCupFinalsMeetingsFound": 0,
+      "sourceUrls": [
+        "https://www.fifa.com/en/archive",
+        "https://www.espn.com/soccer/match/_/gameId/760470/united-states-turkiye"
+      ],
+      "reliability": "needs_cross_check",
+      "notes": "2003 Confederations Cup references are not FIFA World Cup finals and must remain excluded from this table."
+    }
+  ],
+  "usaHistoricalAnchorMatches": [
+    {
+      "matchupId": "wc_1930_usa_belgium",
+      "tournamentYear": 1930,
+      "round": "Group 4",
+      "teamAName": "USA",
+      "teamBName": "Belgium",
+      "score": "USA 3-0 Belgium",
+      "resultForTeamA": "win",
+      "sourceUrls": [
+        "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/usa-team-profile-history"
+      ],
+      "reliability": "official"
+    },
+    {
+      "matchupId": "wc_1950_usa_england",
+      "tournamentYear": 1950,
+      "round": "Group stage",
+      "matchDate": "1950-06-29",
+      "teamAName": "USA",
+      "teamBName": "England",
+      "score": "USA 1-0 England",
+      "resultForTeamA": "win",
+      "sourceUrls": [
+        "https://www.fifa.com/en/tournaments/mens/worldcup/articles/glorious-gaetjens-upsets-old-order",
+        "https://www.espn.com/soccer/match/_/gameId/197565/england-united-states"
+      ],
+      "reliability": "public_cross_checked"
+    },
+    {
+      "matchupId": "wc_2002_usa_portugal",
+      "tournamentYear": 2002,
+      "round": "Group stage",
+      "matchDate": "2002-06-05",
+      "teamAName": "USA",
+      "teamBName": "Portugal",
+      "score": "USA 3-2 Portugal",
+      "resultForTeamA": "win",
+      "sourceUrls": [
+        "https://www.fifa.com/en/tournaments/mens/worldcup/articles/usa-portugal-2002",
+        "https://www.espn.com/soccer/match/_/gameId/48823/portugal-united-states"
+      ],
+      "reliability": "public_cross_checked"
+    },
+    {
+      "matchupId": "wc_2002_mexico_usa",
+      "tournamentYear": 2002,
+      "round": "Round of 16",
+      "matchDate": "2002-06-17",
+      "teamAName": "Mexico",
+      "teamBName": "USA",
+      "score": "Mexico 0-2 USA",
+      "resultForTeamA": "loss",
+      "sourceUrls": [
+        "https://www.espn.com/soccer/match/_/gameId/48889/united-states-mexico"
+      ],
+      "reliability": "public_cross_checked"
+    },
+    {
+      "matchupId": "wc_2010_ghana_usa",
+      "tournamentYear": 2010,
+      "round": "Round of 16",
+      "matchDate": "2010-06-26",
+      "teamAName": "Ghana",
+      "teamBName": "USA",
+      "score": "Ghana 2-1 USA",
+      "resultForTeamA": "win",
+      "extraTime": true,
+      "sourceUrls": [
+        "https://www.espn.com/soccer/match/_/gameId/264108/ghana-united-states"
+      ],
+      "reliability": "public_cross_checked"
+    }
+  ],
+  "collectionGuards": [
+    "Only FIFA World Cup finals matches belong in this table.",
+    "Do not merge friendlies, qualifiers, Confederations Cup, or continental cups into World Cup historical head-to-head.",
+    "At least one source URL must be stored with every score.",
+    "Mark no-meeting rows as zero-found seeds, not as hidden facts.",
+    "Do not produce betting advice from historical matchup records."
+  ]
+}

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import type { RouteId } from "../routes";
+import { AiPetAssistant } from "./AiPetAssistant";
 
 interface AppShellProps {
   activeRoute: RouteId;
@@ -44,7 +45,7 @@ export function AppShell({
           <span className="brand-mark__icon">AI</span>
           <span>
             <strong>2026世界杯预测ragAI</strong>
-            <small>Football intelligence</small>
+            <small>赛前数据智能</small>
           </span>
         </div>
         <div className="nav-section-title">功能区</div>
@@ -72,6 +73,7 @@ export function AppShell({
         </div>
       </aside>
       <main className="main-view">{children}</main>
+      <AiPetAssistant />
     </div>
   );
 }

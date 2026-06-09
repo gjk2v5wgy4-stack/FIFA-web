@@ -1,3 +1,6 @@
+import type { MatchPredictionStub } from "./apiStubs";
+import { getTeamDisplay, getVenueDisplay } from "./teamDisplay";
+
 export interface TournamentMatchStub {
   matchId: string;
   stage: string;
@@ -268,4 +271,88 @@ export async function getTournamentSchedule(): Promise<TournamentMatchStub[]> {
     region: fixture.region,
     venue: fixture.region,
   }));
+}
+
+function createSeed(input: string) {
+  return [...input].reduce((sum, character) => sum + character.charCodeAt(0), 0);
+}
+
+function createProbabilities(matchId: string) {
+  const seed = createSeed(matchId);
+  const homeWin = 0.34 + (seed % 17) / 100;
+  const draw = 0.23 + ((seed >> 2) % 8) / 100;
+  const awayWin = Math.max(0.18, 1 - homeWin - draw);
+  const total = homeWin + draw + awayWin;
+
+  return {
+    homeWin: homeWin / total,
+    draw: draw / total,
+    awayWin: awayWin / total,
+  };
+}
+
+export function createPredictionFromSchedule(
+  match: TournamentMatchStub,
+): MatchPredictionStub {
+  const homeTeam = getTeamDisplay(match.homeTeam);
+  const awayTeam = getTeamDisplay(match.awayTeam);
+  const probabilities = createProbabilities(match.matchId);
+  const seed = createSeed(`${match.matchId}-${match.homeTeam}-${match.awayTeam}`);
+
+  return {
+    predictionId: `pred_${match.matchId}`,
+    matchId: match.matchId,
+    modelVersion: "football-models-0.1.0",
+    kickoffAt: match.kickoffAt,
+    venue: getVenueDisplay(match.venue),
+    homeTeam: {
+      teamId: `team_${homeTeam.code.toLowerCase() || "home"}`,
+      name: match.homeTeam,
+      code: homeTeam.code || "主队",
+      form: ["W", "D", "W", "L", "W"],
+    },
+    awayTeam: {
+      teamId: `team_${awayTeam.code.toLowerCase() || "away"}`,
+      name: match.awayTeam,
+      code: awayTeam.code || "客队",
+      form: ["D", "W", "L", "D", "W"],
+    },
+    probabilities,
+    expectedGoals: {
+      home: 1.05 + (seed % 70) / 100,
+      away: 0.92 + ((seed >> 3) % 64) / 100,
+    },
+    scoreDistribution: [
+      { homeGoals: 1, awayGoals: 1, probability: 0.12 },
+      { homeGoals: 2, awayGoals: 1, probability: 0.1 },
+      { homeGoals: 1, awayGoals: 0, probability: 0.09 },
+      { homeGoals: 0, awayGoals: 1, probability: 0.08 },
+    ],
+    explanations: [
+      "概率预测基于近期状态、xG趋势、阵型稳定性和赛前情报。",
+      "主要风险来自阵容临时变化、旅途恢复、场地气候和关键球员健康状况。",
+      "模型输出保留不确定性，需要结合最新球队动态和RAG引用复核。",
+    ],
+    citations: [
+      {
+        documentId: "doc_team_form",
+        chunkId: `${match.matchId}_form`,
+        sourceName: "球队历史表现数据",
+        sourceUrl: "https://source.example.com/team-form",
+        publishedAt: "2026-06-01T00:00:00Z",
+      },
+      {
+        documentId: "doc_match_context",
+        chunkId: `${match.matchId}_context`,
+        sourceName: "比赛环境与阵容动态",
+        sourceUrl: "https://source.example.com/match-context",
+        publishedAt: "2026-06-02T00:00:00Z",
+      },
+    ],
+    usage: {
+      tokensCharged: 800,
+      remainingTokens: 76000,
+      lowBalance: false,
+    },
+  };
 }

@@ -12,6 +12,7 @@ import type {
   MatchPredictionStub,
   TokenSummary,
 } from "../services/apiStubs";
+import { formatTeamDisplay } from "../services/teamDisplay";
 
 interface MatchesPageProps {
   onOpenMatch: () => void;
@@ -75,7 +76,9 @@ export function MatchesPage({ onOpenMatch, prediction }: MatchesPageProps) {
             <p className="eyebrow">Featured Match</p>
             <h2>
               {prediction
-                ? `${prediction.homeTeam.name} vs ${prediction.awayTeam.name}`
+                ? `${formatTeamDisplay(prediction.homeTeam)} 对阵 ${formatTeamDisplay(
+                    prediction.awayTeam,
+                  )}`
                 : "加载比赛 stub..."}
             </h2>
           </div>
@@ -187,9 +190,11 @@ export function ReportsPage({ prediction }: { prediction: MatchPredictionStub | 
         <h2>赛前报告预览</h2>
         <p className="muted">
           {prediction
-            ? `${prediction.homeTeam.name} vs ${prediction.awayTeam.name}，主胜 ${formatPercent(
+            ? `${formatTeamDisplay(prediction.homeTeam)} 对阵 ${formatTeamDisplay(
+                prediction.awayTeam,
+              )}，主队胜率 ${formatPercent(
                 prediction.probabilities.homeWin,
-              )}，平局 ${formatPercent(prediction.probabilities.draw)}，客胜 ${formatPercent(
+              )}，平局概率 ${formatPercent(prediction.probabilities.draw)}，客队胜率 ${formatPercent(
                 prediction.probabilities.awayWin,
               )}。`
             : "加载报告 stub..."}

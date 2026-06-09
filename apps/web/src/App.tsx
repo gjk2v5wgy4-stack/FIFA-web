@@ -86,9 +86,7 @@ export function App() {
     <AppShell activeRoute={route.id} onNavigate={navigate}>
       {route.id === "home" && (
         <HomePage
-          accountStatus={accountStatus}
           onOpenLogin={() => navigate("login")}
-          onOpenPrediction={() => navigate("matchDetail")}
           onOpenRegister={() => navigate("register")}
           prediction={prediction}
         />

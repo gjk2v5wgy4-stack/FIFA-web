@@ -2,29 +2,21 @@
 
 Branch: `feature/06-qa-integration`
 
-QA base commit before reports: `3f6303c`
+Retest base before QA report update: `d797c28`
 
 ## Secret Scan
 
 Status: PASS
 
-Search patterns:
-
-- `OPENAI_API_KEY=`
-- `JWT_SECRET=`
-- `DATABASE_URL=`
-- `STRIPE_SECRET_KEY=`
-- `sk-`
-- `pk_live`
-- `whsec_`
+Broad scan patterns included API key, secret, password, token, private key, `sk-`, `pk_live`, and `whsec_`.
 
 Findings:
 
-- `.env.example` includes placeholder/local values for `DATABASE_URL` and `OPENAI_API_KEY`.
+- `.env.example` and deployment examples include placeholder or local-development values only.
 - `OPENAI_API_KEY=replace_with_local_api_key` is a placeholder.
-- `DATABASE_URL=postgresql://worldcup_app:worldcup_app_dev_password@localhost:5432/worldcup_ai_prediction` is a local example.
+- Local compose defaults such as `worldcup_app_dev_password` and `worldcup_redis_dev_password` are documented local defaults, not live credentials.
 - `sk-` matched `askWithRag`, a false positive.
-- No live secret, private key, Stripe key, webhook secret, or token was found.
+- No live secret, private key, Stripe key, webhook secret, or private token was found.
 
 ## Payment / Checkout Residuals
 
@@ -36,19 +28,13 @@ Stripe, checkout, subscription, billing webhook, and self-service recharge terms
 
 Status: PASS_WITH_CONTEXT
 
-Matches for prohibited wording appear in:
+Matches for prohibited wording appear only in:
 
 - `AGENTS.md`
 - `docs/qa/acceptance-criteria.md`
-- `docs/api/api-contract.md`
-- `docs/rag-core.md`
-- `docs/product/pricing-model.md`
 - `infra/scripts/lint.ps1`
-- `packages/rag-core/safety/index.js`
-- `packages/rag-core/tests/rag-core.test.js`
-- `packages/football-models/README.md`
 
-These are governance rules, safety prompts, tests, or prohibited examples. They are not product UI copy promising guaranteed predictions or providing betting advice.
+These are governance rules, prohibited examples, or lint guardrails. Product UI copy did not introduce guaranteed-prediction or betting-advice wording.
 
 ## Admin Token Model
 
@@ -79,23 +65,9 @@ Root audit:
 Frontend audit:
 
 - Command: `npm audit --audit-level=moderate --workspaces=false` in `apps/web`
-- Result before follow-up: FAIL_RISK
-- Count before follow-up: 5 vulnerabilities
-- Severity before follow-up: 4 moderate, 1 critical
-- Affected packages before follow-up: `vitest`, `vite-node`, `vite`, `esbuild`, `@vitest/mocker`
-- Critical advisory before follow-up: `vitest` UI server arbitrary file read/execute issue for versions `<3.2.6`
-- Follow-up fix on `fix/qa-devops-audit-review`: upgraded frontend `vitest` from `^2.0.0` to `^4.1.8` and refreshed `apps/web/package-lock.json`.
-- Result after follow-up: PASS, `npm audit --audit-level=moderate --workspaces=false` reports `found 0 vulnerabilities`.
-
-Production impact assessment:
-
-- The original findings were in frontend build/test/dev tooling paths rather than shipped app business logic.
-- The critical issue required an exposed Vitest UI/dev server condition; no product UI, token model, payment, checkout, or API business logic path was implicated.
-- The risk is now resolved for this package lockfile by the Vitest 4 upgrade.
-
-Recommended follow-up:
-
-- Add a root lockfile if root-level audit is a required CI gate.
+- Result: PASS
+- Evidence: `found 0 vulnerabilities`
+- Fix evidence: `fix/qa-devops-audit-review` upgraded frontend `vitest` to `^4.1.8` and refreshed `apps/web/package-lock.json`.
 
 ## DevOps Security
 
@@ -105,7 +77,7 @@ Status: PASS_WITH_ENV_LIMITATION
 - `docker-compose.yml` exists.
 - DevOps lint/typecheck scripts pass.
 - Docker config could not be validated because Docker CLI is unavailable in this environment.
-- Current environment evidence: `docker --version` fails with `The term 'docker' is not recognized`; `npm run docker:config --if-present` fails with `'docker' is not recognized as an internal or external command`.
+- Current evidence: `npm run docker:config --if-present` fails because `docker` is not recognized.
 - Boundary: this is an environment limitation only. It does not validate or invalidate Compose syntax.
-- Manual verification required on Docker host: run `npm run docker:config --if-present` from the repository root, or run `docker compose config`, and record the rendered configuration result.
+- Required Docker-host verification: run `npm run docker:config --if-present` from the repository root, or run `docker compose config`.
 - MVP does not require Stripe env values to start.

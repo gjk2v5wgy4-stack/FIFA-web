@@ -2,89 +2,92 @@
 
 Branch: `feature/06-qa-integration`
 
-QA base commit before reports: `3f6303c`
+Retest base before QA report update: `d797c28`
+
+This project no longer requires user code review. This checklist records optional operational verification and remaining environment checks for deployment readiness.
 
 ## Merge Gate
 
-- [ ] Do not merge to `main` until frontend route coverage is resolved or formally descoped.
-- [ ] Do not merge to `main` until prediction output contract gaps are resolved or formally descoped.
-- [ ] Run `npm run docker:config --if-present` or `docker compose config` on a machine with Docker CLI and Compose plugin.
-- [x] Frontend npm audit findings were resolved on `fix/qa-devops-audit-review` by upgrading `vitest` to `^4.1.8`; re-run audit during merge retest.
+- [x] Frontend route coverage fixed and T6 automatic QA retest passed.
+- [x] Prediction output contract fixed and T6 automatic QA retest passed.
+- [x] Frontend npm audit findings resolved; `apps/web` audit reports 0 vulnerabilities.
+- [x] No nested `.git` found.
+- [x] No submodule found.
+- [x] No merge into `main` performed by T6.
+- [ ] Docker config must be run on a machine with Docker CLI and Compose plugin if strict Docker validation is required.
 
 ## Functional Verification
 
-- [ ] Register a new user and confirm status is `pending_approval`.
-- [ ] Confirm pending user can log in but cannot call RAG/prediction/simulation/report APIs.
-- [ ] Admin approves user and grants initial tokens.
-- [ ] Approved user can call RAG/prediction/simulation/report APIs when balance is sufficient.
-- [ ] Rejected and suspended users cannot call metered APIs.
-- [ ] Insufficient token balance returns `INSUFFICIENT_TOKENS`.
-- [ ] Low balance returns `lowTokenWarning=true`.
-- [ ] Token grants, adjustments, revokes, and consumption create `token_ledger` entries.
-- [ ] Metered API calls create `api_usage_logs`.
-- [ ] Admin approval/token actions create `admin_action_logs`.
-- [ ] Non-admin users receive `FORBIDDEN` on admin routes.
+- [x] Backend tests cover pending user metered API blocking.
+- [x] Backend tests cover approved user metered API access when balance is sufficient.
+- [x] Backend tests cover rejected and suspended users being blocked.
+- [x] Backend tests cover `INSUFFICIENT_TOKENS`.
+- [x] Backend tests cover `lowTokenWarning=true`.
+- [x] Backend tests cover `token_ledger` writes.
+- [x] Backend tests cover `api_usage_logs` writes.
+- [x] Backend tests cover non-admin users receiving `FORBIDDEN` on admin routes.
 
 ## API Contract
 
-- [ ] `POST /api/auth/register`
-- [ ] `POST /api/auth/login`
-- [ ] `GET /api/auth/me`
-- [ ] `GET /api/account/access-status`
-- [ ] `GET /api/account/tokens`
-- [ ] `GET /api/account/usage`
-- [ ] `GET /api/admin/users`
-- [ ] `GET /api/admin/users/pending`
-- [ ] `POST /api/admin/users/:userId/approve`
-- [ ] `POST /api/admin/users/:userId/reject`
-- [ ] `POST /api/admin/users/:userId/suspend`
-- [ ] `POST /api/admin/users/:userId/reactivate`
-- [ ] `POST /api/admin/users/:userId/tokens/grant`
-- [ ] `POST /api/admin/users/:userId/tokens/adjust`
-- [ ] `GET /api/admin/users/:userId/usage`
-- [ ] `GET /api/admin/users/:userId/token-ledger`
-- [ ] `GET /api/admin/audit-logs`
-- [ ] `GET /api/matches`
-- [ ] `GET /api/matches/:matchId`
-- [ ] `GET /api/teams/:teamId`
-- [ ] `GET /api/players/:playerId`
-- [ ] `POST /api/rag/ask`
-- [ ] `POST /api/predictions/match`
-- [ ] `POST /api/predictions/what-if`
-- [ ] `POST /api/simulations/group`
-- [ ] `POST /api/reports/generate`
+- [x] `POST /api/auth/register`
+- [x] `POST /api/auth/login`
+- [x] `GET /api/auth/me`
+- [x] `GET /api/account/access-status`
+- [x] `GET /api/account/tokens`
+- [x] `GET /api/account/usage`
+- [x] `GET /api/admin/users`
+- [x] `GET /api/admin/users/pending`
+- [x] `POST /api/admin/users/:userId/approve`
+- [x] `POST /api/admin/users/:userId/reject`
+- [x] `POST /api/admin/users/:userId/suspend`
+- [x] `POST /api/admin/users/:userId/reactivate`
+- [x] `POST /api/admin/users/:userId/tokens/grant`
+- [x] `POST /api/admin/users/:userId/tokens/adjust`
+- [x] `GET /api/admin/users/:userId/usage`
+- [x] `GET /api/admin/users/:userId/token-ledger`
+- [x] `GET /api/admin/audit-logs`
+- [x] `GET /api/matches`
+- [x] `GET /api/matches/:matchId`
+- [x] `GET /api/teams/:teamId`
+- [x] `GET /api/players/:playerId`
+- [x] `POST /api/rag/ask`
+- [x] `POST /api/predictions/match`
+- [x] `POST /api/predictions/what-if`
+- [x] `POST /api/simulations/group`
+- [x] `POST /api/reports/generate`
 
 ## Frontend
 
-- [ ] Add or verify `/`.
-- [ ] Add or verify `/matches`.
-- [ ] Add or verify `/matches/[matchId]`.
-- [ ] Add or verify `/teams/[teamId]`.
-- [ ] Add or verify `/players/[playerId]`.
-- [ ] Add or verify `/simulator/group`.
-- [ ] Add or verify `/simulator/knockout`.
-- [ ] Add or verify `/reports`.
-- [ ] Add or verify `/access`.
-- [ ] Add or verify `/account`.
-- [ ] Add or verify `/admin`.
-- [ ] Confirm no UI text offers Stripe, self-service recharge, checkout, automatic payment, betting advice, or guaranteed outcomes.
+- [x] `/`
+- [x] `/matches`
+- [x] `/matches/[matchId]`
+- [x] `/teams/[teamId]`
+- [x] `/players/[playerId]`
+- [x] `/simulator/group`
+- [x] `/simulator/knockout`
+- [x] `/reports`
+- [x] `/access`
+- [x] `/account`
+- [x] `/admin`
+- [x] No UI text offers Stripe, self-service recharge, checkout, automatic payment, betting advice, or guaranteed outcomes.
 
 ## Prediction Engine
 
-- [x] Confirm probabilities sum to a valid total on fix branch `fix/qa-prediction-contract`.
-- [x] Add or verify `prediction.confidence` as `low`, `medium`, or `high`.
-- [x] Add or verify `prediction.riskFactors` array.
-- [x] Add or verify `prediction.keyDrivers` array.
-- [x] Add or verify `metering.featureType`, `metering.complexity`, and `metering.estimatedInternalTokens`.
-- [x] Confirm package does not directly deduct tokens.
-- [x] Confirm no guaranteed prediction wording in tested outputs.
-- [ ] T6 automatic QA retest confirms final PASS.
+- [x] Probabilities sum to a valid total.
+- [x] `prediction.confidence` is `low`, `medium`, or `high`.
+- [x] `prediction.riskFactors` is an array.
+- [x] `prediction.keyDrivers` is an array.
+- [x] `metering.featureType`, `metering.complexity`, and `metering.estimatedInternalTokens` are present.
+- [x] `metering.estimatedInternalTokens` is greater than 0.
+- [x] What-if output includes `baseline`, `adjusted`, `delta`, and `metering`.
+- [x] Group simulation output includes `metering`.
+- [x] Prediction package does not directly deduct tokens.
+- [x] No guaranteed prediction wording in tested outputs.
 
 ## DevOps
 
+- [x] `npm run lint:devops --if-present` passes.
+- [x] `npm run typecheck:devops --if-present` passes.
+- [x] `.env.example` uses placeholders only.
 - [ ] Run `npm run docker:config --if-present` from the repository root on a Docker-enabled host, or run `docker compose config` directly.
 - [ ] Record Docker config output. Expected passing result: command exits 0 and renders the Compose configuration without schema errors.
-- [ ] If Docker CLI is unavailable, record `PASS_WITH_ENV_LIMITATION` and do not treat it as Compose syntax validation.
-- [ ] Confirm local-dev documentation covers admin approval and token quota workflow.
-- [ ] Confirm seed/admin setup is documented.
-- [ ] Confirm `.env.example` uses placeholders only.

@@ -1,0 +1,725 @@
+# API Contract
+
+## Purpose
+
+This is the integration contract for `worldcup-ai-prediction`. Frontend and backend work must use this document as the source of truth.
+
+The MVP uses admin approval and token quota. It does not implement Stripe, checkout, public recharge, subscriptions, or self-service paid plans.
+
+## Common Rules
+
+- Base path: `/api`
+- Content type: `application/json`
+- IDs are opaque strings.
+- Timestamps use ISO 8601 UTC.
+- Protected AI/RAG/prediction/report APIs require account status `approved`.
+- Token balance is derived from `token_ledger`.
+- Metered responses include `tokensCharged`, `remainingTokens`, and `lowBalance`.
+- Provider usage logs record `prompt_tokens`, `completion_tokens`, `embedding_tokens`, `total_provider_tokens`, and `estimated_cost`.
+
+## Error Shape
+
+```json
+{
+  "error": {
+    "code": "INSUFFICIENT_TOKENS",
+    "message": "Not enough tokens for this action.",
+    "details": {
+      "requiredTokens": 1200,
+      "availableTokens": 300
+    },
+    "requestId": "req_001"
+  }
+}
+```
+
+Common codes:
+
+- `UNAUTHORIZED`
+- `FORBIDDEN`
+- `ACCOUNT_PENDING_APPROVAL`
+- `ACCOUNT_REJECTED`
+- `ACCOUNT_SUSPENDED`
+- `VALIDATION_ERROR`
+- `NOT_FOUND`
+- `INSUFFICIENT_TOKENS`
+- `RATE_LIMITED`
+- `INTERNAL_ERROR`
+
+## Auth And Account
+
+### POST /api/auth/register
+
+Request:
+
+```json
+{
+  "email": "user@example.com",
+  "password": "replace-with-secure-password",
+  "displayName": "世界杯分析用户"
+}
+```
+
+Response `201`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "email": "user@example.com",
+    "displayName": "世界杯分析用户",
+    "status": "pending_approval"
+  }
+}
+```
+
+### POST /api/auth/login
+
+Request:
+
+```json
+{
+  "email": "user@example.com",
+  "password": "replace-with-secure-password"
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "accessToken": "session_token",
+    "user": {
+      "userId": "user_001",
+      "email": "user@example.com",
+      "displayName": "世界杯分析用户",
+      "role": "user",
+      "status": "approved"
+    }
+  }
+}
+```
+
+### GET /api/account/status
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "status": "approved",
+    "canUseProtectedApis": true,
+    "message": "Account approved.",
+    "updatedAt": "2026-06-10T10:00:00Z"
+  }
+}
+```
+
+### GET /api/account/tokens
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "balanceTokens": 78000,
+    "lowBalance": false,
+    "lowBalanceThreshold": 10000,
+    "contactAdminMessage": "Token balance is low. Please contact the admin.",
+    "ledger": [
+      {
+        "ledgerId": "tl_001",
+        "amountTokens": -1200,
+        "reason": "rag_query",
+        "relatedEntityType": "rag_query",
+        "relatedEntityId": "ragq_001",
+        "createdAt": "2026-06-10T10:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+## Football Data
+
+### GET /api/matches
+
+Query parameters: `stage`, `group`, `teamId`, `status`, `from`, `to`, `limit`, `cursor`.
+
+Response `200`:
+
+```json
+{
+  "data": [
+    {
+      "matchId": "match_001",
+      "stage": "group",
+      "group": "A",
+      "status": "scheduled",
+      "kickoffAt": "2026-06-12T20:00:00Z",
+      "venue": {
+        "venueId": "venue_001",
+        "name": "MetLife Stadium",
+        "city": "East Rutherford",
+        "country": "USA"
+      },
+      "homeTeam": {
+        "teamId": "team_usa",
+        "name": "United States",
+        "code": "USA"
+      },
+      "awayTeam": {
+        "teamId": "team_wal",
+        "name": "Wales",
+        "code": "WAL"
+      },
+      "latestPrediction": {
+        "predictionId": "pred_001",
+        "homeWinProbability": 0.43,
+        "drawProbability": 0.28,
+        "awayWinProbability": 0.29
+      }
+    }
+  ],
+  "pagination": {
+    "nextCursor": null,
+    "hasMore": false
+  }
+}
+```
+
+### GET /api/matches/:matchId
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "matchId": "match_001",
+    "stage": "group",
+    "group": "A",
+    "status": "scheduled",
+    "kickoffAt": "2026-06-12T20:00:00Z",
+    "homeTeam": {
+      "teamId": "team_usa",
+      "name": "United States",
+      "elo": 1824,
+      "recentForm": ["W", "D", "W", "L", "W"]
+    },
+    "awayTeam": {
+      "teamId": "team_wal",
+      "name": "Wales",
+      "elo": 1762,
+      "recentForm": ["D", "W", "L", "D", "W"]
+    },
+    "availability": {
+      "injuries": [],
+      "suspensions": []
+    },
+    "oddsContext": {
+      "enabled": true,
+      "note": "Odds are shown only as market context, not betting advice."
+    }
+  }
+}
+```
+
+### GET /api/teams/:teamId
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "teamId": "team_usa",
+    "name": "United States",
+    "code": "USA",
+    "confederation": "CONCACAF",
+    "group": "A",
+    "modelProfile": {
+      "elo": 1824,
+      "xgFor90": 1.72,
+      "xgAgainst90": 1.08,
+      "pathDifficulty": 0.61
+    },
+    "players": [
+      {
+        "playerId": "player_001",
+        "name": "Example Player",
+        "position": "FW",
+        "availabilityStatus": "available"
+      }
+    ]
+  }
+}
+```
+
+### GET /api/players/:playerId
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "playerId": "player_001",
+    "teamId": "team_usa",
+    "name": "Example Player",
+    "position": "FW",
+    "availabilityStatus": "available",
+    "modelImpact": {
+      "availabilityImpact": 0.08,
+      "attackContribution": 0.12,
+      "defenseContribution": 0.02,
+      "minutesProjection": 74
+    }
+  }
+}
+```
+
+## RAG
+
+### POST /api/rag/ask
+
+Request:
+
+```json
+{
+  "question": "这场比赛美国队的主要风险因素是什么？",
+  "context": {
+    "matchId": "match_001",
+    "teamIds": ["team_usa", "team_wal"],
+    "playerIds": [],
+    "tournamentStage": "group"
+  },
+  "retrieval": {
+    "topK": 8,
+    "useReranking": true,
+    "language": "zh-CN"
+  }
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "ragQueryId": "ragq_001",
+    "answer": "主要风险来自边路防守转换和关键前锋健康状态，模型依据见引用来源。",
+    "confidence": 0.74,
+    "citations": [
+      {
+        "documentId": "doc_001",
+        "chunkId": "chunk_001",
+        "sourceName": "Team scouting report",
+        "sourceUrl": "https://source.example.com/report",
+        "publishedAt": "2026-06-01T00:00:00Z",
+        "metadata": {
+          "source_type": "scouting_report",
+          "source_name": "Team scouting report",
+          "source_url": "https://source.example.com/report",
+          "published_at": "2026-06-01T00:00:00Z",
+          "team_ids": ["team_usa", "team_wal"],
+          "player_ids": [],
+          "match_ids": ["match_001"],
+          "tournament_stage": "group",
+          "language": "zh-CN",
+          "chunk_index": 4,
+          "checksum": "sha256:example"
+        }
+      }
+    ],
+    "usage": {
+      "tokensCharged": 1200,
+      "remainingTokens": 76800,
+      "lowBalance": false,
+      "providerUsage": {
+        "prompt_tokens": 1200,
+        "completion_tokens": 280,
+        "embedding_tokens": 450,
+        "total_provider_tokens": 1930,
+        "estimated_cost": 0.0125
+      }
+    }
+  }
+}
+```
+
+## Prediction And Simulation
+
+### POST /api/predictions/match
+
+Request:
+
+```json
+{
+  "matchId": "match_001",
+  "options": {
+    "includeScoreDistribution": true,
+    "includeExplanations": true,
+    "persist": true
+  }
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "predictionId": "pred_001",
+    "matchId": "match_001",
+    "modelVersion": "football-models-0.1.0",
+    "probabilities": {
+      "homeWin": 0.43,
+      "draw": 0.28,
+      "awayWin": 0.29
+    },
+    "expectedGoals": {
+      "home": 1.42,
+      "away": 1.16
+    },
+    "scoreDistribution": [
+      {
+        "homeGoals": 1,
+        "awayGoals": 1,
+        "probability": 0.12
+      }
+    ],
+    "usage": {
+      "tokensCharged": 800,
+      "remainingTokens": 76000,
+      "lowBalance": false
+    }
+  }
+}
+```
+
+### POST /api/predictions/what-if
+
+Request:
+
+```json
+{
+  "matchId": "match_001",
+  "scenario": {
+    "homeLineupChanges": [
+      {
+        "playerId": "player_001",
+        "availabilityStatus": "out"
+      }
+    ],
+    "awayLineupChanges": []
+  }
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "scenarioId": "scenario_001",
+    "baseline": {
+      "homeWin": 0.43,
+      "draw": 0.28,
+      "awayWin": 0.29
+    },
+    "scenario": {
+      "homeWin": 0.36,
+      "draw": 0.3,
+      "awayWin": 0.34
+    },
+    "delta": {
+      "homeWin": -0.07,
+      "draw": 0.02,
+      "awayWin": 0.05
+    },
+    "usage": {
+      "tokensCharged": 1000,
+      "remainingTokens": 75000,
+      "lowBalance": false
+    }
+  }
+}
+```
+
+### POST /api/simulations/group
+
+Request:
+
+```json
+{
+  "group": "A",
+  "fixedResults": [
+    {
+      "matchId": "match_001",
+      "homeGoals": 2,
+      "awayGoals": 1
+    }
+  ],
+  "options": {
+    "iterations": 10000
+  }
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "simulationId": "sim_group_A_001",
+    "group": "A",
+    "modelVersion": "football-models-0.1.0",
+    "iterations": 10000,
+    "table": [
+      {
+        "teamId": "team_usa",
+        "projectedPoints": 6.4,
+        "qualifyProbability": 0.78,
+        "groupWinnerProbability": 0.42
+      }
+    ],
+    "usage": {
+      "tokensCharged": 1500,
+      "remainingTokens": 73500,
+      "lowBalance": false
+    }
+  }
+}
+```
+
+## Reports
+
+### POST /api/reports/generate
+
+Request:
+
+```json
+{
+  "reportType": "single_match",
+  "context": {
+    "matchId": "match_001",
+    "teamIds": ["team_usa", "team_wal"]
+  },
+  "format": "pdf",
+  "language": "zh-CN",
+  "options": {
+    "includeRagCitations": true,
+    "includePredictionModelDetails": true
+  }
+}
+```
+
+Response `202`:
+
+```json
+{
+  "data": {
+    "reportId": "report_001",
+    "status": "queued",
+    "estimatedReadyAt": "2026-06-10T10:05:00Z",
+    "usage": {
+      "tokensCharged": 3000,
+      "remainingTokens": 70500,
+      "lowBalance": false
+    }
+  }
+}
+```
+
+## Admin
+
+Admin endpoints require `role=admin`.
+
+### GET /api/admin/users
+
+Response `200`:
+
+```json
+{
+  "data": [
+    {
+      "userId": "user_001",
+      "email": "user@example.com",
+      "displayName": "世界杯分析用户",
+      "status": "pending_approval",
+      "tokenBalance": 0
+    }
+  ],
+  "pagination": {
+    "nextCursor": null,
+    "hasMore": false
+  }
+}
+```
+
+### POST /api/admin/users/:userId/approve
+
+Request:
+
+```json
+{
+  "reason": "Approved for MVP access.",
+  "initialTokenGrant": 100000
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "status": "approved",
+    "adminActionId": "admin_action_001",
+    "tokenLedgerId": "tl_002",
+    "tokenBalance": 100000
+  }
+}
+```
+
+### POST /api/admin/users/:userId/reject
+
+Request:
+
+```json
+{
+  "reason": "Access request rejected."
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "status": "rejected",
+    "adminActionId": "admin_action_002"
+  }
+}
+```
+
+### POST /api/admin/users/:userId/suspend
+
+Request:
+
+```json
+{
+  "reason": "Temporary access review."
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "status": "suspended",
+    "adminActionId": "admin_action_003"
+  }
+}
+```
+
+### POST /api/admin/users/:userId/reactivate
+
+Request:
+
+```json
+{
+  "reason": "Access restored."
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "status": "approved",
+    "adminActionId": "admin_action_004"
+  }
+}
+```
+
+### POST /api/admin/users/:userId/tokens/grant
+
+Request:
+
+```json
+{
+  "amountTokens": 50000,
+  "reason": "Manual quota grant."
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "adminActionId": "admin_action_005",
+    "tokenLedgerId": "tl_003",
+    "amountTokens": 50000,
+    "tokenBalance": 150000
+  }
+}
+```
+
+### POST /api/admin/users/:userId/tokens/adjust
+
+Request:
+
+```json
+{
+  "amountTokens": -5000,
+  "reason": "Manual correction."
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "adminActionId": "admin_action_006",
+    "tokenLedgerId": "tl_004",
+    "amountTokens": -5000,
+    "tokenBalance": 145000
+  }
+}
+```
+
+### POST /api/admin/users/:userId/tokens/revoke
+
+Request:
+
+```json
+{
+  "amountTokens": 10000,
+  "reason": "Revoke unused quota."
+}
+```
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "userId": "user_001",
+    "adminActionId": "admin_action_007",
+    "tokenLedgerId": "tl_005",
+    "amountTokens": -10000,
+    "tokenBalance": 135000
+  }
+}
+```

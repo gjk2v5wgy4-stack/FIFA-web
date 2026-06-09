@@ -1,0 +1,110 @@
+name: worldcup-ai-prediction
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web-dev
+    container_name: worldcup-web
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${WEB_HOST_PORT:-3000}:80"
+    networks:
+      - worldcup-local
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api-dev
+    container_name: worldcup-api
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-worldcup_app}:${POSTGRES_PASSWORD:-worldcup_app_dev_password}@postgres:5432/${POSTGRES_DB:-worldcup_ai_prediction}"
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-worldcup_redis_dev_password}@redis:6379/0"
+      QDRANT_URL: "http://qdrant:6333"
+      QDRANT_COLLECTION: "${QDRANT_COLLECTION:-worldcup_document_chunks}"
+      TOKEN_LOW_BALANCE_THRESHOLD: "${TOKEN_LOW_BALANCE_THRESHOLD:-10000}"
+      ENVIRONMENT: "${ENVIRONMENT:-local}"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    ports:
+      - "${API_HOST_PORT:-8000}:8000"
+    networks:
+      - worldcup-local
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: worldcup-postgres
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-worldcup_ai_prediction}"
+      POSTGRES_USER: "${POSTGRES_USER:-worldcup_app}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-worldcup_app_dev_password}"
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - worldcup-local
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: worldcup-redis
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:-worldcup_redis_dev_password}"]
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-worldcup_redis_dev_password}"
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - worldcup-local
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:v1.11.3
+    container_name: worldcup-qdrant
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    ports:
+      - "${QDRANT_HTTP_HOST_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_HOST_PORT:-6334}:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - worldcup-local
+    restart: unless-stopped
+
+networks:
+  worldcup-local:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  qdrant-data:

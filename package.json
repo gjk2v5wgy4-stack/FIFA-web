@@ -3,11 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "lint": "node scripts/quality/lint.mjs",
     "typecheck": "node scripts/quality/typecheck.mjs",
     "test": "node --test packages/rag-core/tests/*.test.js",
     "rag:dry-run": "node scripts/rag/sample-ingestion-dry-run.mjs",
-    "rag:smoke": "node scripts/rag/retrieval-smoke-test.mjs"
+    "rag:smoke": "node scripts/rag/retrieval-smoke-test.mjs",
+    "dev:init": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-init.ps1",
+    "dev:up": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-up.ps1",
+    "dev:down": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-down.ps1",
+    "dev:health": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-health.ps1",
+    "dev:api": "cd apps/api && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "test:api": "cd apps/api && uv run pytest",
+    "lint:devops": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/lint.ps1",
+    "typecheck:devops": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/typecheck.ps1",
+    "docker:config": "docker compose config",
+    "docker:up": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-up.ps1",
+    "docker:down": "powershell -NoProfile -ExecutionPolicy Bypass -File infra/scripts/dev-down.ps1"
   }
 }

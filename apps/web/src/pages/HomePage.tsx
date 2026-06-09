@@ -1,30 +1,20 @@
-import {
-  BadgeCheck,
-  Clock3,
-  FileSearch,
-  MessageSquareText,
-  ShieldCheck,
-  WalletCards,
-} from "lucide-react";
+import { BadgeCheck, FileSearch } from "lucide-react";
 import { CoverPreview } from "../components/CoverPreview";
 import { ResultPreview } from "../components/ResultPreview";
 import type {
   AccountStatusSummary,
   MatchPredictionStub,
-  TokenSummary,
 } from "../services/apiStubs";
 
 interface HomePageProps {
   accountStatus: AccountStatusSummary | null;
   prediction: MatchPredictionStub | null;
-  tokenSummary: TokenSummary | null;
   onOpenPrediction: () => void;
 }
 
 export function HomePage({
   accountStatus,
   prediction,
-  tokenSummary,
   onOpenPrediction,
 }: HomePageProps) {
   return (
@@ -34,7 +24,8 @@ export function HomePage({
           <p className="eyebrow">World Cup AI/RAG Intelligence</p>
           <h1>世界杯赛前数据分析工作台</h1>
           <p className="hero-copy">
-            面向审批用户的概率预测、风险因素、RAG 引用和报告预览。当前页面使用前端 stub 数据，等待后端合同接入。
+            面向审批用户的概率预测、风险因素、RAG 引用和报告预览。当前页面使用前端
+            stub 数据，等待后端合同接入。
           </p>
           <div className="hero-actions">
             <button className="primary-button" onClick={onOpenPrediction} type="button">
@@ -48,29 +39,6 @@ export function HomePage({
           </div>
         </div>
         <CoverPreview />
-      </section>
-
-      <section className="metric-grid" aria-label="账户与工作流状态">
-        <article className="metric-card">
-          <ShieldCheck aria-hidden="true" size={22} />
-          <span>账户状态</span>
-          <strong>{accountStatus?.status ?? "loading"}</strong>
-        </article>
-        <article className="metric-card">
-          <WalletCards aria-hidden="true" size={22} />
-          <span>Token 余额</span>
-          <strong>{tokenSummary?.balanceTokens.toLocaleString() ?? "--"}</strong>
-        </article>
-        <article className="metric-card">
-          <Clock3 aria-hidden="true" size={22} />
-          <span>最近扣减</span>
-          <strong>{tokenSummary?.ledger.at(-1)?.amountTokens ?? "--"}</strong>
-        </article>
-        <article className="metric-card">
-          <MessageSquareText aria-hidden="true" size={22} />
-          <span>低余额提醒</span>
-          <strong>{tokenSummary?.lowBalance ? "联系管理员" : "正常"}</strong>
-        </article>
       </section>
 
       <div className="two-column">

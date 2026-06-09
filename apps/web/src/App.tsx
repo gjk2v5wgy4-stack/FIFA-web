@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { AppShell } from "./components/AppShell";
 import { AdminPage } from "./pages/AdminPage";
+import { AccountPage } from "./pages/AccountPage";
 import { AuthPage } from "./pages/AuthPage";
 import { HomePage } from "./pages/HomePage";
 import { PredictionPage } from "./pages/PredictionPage";
 import {
   AccessPage,
-  AccountPage,
   EntityDetailPage,
   MatchesPage,
   ReportsPage,
@@ -89,7 +89,6 @@ export function App() {
           accountStatus={accountStatus}
           onOpenPrediction={() => navigate("matchDetail")}
           prediction={prediction}
-          tokenSummary={tokenSummary}
         />
       )}
       {route.id === "matches" && (

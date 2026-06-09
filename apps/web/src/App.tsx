@@ -87,7 +87,9 @@ export function App() {
       {route.id === "home" && (
         <HomePage
           accountStatus={accountStatus}
+          onOpenLogin={() => navigate("login")}
           onOpenPrediction={() => navigate("matchDetail")}
+          onOpenRegister={() => navigate("register")}
           prediction={prediction}
         />
       )}

@@ -133,6 +133,12 @@ button {
   gap: 24px;
 }
 
+.page-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .dashboard-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);

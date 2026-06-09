@@ -1,4 +1,4 @@
-import { BadgeCheck, FileSearch } from "lucide-react";
+import { BadgeCheck, FileSearch, LogIn, UserPlus } from "lucide-react";
 import { CoverPreview } from "../components/CoverPreview";
 import { ResultPreview } from "../components/ResultPreview";
 import type {
@@ -10,15 +10,30 @@ interface HomePageProps {
   accountStatus: AccountStatusSummary | null;
   prediction: MatchPredictionStub | null;
   onOpenPrediction: () => void;
+  onOpenLogin: () => void;
+  onOpenRegister: () => void;
 }
 
 export function HomePage({
   accountStatus,
   prediction,
   onOpenPrediction,
+  onOpenLogin,
+  onOpenRegister,
 }: HomePageProps) {
   return (
     <div className="page-stack">
+      <div className="page-top-actions" aria-label="账号操作">
+        <button className="secondary-button" onClick={onOpenLogin} type="button">
+          <LogIn aria-hidden="true" size={16} />
+          登录
+        </button>
+        <button className="primary-button" onClick={onOpenRegister} type="button">
+          <UserPlus aria-hidden="true" size={16} />
+          注册
+        </button>
+      </div>
+
       <section className="dashboard-hero">
         <div className="dashboard-hero__content">
           <p className="eyebrow">World Cup AI/RAG Intelligence</p>
@@ -41,33 +56,7 @@ export function HomePage({
         <CoverPreview />
       </section>
 
-      <div className="two-column">
-        <ResultPreview prediction={prediction} />
-        <section className="workflow-panel">
-          <div className="section-heading">
-            <p className="eyebrow">MVP Flow</p>
-            <h2>审批访问流程</h2>
-          </div>
-          <ol className="timeline-list">
-            <li>
-              <span>1</span>
-              用户注册，默认进入 pending_approval。
-            </li>
-            <li>
-              <span>2</span>
-              管理员审批账号并授予初始 token 配额。
-            </li>
-            <li>
-              <span>3</span>
-              受保护的 RAG、预测、报告接口按请求扣减 token。
-            </li>
-            <li>
-              <span>4</span>
-              余额较低时提示联系管理员调整配额。
-            </li>
-          </ol>
-        </section>
-      </div>
+      <ResultPreview prediction={prediction} />
     </div>
   );
 }

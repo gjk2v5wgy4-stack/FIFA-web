@@ -1,0 +1,65 @@
+{
+  "teamId": "team_usa",
+  "teamName": "USA",
+  "generatedAt": "2026-06-10T00:00:00+08:00",
+  "searchPurpose": "Baidu/Google-style public web retrieval seeds for USA 2026 World Cup RAG data.",
+  "officialSources": [
+    {
+      "name": "U.S. Soccer USMNT team page",
+      "url": "https://www.ussoccer.com/teams/usmnt",
+      "recommendedFor": ["teamOverview", "schedule", "news"]
+    },
+    {
+      "name": "U.S. Soccer USMNT roster",
+      "url": "https://www.ussoccer.com/teams/usmnt/roster",
+      "recommendedFor": ["currentRoster", "caps", "goals", "assists"]
+    },
+    {
+      "name": "U.S. Soccer World Cup roster announcement",
+      "url": "https://ussoccer.com/stories/2026/05/usmnt/us-mens-national-team-head-coach-mauricio-pochettino-names-26-player-roster-for-fifa-world-cup-2026",
+      "recommendedFor": ["worldCupRoster", "groupOpponents", "fixtures", "capsSummary"]
+    },
+    {
+      "name": "ESPN USA results",
+      "url": "https://www.espn.com/soccer/team/results/_/id/660/united-states",
+      "recommendedFor": ["recentResults", "friendlyMatches", "competitionLabels"]
+    }
+  ],
+  "publicStatsSources": [
+    {
+      "name": "FBref",
+      "url": "https://fbref.com/",
+      "recommendedFor": ["clubMinutes", "playerPer90", "xG", "xA", "progressivePassing"]
+    },
+    {
+      "name": "FotMob",
+      "url": "https://www.fotmob.com/",
+      "recommendedFor": ["matchStats", "playerForm", "clubPerformance"]
+    },
+    {
+      "name": "Transfermarkt",
+      "url": "https://www.transfermarkt.com/",
+      "recommendedFor": ["injuryHistory", "age", "clubContext"]
+    }
+  ],
+  "chineseSearchSeeds": [
+    "美国队 2026 世界杯 阵容 美国男足",
+    "美国国家男子足球队 2026 世界杯 小组赛程",
+    "美国男足 最近10场 比赛 赛果",
+    "普利西奇 2025 2026 俱乐部 数据 xG",
+    "美国男足 伤病 停赛 2026 世界杯"
+  ],
+  "englishSearchSeeds": [
+    "USMNT 2026 World Cup roster stats Pochettino",
+    "USMNT recent results last 10 matches 2026",
+    "USMNT Germany Senegal Portugal Belgium match recap shots on target",
+    "Christian Pulisic 2025-2026 FBref xG xA",
+    "USMNT injury report June 2026 World Cup"
+  ],
+  "collectionGuards": [
+    "Do not store search-result snippets as facts without opening the target source.",
+    "Cross-check injury and suspension claims with official team or club sources.",
+    "Keep market data as context only.",
+    "Mark xG splits and tracking data as licensed unless a verifiable open page is available."
+  ]
+}

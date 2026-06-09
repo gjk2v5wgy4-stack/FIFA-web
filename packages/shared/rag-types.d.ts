@@ -104,7 +104,7 @@ export interface RetrievalDiagnostics {
   requestedTopK: number;
   returnedCount: number;
   filtersApplied: Record<string, unknown>;
-  retrievalStatus: "ok" | "no_results";
+  retrievalStatus: "ok" | "no_results" | "blocked_by_safety";
   vectorStore: string;
   embeddingDimensions: number;
   scores: Array<{ chunkId: string; score: number }>;

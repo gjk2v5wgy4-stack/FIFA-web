@@ -5,6 +5,18 @@ export declare function tokenize(text: string): string[];
 export declare function embedTextDeterministic(text: string, options?: { dimensions?: number }): number[];
 export declare function cosineSimilarity(left: number[], right: number[]): number;
 export declare function buildSafetySystemText(): string;
+export declare function evaluateRagQuestionSafety(question: string): {
+  allowed: boolean;
+  category: "allowed" | "live_market_chase";
+  reason: string;
+  matchedTerms: {
+    market: string[];
+    chase: string[];
+    live: string[];
+  };
+  allowedAlternative: string | null;
+};
+export declare function buildSafetyBlockedAnswer(): string;
 
 export declare function chunkDocument(
   document: {

@@ -1,4 +1,5 @@
 import { buildRagPrompt, estimateRagUsage } from "../prompting/index.js";
+import { buildSafetyBlockedAnswer, evaluateRagQuestionSafety } from "../safety/index.js";
 import { retrieveContext } from "./index.js";
 
 export async function askWithRag({
@@ -12,6 +13,35 @@ export async function askWithRag({
   vectorStore,
   embedder
 }) {
+  const safety = evaluateRagQuestionSafety(question);
+  if (!safety.allowed) {
+    return {
+      answer: buildSafetyBlockedAnswer(safety),
+      sources: [],
+      retrievalDiagnostics: {
+        requestedTopK: Number.isInteger(topK) && topK > 0 ? topK : 8,
+        returnedCount: 0,
+        filtersApplied: {
+          ...filters,
+          ...(matchId ? { matchId } : {}),
+          ...(teamId ? { teamId } : {}),
+          ...(playerId ? { playerId } : {})
+        },
+        retrievalStatus: "blocked_by_safety",
+        vectorStore: vectorStore?.name ?? vectorStore?.constructor?.name ?? "not_used",
+        embeddingDimensions: 0,
+        scores: [],
+        safety
+      },
+      usage: estimateRagUsage({
+        question,
+        topK,
+        contextLength: 0,
+        model
+      })
+    };
+  }
+
   const retrieval = await retrieveContext({
     query: question,
     matchId,

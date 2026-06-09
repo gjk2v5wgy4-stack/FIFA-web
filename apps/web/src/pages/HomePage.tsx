@@ -14,11 +14,13 @@ interface HomePageProps {
 }
 
 function formatMatchDate(kickoffAt: string) {
-  return new Date(kickoffAt).toLocaleDateString("zh-CN", {
+  const dateLabel = new Date(kickoffAt).toLocaleDateString("zh-CN", {
     month: "numeric",
     day: "numeric",
     weekday: "short",
   });
+
+  return `${dateLabel} 北京时间`;
 }
 
 function formatMatchTime(kickoffAt: string) {
@@ -42,13 +44,13 @@ export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
   return (
     <div className="page-stack">
       <section
-        aria-label="6月13日至7月20日比赛信息"
+        aria-label="近期比赛信息"
         className="tournament-schedule"
       >
         <div className="tournament-schedule__header">
           <div>
             <p className="eyebrow">世界杯赛程</p>
-            <h1>6月13日 - 7月20日比赛信息</h1>
+            <h1>近期比赛信息</h1>
           </div>
           <span>{tournamentMatches.length} 场比赛</span>
         </div>

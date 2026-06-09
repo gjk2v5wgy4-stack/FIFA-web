@@ -2,10 +2,11 @@ import { readFile } from "node:fs/promises";
 
 import { ingestDocument } from "../../packages/rag-core/index.js";
 
-const [ragDocument, usaDocument, historicalDocument, manifest] = await Promise.all([
+const [ragDocument, usaDocument, historicalDocument, providerDirectoryDocument, manifest] = await Promise.all([
   readFile("docs/rag/world-cup-2026-national-team-data-rag.md", "utf8"),
   readFile("docs/rag/teams/wc2026-usa-data.md", "utf8"),
   readFile("docs/rag/historical/world-cup-historical-matchups.md", "utf8"),
+  readFile("docs/rag/world-cup-2026-provider-endpoint-directory.md", "utf8"),
   readFile("docs/rag/world-cup-2026-source-manifest.json", "utf8")
 ]);
 const expandedSeeds = JSON.parse(
@@ -14,6 +15,9 @@ const expandedSeeds = JSON.parse(
 const usaSeeds = JSON.parse(await readFile("docs/rag/teams/wc2026-usa-search-seeds.json", "utf8"));
 const historicalSeeds = JSON.parse(
   await readFile("docs/rag/historical/world-cup-historical-matchups-seeds.json", "utf8")
+);
+const providerDirectory = JSON.parse(
+  await readFile("docs/rag/world-cup-2026-provider-endpoint-directory.json", "utf8")
 );
 
 const parsedManifest = JSON.parse(manifest);
@@ -94,6 +98,31 @@ const historicalResult = await ingestDocument({
   }
 });
 
+const providerDirectoryResult = await ingestDocument({
+  dryRun: true,
+  document: {
+    documentId: "rag_wc2026_provider_endpoint_directory_001",
+    sourceType: "analysis",
+    title: "2026 世界杯 RAG 数据供应商与公开来源端点目录",
+    content: providerDirectoryDocument,
+    metadata: {
+      sourceType: "analysis",
+      title: "2026 世界杯 RAG 数据供应商与公开来源端点目录",
+      competition: "2026 FIFA 世界杯",
+      publishedAt: parsedManifest.generatedAt,
+      url: "docs/rag/world-cup-2026-provider-endpoint-directory.md",
+      reliability: "高：网页入口和授权状态明确；中等：公开站点覆盖需逐页核验",
+      language: "zh-CN",
+      tags: ["world_cup_2026", "provider_directory", "source_mapping", "rag"],
+      page: 1
+    }
+  },
+  chunkOptions: {
+    chunkSize: 220,
+    overlap: 30
+  }
+});
+
 console.log(
   JSON.stringify(
     {
@@ -111,6 +140,12 @@ console.log(
       历史对战Chunk数量: historicalResult.diagnostics.chunkCount,
       美国D组世界杯历史交锋记录数量: historicalSeeds.usaGroupDWorldCupHeadToHead.length,
       美国历史世界杯锚点比赛数量: historicalSeeds.usaHistoricalAnchorMatches.length,
+      信息端目录Chunk数量: providerDirectoryResult.diagnostics.chunkCount,
+      商业数据与授权入口数量: providerDirectory["商业数据与授权入口"].length,
+      官方赛事入口数量: providerDirectory["官方赛事入口"].length,
+      公开足球数据来源数量: providerDirectory["公开足球数据来源"].length,
+      天气地点球场入口数量: providerDirectory["天气地点球场入口"].length,
+      新闻发布会训练入口数量: providerDirectory["新闻发布会训练入口"].length,
       首个Chunk元数据: result.chunks[0]?.metadata
     },
     null,

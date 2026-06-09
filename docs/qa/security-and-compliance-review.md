@@ -79,21 +79,22 @@ Root audit:
 Frontend audit:
 
 - Command: `npm audit --audit-level=moderate --workspaces=false` in `apps/web`
-- Result: FAIL_RISK
-- Count: 5 vulnerabilities
-- Severity: 4 moderate, 1 critical
-- Affected packages: `vitest`, `vite-node`, `vite`, `esbuild`, `@vitest/mocker`
-- Critical advisory: `vitest` UI server arbitrary file read/execute issue for versions `<3.2.6`
-- Fix reported by npm requires `vitest@4.1.8`, a SemVer-major upgrade.
+- Result before follow-up: FAIL_RISK
+- Count before follow-up: 5 vulnerabilities
+- Severity before follow-up: 4 moderate, 1 critical
+- Affected packages before follow-up: `vitest`, `vite-node`, `vite`, `esbuild`, `@vitest/mocker`
+- Critical advisory before follow-up: `vitest` UI server arbitrary file read/execute issue for versions `<3.2.6`
+- Follow-up fix on `fix/qa-devops-audit-review`: upgraded frontend `vitest` from `^2.0.0` to `^4.1.8` and refreshed `apps/web/package-lock.json`.
+- Result after follow-up: PASS, `npm audit --audit-level=moderate --workspaces=false` reports `found 0 vulnerabilities`.
 
 Production impact assessment:
 
-- Current findings are in frontend build/test/dev tooling paths rather than shipped app business logic.
-- Risk should be addressed before production CI or shared dev environments expose Vitest/Vite dev servers.
+- The original findings were in frontend build/test/dev tooling paths rather than shipped app business logic.
+- The critical issue required an exposed Vitest UI/dev server condition; no product UI, token model, payment, checkout, or API business logic path was implicated.
+- The risk is now resolved for this package lockfile by the Vitest 4 upgrade.
 
 Recommended follow-up:
 
-- Upgrade `vitest` and related Vite toolchain in the frontend branch with dedicated regression testing.
 - Add a root lockfile if root-level audit is a required CI gate.
 
 ## DevOps Security
@@ -103,5 +104,8 @@ Status: PASS_WITH_ENV_LIMITATION
 - `.env.example` exists.
 - `docker-compose.yml` exists.
 - DevOps lint/typecheck scripts pass.
-- Docker config could not be validated because Docker CLI is unavailable.
+- Docker config could not be validated because Docker CLI is unavailable in this environment.
+- Current environment evidence: `docker --version` fails with `The term 'docker' is not recognized`; `npm run docker:config --if-present` fails with `'docker' is not recognized as an internal or external command`.
+- Boundary: this is an environment limitation only. It does not validate or invalidate Compose syntax.
+- Manual verification required on Docker host: run `npm run docker:config --if-present` from the repository root, or run `docker compose config`, and record the rendered configuration result.
 - MVP does not require Stripe env values to start.

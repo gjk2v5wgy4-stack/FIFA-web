@@ -8,8 +8,8 @@ QA base commit before reports: `3f6303c`
 
 - [ ] Do not merge to `main` until frontend route coverage is resolved or formally descoped.
 - [ ] Do not merge to `main` until prediction output contract gaps are resolved or formally descoped.
-- [ ] Run `docker compose config` on a machine with Docker CLI.
-- [ ] Review frontend npm audit findings and decide whether to upgrade `vitest` before main merge.
+- [ ] Run `npm run docker:config --if-present` or `docker compose config` on a machine with Docker CLI and Compose plugin.
+- [x] Frontend npm audit findings were resolved on `fix/qa-devops-audit-review` by upgrading `vitest` to `^4.1.8`; re-run audit during merge retest.
 
 ## Functional Verification
 
@@ -82,7 +82,9 @@ QA base commit before reports: `3f6303c`
 
 ## DevOps
 
-- [ ] Run `docker compose config`.
+- [ ] Run `npm run docker:config --if-present` from the repository root on a Docker-enabled host, or run `docker compose config` directly.
+- [ ] Record Docker config output. Expected passing result: command exits 0 and renders the Compose configuration without schema errors.
+- [ ] If Docker CLI is unavailable, record `PASS_WITH_ENV_LIMITATION` and do not treat it as Compose syntax validation.
 - [ ] Confirm local-dev documentation covers admin approval and token quota workflow.
 - [ ] Confirm seed/admin setup is documented.
 - [ ] Confirm `.env.example` uses placeholders only.

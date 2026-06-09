@@ -28,7 +28,7 @@ Merge-to-main recommendation: Do not merge to `main` yet.
 | Admin Token Access | PASS | Tests cover approval, rejection/suspension blocking, admin role blocking, ledger writes, idempotent consumption, low balance warning, and insufficient token handling. |
 | RAG | PASS | Unit tests and smoke test pass. RAG returns usage and sources/citations and does not directly deduct internal quota. |
 | Prediction Engine | FAIL_PENDING_T6_RETEST | Fix branch `fix/qa-prediction-contract` now exposes `confidence`, `riskFactors`, `keyDrivers`, and `metering` estimates in prediction outputs. Final PASS remains pending T6 automatic QA. |
-| DevOps | PASS_WITH_ENV_LIMITATION | Static DevOps lint/typecheck pass. Docker config could not run because Docker CLI is unavailable in this environment. |
+| DevOps | PASS_WITH_ENV_LIMITATION | Static DevOps lint/typecheck pass. Docker config could not run because Docker CLI is unavailable in this environment. Frontend npm audit follow-up was resolved on `fix/qa-devops-audit-review`. |
 
 ## Commands And Results
 
@@ -59,9 +59,9 @@ Merge-to-main recommendation: Do not merge to `main` yet.
 | `npm run rag:smoke --if-present` | PASS |
 | `npm run lint:devops --if-present` | PASS |
 | `npm run typecheck:devops --if-present` | PASS |
-| `npm run docker:config --if-present` | SKIPPED, Docker CLI unavailable |
+| `npm run docker:config --if-present` | FAIL_ENV_LIMITATION on `fix/qa-devops-audit-review`, Docker CLI unavailable: `'docker' is not recognized as an internal or external command` |
 | `npm audit --audit-level=moderate` at repository root | SKIPPED, root has no lockfile |
-| `npm audit --audit-level=moderate --workspaces=false` in `apps/web` | FAIL_RISK, 5 vulnerabilities: 4 moderate, 1 critical |
+| `npm audit --audit-level=moderate --workspaces=false` in `apps/web` | PASS on `fix/qa-devops-audit-review`, 0 vulnerabilities after upgrading `vitest` to `^4.1.8` |
 | `uv run pytest` in `packages/football-models` | SKIPPED, package does not declare pytest executable |
 | `python -m unittest discover -s tests` in `packages/football-models` | PASS, 7 tests passed |
 
@@ -154,16 +154,15 @@ Blocking gap:
 
 ## Known Risks
 
-- Docker CLI is unavailable, so `docker compose config` could not be verified in this environment.
+- Docker CLI is unavailable, so `docker compose config` could not be verified in this environment. Manual verification must run `npm run docker:config --if-present` or `docker compose config` on a host with Docker CLI and Compose plugin installed.
 - Root `npm audit` is unavailable because the root package has no lockfile.
-- Frontend package audit reports 5 vulnerabilities: 4 moderate and 1 critical. The critical issue is in `vitest` dev tooling and requires a SemVer-major upgrade to `vitest@4.1.8`.
+- Frontend package audit was resolved on `fix/qa-devops-audit-review`. The previous 5 findings were limited to Vitest/Vite/Vite-node/esbuild dev/test tooling, not shipped frontend business logic. The fix upgraded `vitest` to `^4.1.8` and preserved lint/typecheck/build/test.
 
 ## Required Before Main Merge
 
 1. Add or scope down the required frontend route/page coverage.
 2. Re-run T6 QA against `fix/qa-prediction-contract` or after merging it back into the QA integration branch.
 3. Re-run Docker config check in an environment with Docker CLI.
-4. Address or formally accept the frontend `vitest`/Vite/esbuild audit risk.
 
 ## Production Recommendations
 

@@ -2,7 +2,7 @@
 
 Branch: `feature/06-qa-integration`
 
-Retest base before QA report update: `d797c28`
+Retest base before this QA report update: `5fab620`
 
 This project no longer requires user code review. This checklist records optional operational verification and remaining environment checks for deployment readiness.
 
@@ -11,9 +11,11 @@ This project no longer requires user code review. This checklist records optiona
 - [x] Frontend route coverage fixed and T6 automatic QA retest passed.
 - [x] Prediction output contract fixed and T6 automatic QA retest passed.
 - [x] Frontend npm audit findings resolved; `apps/web` audit reports 0 vulnerabilities.
+- [x] Latest T2 backend update merged and backend tests passed.
+- [x] Latest T3 RAG data/context update merged and RAG tests/dry-runs passed.
+- [x] Latest frontend fix update merged and frontend tests/build passed.
 - [x] No nested `.git` found.
 - [x] No submodule found.
-- [x] No merge into `main` performed by T6.
 - [ ] Docker config must be run on a machine with Docker CLI and Compose plugin if strict Docker validation is required.
 
 ## Functional Verification
@@ -50,6 +52,7 @@ This project no longer requires user code review. This checklist records optiona
 - [x] `GET /api/matches/:matchId`
 - [x] `GET /api/teams/:teamId`
 - [x] `GET /api/players/:playerId`
+- [x] `GET /api/weather/forecast`
 - [x] `POST /api/rag/ask`
 - [x] `POST /api/predictions/match`
 - [x] `POST /api/predictions/what-if`
@@ -69,7 +72,7 @@ This project no longer requires user code review. This checklist records optiona
 - [x] `/access`
 - [x] `/account`
 - [x] `/admin`
-- [x] No UI text offers Stripe, self-service recharge, checkout, automatic payment, betting advice, or guaranteed outcomes.
+- [x] No UI text offers third-party payment, self-service recharge, hosted payment pages, automatic payment, betting advice, or guaranteed outcomes.
 
 ## Prediction Engine
 

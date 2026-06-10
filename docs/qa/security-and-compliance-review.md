@@ -2,7 +2,7 @@
 
 Branch: `feature/06-qa-integration`
 
-Retest base before QA report update: `d797c28`
+Retest base before this QA report update: `5fab620`
 
 ## Secret Scan
 
@@ -15,26 +15,29 @@ Findings:
 - `.env.example` and deployment examples include placeholder or local-development values only.
 - `OPENAI_API_KEY=replace_with_local_api_key` is a placeholder.
 - Local compose defaults such as `worldcup_app_dev_password` and `worldcup_redis_dev_password` are documented local defaults, not live credentials.
-- `sk-` matched `askWithRag`, a false positive.
-- No live secret, private key, Stripe key, webhook secret, or private token was found.
+- `sk-` matched source-code identifiers such as `askWithRag`, a false positive.
+- Token and password matches in backend code are model fields, hashed-password utilities, test fixtures, or local placeholders.
+- An untracked temporary HTML capture in the T3 worktree contained sensitive form fields; it was removed before merge and was not committed.
+- No live secret, private key, Stripe key, webhook secret, or private token was found in tracked files.
 
-## Payment / Checkout Residuals
+## Payment / Self-Service Residuals
 
 Status: PASS
 
-Stripe, checkout, subscription, billing webhook, and self-service recharge terms appear only in docs and lint scripts as MVP exclusions or forbidden examples. No payment dependency or implementation was found.
+Third-party payment, hosted payment page, recurring plan, billing webhook, and self-service recharge references appear only in docs and lint scripts as MVP exclusions or forbidden examples. No payment dependency or implementation was found.
 
 ## Forbidden Wording
 
 Status: PASS_WITH_CONTEXT
 
-Matches for prohibited wording appear only in:
+Matches for prohibited wording appear in:
 
 - `AGENTS.md`
-- `docs/qa/acceptance-criteria.md`
+- QA criteria and previous QA records
 - `infra/scripts/lint.ps1`
+- RAG market-context documents that explicitly state the product must not offer betting advice or guaranteed outcomes
 
-These are governance rules, prohibited examples, or lint guardrails. Product UI copy did not introduce guaranteed-prediction or betting-advice wording.
+These are governance rules, prohibited examples, lint guardrails, or data-context disclaimers. Product UI copy and runtime prediction output did not introduce guaranteed-prediction or betting-advice wording.
 
 ## Admin Token Model
 
@@ -67,7 +70,6 @@ Frontend audit:
 - Command: `npm audit --audit-level=moderate --workspaces=false` in `apps/web`
 - Result: PASS
 - Evidence: `found 0 vulnerabilities`
-- Fix evidence: `fix/qa-devops-audit-review` upgraded frontend `vitest` to `^4.1.8` and refreshed `apps/web/package-lock.json`.
 
 ## DevOps Security
 

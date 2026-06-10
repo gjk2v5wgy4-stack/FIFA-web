@@ -15,16 +15,17 @@ import { useState } from "react";
 import { TeamDisplayName } from "./TeamDisplayName";
 import type { MatchPredictionStub } from "../services/apiStubs";
 import { getTeamDisplay } from "../services/teamDisplay";
+import {
+  buildOutcomePresentation,
+  formatDisplayPercent,
+  type OutcomePresentationId,
+} from "../services/uiPresentation";
 
 interface ResultPreviewProps {
   prediction: MatchPredictionStub | null;
 }
 
 type AnalysisSide = "home" | "away";
-
-function formatPercent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
 
 export function ResultPreview({ prediction }: ResultPreviewProps) {
   const [analysisSelection, setAnalysisSelection] = useState<{
@@ -38,31 +39,34 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
 
   const homeTeam = getTeamDisplay(prediction.homeTeam);
   const awayTeam = getTeamDisplay(prediction.awayTeam);
-  const outcomeCards = [
+  const outcomeDisplayById: Record<
+    OutcomePresentationId,
     {
+      label: string;
+      title: string;
+      team?: MatchPredictionStub["homeTeam"];
+    }
+  > = {
+    homeWin: {
       label: "主队胜率",
       title: homeTeam.name,
       team: prediction.homeTeam,
-      value: prediction.probabilities.homeWin,
-      tone: "green",
     },
-    {
+    draw: {
       label: "平局概率",
       title: "平局",
-      value: prediction.probabilities.draw,
-      tone: "blue",
     },
-    {
+    awayWin: {
       label: "客队胜率",
       title: awayTeam.name,
       team: prediction.awayTeam,
-      value: prediction.probabilities.awayWin,
-      tone: "amber",
     },
-  ];
-  const leader = outcomeCards.reduce((currentLeader, row) =>
-    row.value > currentLeader.value ? row : currentLeader,
-  );
+  };
+  const outcomeCards = buildOutcomePresentation(prediction.probabilities).map((row) => ({
+    ...row,
+    ...outcomeDisplayById[row.id],
+  }));
+  const leader = outcomeCards.find((row) => row.isLeader) ?? outcomeCards[0];
   const defaultAnalysisSide: AnalysisSide =
     prediction.probabilities.homeWin >= prediction.probabilities.awayWin ? "home" : "away";
   const selectedAnalysisSide =
@@ -182,15 +186,15 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
           {outcomeCards.map((row) => (
             <article
               className={`outcome-card outcome-card--${row.tone}${
-                row.title === leader.title ? " outcome-card--leader" : ""
+                row.isLeader ? " outcome-card--leader" : ""
               }`}
               key={row.label}
             >
               <span>{row.label}</span>
-              <strong>{formatPercent(row.value)}</strong>
+              <strong>{row.percentLabel}</strong>
               <small>{row.team ? <TeamDisplayName team={row.team} /> : row.title}</small>
               <div className="mini-meter">
-                <span style={{ width: formatPercent(row.value) }} />
+                <span style={{ width: row.meterWidth }} />
               </div>
             </article>
           ))}
@@ -242,7 +246,7 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
               <strong>
                 <TeamDisplayName team={option.team} />
               </strong>
-              <small>{formatPercent(option.probability)}</small>
+              <small>{formatDisplayPercent(option.probability)}</small>
             </button>
           ))}
         </div>

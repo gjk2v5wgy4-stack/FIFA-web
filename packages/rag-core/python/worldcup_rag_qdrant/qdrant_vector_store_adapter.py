@@ -83,8 +83,11 @@ class QdrantVectorStoreAdapter:
             self.client = QdrantClient(
                 host=resolved_host,
                 port=resolved_port,
-                api_key=resolved_api_key or None,
+                https=False,
+                headers={"api-key": resolved_api_key if resolved_api_key is not None else ""},
                 prefer_grpc=prefer_grpc,
+                check_compatibility=False,
+                trust_env=False,
             )
 
     def ensure_collection(self) -> None:

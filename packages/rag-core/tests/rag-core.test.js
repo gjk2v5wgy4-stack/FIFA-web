@@ -1,8 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import {
   MemoryVectorStoreAdapter,
+  QdrantVectorStoreAdapter,
   askWithRag,
   buildRagPrompt,
   chunkDocument,
@@ -191,6 +195,56 @@ test("retrieveContext returns no-result diagnostics when filters exclude all chu
   assert.deepEqual(result.chunks, []);
   assert.deepEqual(result.sources, []);
   assert.equal(result.retrievalDiagnostics.retrievalStatus, "no_results");
+});
+
+test("QdrantVectorStoreAdapter delegates CRUD operations to Python SDK bridge", async () => {
+  const tempDirectory = mkdtempSync(join(tmpdir(), "qdrant-bridge-"));
+  const bridgeScript = join(tempDirectory, "bridge.py");
+  writeFileSync(
+    bridgeScript,
+    [
+      "import json, sys",
+      "request = json.load(sys.stdin)",
+      "operation = request['operation']",
+      "if operation == 'upsert':",
+      "    response = {'ok': True, 'received': len(request.get('chunks', []))}",
+      "elif operation == 'search':",
+      "    response = {'results': [{'chunk': {'chunkId': 'doc_001:chunk:0', 'documentId': 'doc_001', 'content': 'citation text', 'embedding': request['queryEmbedding'], 'metadata': {'teamId': 'team_usa', 'sourceType': 'scouting_report', 'title': 'Qdrant bridge'}}, 'score': 0.99}]}",
+      "elif operation == 'getById':",
+      "    response = {'chunk': {'chunkId': request['chunkId'], 'documentId': 'doc_001', 'content': 'citation text', 'embedding': [1, 0, 0, 0], 'metadata': {'teamId': 'team_usa', 'sourceType': 'scouting_report'}}}",
+      "elif operation == 'deleteByDocumentId':",
+      "    response = {'deleted': 1}",
+      "else:",
+      "    response = {'ok': True}",
+      "json.dump(response, sys.stdout, ensure_ascii=False)",
+      ""
+    ].join("\n"),
+    "utf8"
+  );
+
+  const store = new QdrantVectorStoreAdapter({
+    scriptPath: bridgeScript,
+    vectorDim: 4,
+    collectionName: "worldcup_documents"
+  });
+
+  const chunk = {
+    chunkId: "doc_001:chunk:0",
+    documentId: "doc_001",
+    content: "citation text",
+    embedding: [1, 0, 0, 0],
+    metadata: { teamId: "team_usa", sourceType: "scouting_report" }
+  };
+
+  await store.upsert([chunk]);
+  const searchResult = await store.search([1, 0, 0, 0], { teamId: "team_usa" }, 1);
+  const fetched = await store.getById("doc_001:chunk:0");
+  const deleted = await store.deleteByDocumentId("doc_001");
+
+  assert.equal(searchResult.length, 1);
+  assert.equal(searchResult[0].chunk.chunkId, "doc_001:chunk:0");
+  assert.equal(fetched.chunkId, "doc_001:chunk:0");
+  assert.equal(deleted, 1);
 });
 
 test("askWithRag includes citations in answer and sources", async () => {

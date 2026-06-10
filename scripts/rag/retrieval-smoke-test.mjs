@@ -42,12 +42,18 @@ await ingestDocument({
 const retrieval = await retrieveContext({
   query: "transition defense risk",
   matchId: "match_001",
+  teamId: "team_usa",
   topK: 3,
   vectorStore
 });
 
 assert.equal(retrieval.chunks.length > 0, true);
 assert.equal(retrieval.sources.length > 0, true);
+assert.equal(retrieval.chunks[0].metadata.matchId, "match_001");
+assert.equal(retrieval.chunks[0].metadata.teamId, "team_usa");
+
+const fetchedBeforeDelete = await vectorStore.getById(retrieval.chunks[0].chunkId);
+assert.equal(fetchedBeforeDelete?.chunkId, retrieval.chunks[0].chunkId);
 
 const answer = await askWithRag({
   question: "What are the main risk factors?",
@@ -59,12 +65,23 @@ const answer = await askWithRag({
 assert.equal(answer.sources.length > 0, true);
 assert.equal(answer.usage.usageSource, "estimated");
 
+const deletedCount = await vectorStore.deleteByDocumentId("smoke_doc_001");
+const fetchedAfterDelete = await vectorStore.getById(retrieval.chunks[0].chunkId);
+assert.equal(deletedCount > 0, true);
+assert.equal(fetchedAfterDelete, null);
+
 console.log(
   JSON.stringify(
     {
       retrievalStatus: retrieval.retrievalDiagnostics.retrievalStatus,
       returnedCount: retrieval.retrievalDiagnostics.returnedCount,
+      upsertOk: Boolean(fetchedBeforeDelete),
+      getByIdOk: fetchedBeforeDelete?.chunkId === retrieval.chunks[0].chunkId,
+      metadataFilterOk:
+        retrieval.chunks[0].metadata.matchId === "match_001" && retrieval.chunks[0].metadata.teamId === "team_usa",
       sourceCount: answer.sources.length,
+      citationExample: answer.sources[0],
+      deleteByDocumentIdOk: deletedCount > 0 && fetchedAfterDelete === null,
       usage: answer.usage
     },
     null,

@@ -328,7 +328,117 @@ Response `200`:
 
 ## RAG
 
-### POST /api/rag/ask
+### POST /api/rag/query
+
+`POST /api/rag/ask` is also supported as a backward-compatible alias.
+
+Protected account access is required. This endpoint returns provider usage estimates for later
+token metering, but this Thread 2 integration does not directly deduct tokens, write
+`token_ledger`, or write `ai_usage_logs`.
+
+Request:
+
+```json
+{
+  "question": "What are the main risk factors for the United States in this match?",
+  "matchId": "match_001",
+  "teamId": "team_usa",
+  "playerId": null,
+  "topK": 8,
+  "filters": {
+    "sourceType": "scouting_report",
+    "language": "zh-CN"
+  },
+  "model": "worldcup-rag-qdrant"
+}
+```
+
+Legacy request fields `context` and `retrieval` are accepted for compatibility.
+
+Response `200` with results:
+
+```json
+{
+  "data": {
+    "answer": "Based on retrieved sources, the main risk factors are transition defense and pressing stability.",
+    "sources": [
+      {
+        "chunkId": "chunk_001",
+        "documentId": "doc_001",
+        "score": 0.91,
+        "contentPreview": "United States transition defense and pressing stability report.",
+        "metadata": {
+          "sourceType": "scouting_report",
+          "teamId": "team_usa",
+          "matchId": "match_001",
+          "language": "zh-CN"
+        },
+        "citation": {
+          "title": "Team scouting report",
+          "sourceType": "scouting_report",
+          "sourceUrl": "https://source.example.com/report",
+          "publishedAt": "2026-06-01T00:00:00Z",
+          "language": "zh-CN"
+        }
+      }
+    ],
+    "retrievalDiagnostics": {
+      "status": "ok",
+      "resultCount": 1,
+      "filtersApplied": {
+        "sourceType": "scouting_report",
+        "language": "zh-CN",
+        "matchId": "match_001",
+        "teamId": "team_usa"
+      },
+      "provider": "qdrant",
+      "collection": "worldcup_documents"
+    },
+    "usage": {
+      "provider": "estimated",
+      "model": "worldcup-rag-qdrant",
+      "promptTokens": 40,
+      "completionTokens": 120,
+      "embeddingTokens": 1536,
+      "totalProviderTokens": 1696,
+      "estimatedCost": 0.001696,
+      "tokensDeducted": 0
+    }
+  }
+}
+```
+
+Response `200` with no results:
+
+```json
+{
+  "data": {
+    "answer": null,
+    "sources": [],
+    "retrievalDiagnostics": {
+      "status": "no_results",
+      "resultCount": 0,
+      "filtersApplied": {
+        "teamId": "team_unknown"
+      },
+      "provider": "qdrant"
+    },
+    "usage": {
+      "provider": "estimated",
+      "tokensDeducted": 0
+    }
+  }
+}
+```
+
+If Qdrant is unavailable, the API returns `503` with error code `RAG_RETRIEVAL_UNAVAILABLE`.
+Requests asking for betting, chasing losses, copy trading, stake sizing, or guaranteed outcomes
+return a safety-boundary answer instead of retrieval results.
+
+### Deprecated legacy POST /api/rag/ask example
+
+The legacy example below is retained for historical context only. The active response shape is
+defined by `POST /api/rag/query` above, and RAG usage is not directly deducted in Thread 2.
 
 Request:
 

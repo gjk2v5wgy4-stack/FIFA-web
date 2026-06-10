@@ -29,7 +29,7 @@ def test_register_login_and_me_keep_new_user_pending(client: TestClient) -> None
     assert response.json()["data"]["status"] == "pending_approval"
 
 
-def test_pending_user_can_login_but_cannot_call_metered_rag(client: TestClient) -> None:
+def test_pending_user_can_login_but_cannot_call_protected_rag(client: TestClient) -> None:
     register_user(client, email="pending@example.com")
     headers = auth_headers(client, "pending@example.com")
 
@@ -87,19 +87,19 @@ def test_approved_metered_api_charges_tokens_and_warns_on_low_balance(
     client.post(
         f"/api/admin/users/{user['userId']}/approve",
         headers=admin_headers,
-        json={"reason": "Approved.", "initialTokenGrant": 1_250},
+        json={"reason": "Approved.", "initialTokenGrant": 850},
     )
     headers = auth_headers(client, "metered@example.com")
 
     response = client.post(
-        "/api/rag/ask",
+        "/api/predictions/match",
         headers=headers,
-        json={"question": "What uncertainty matters?", "context": {}, "retrieval": {}},
+        json={"matchId": "match_001", "options": {"includeScoreDistribution": True}},
     )
 
     assert response.status_code == 200, response.text
     usage = response.json()["data"]["usage"]
-    assert usage["tokensCharged"] == 1_200
+    assert usage["tokensCharged"] == 800
     assert usage["remainingTokens"] == 50
     assert usage["lowBalance"] is True
     assert usage["lowTokenWarning"] is True

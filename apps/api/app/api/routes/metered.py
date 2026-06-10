@@ -1,15 +1,13 @@
 from datetime import UTC, datetime, timedelta
-from decimal import Decimal
 
 from fastapi import APIRouter
 
 from app.api.deps import CurrentUser, DbSession
 from app.core.ids import new_id
-from app.models import Prediction, RagQuery, Report
+from app.models import Prediction, Report
 from app.schemas.requests import (
     GroupSimulationRequest,
     MatchPredictionRequest,
-    RagAskRequest,
     ReportGenerateRequest,
     WhatIfPredictionRequest,
 )
@@ -18,54 +16,6 @@ from app.services.token_quota import token_quota_service
 
 router = APIRouter(tags=["metered"])
 MODEL_VERSION = "football-models-0.1.0"
-
-
-@router.post("/rag/ask")
-def ask_rag(payload: RagAskRequest, user: CurrentUser, session: DbSession) -> dict[str, object]:
-    access_control_service.ensure_metered_access(user)
-    rag_query = RagQuery(
-        id=new_id("ragq"),
-        user_id=user.id,
-        question=payload.question,
-        answer=(
-            "Stub analysis based on available football data. "
-            "It highlights probability, uncertainty, risk factors, and model evidence."
-        ),
-        context=payload.context,
-        retrieval_config=payload.retrieval,
-        citation_chunk_ids=[],
-        confidence=Decimal("0.74"),
-    )
-    session.add(rag_query)
-    session.flush()
-    charge = token_quota_service.charge_for_usage(
-        session,
-        user,
-        "rag_query",
-        "rag_query",
-        rag_query.id,
-        1_200,
-    )
-    rag_query.ai_usage_log_id = charge.ai_usage_log_id
-    session.commit()
-    return {
-        "data": {
-            "ragQueryId": rag_query.id,
-            "answer": rag_query.answer,
-            "confidence": 0.74,
-            "citations": [],
-            "usage": {
-                **charge.to_contract(),
-                "providerUsage": {
-                    "prompt_tokens": 1200,
-                    "completion_tokens": 0,
-                    "embedding_tokens": 0,
-                    "total_provider_tokens": 1200,
-                    "estimated_cost": 0,
-                },
-            },
-        }
-    }
 
 
 @router.post("/predictions/match")
@@ -242,4 +192,3 @@ def generate_report(
             "usage": charge.to_contract(),
         }
     }
-

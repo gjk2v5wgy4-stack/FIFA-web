@@ -1,9 +1,13 @@
-import { CalendarDays, CloudSun, Clock3, MapPin } from "lucide-react";
+import { CalendarDays, CloudSun, Clock3, Droplets, MapPin, Wind } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ResultPreview } from "../components/ResultPreview";
 import { TeamDisplayName } from "../components/TeamDisplayName";
 import type { MatchPredictionStub } from "../services/apiStubs";
 import { getVenueDisplay } from "../services/teamDisplay";
+import {
+  buildWeatherMetricPresentation,
+  type WeatherMetricPresentation,
+} from "../services/uiPresentation";
 import { createMatchWeatherForecast } from "../services/weatherForecast";
 import {
   createPredictionFromSchedule,
@@ -14,6 +18,12 @@ interface HomePageProps {
   prediction: MatchPredictionStub | null;
   tournamentMatches: TournamentMatchStub[];
 }
+
+const weatherMetricIcons: Record<WeatherMetricPresentation["icon"], typeof CloudSun> = {
+  condition: CloudSun,
+  humidity: Droplets,
+  wind: Wind,
+};
 
 function formatMatchDate(kickoffAt: string) {
   const dateLabel = new Date(kickoffAt).toLocaleDateString("zh-CN", {
@@ -70,6 +80,7 @@ export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
           {tournamentMatches.map((match) => {
             const isSelected = selectedMatch?.matchId === match.matchId;
             const weather = createMatchWeatherForecast(match, weatherRefreshedAt);
+            const weatherMetrics = buildWeatherMetricPresentation(weather);
 
             return (
               <button
@@ -103,13 +114,23 @@ export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
                 </div>
 
                 <div className="tournament-card__weather" aria-label="天气预测">
-                  <CloudSun aria-hidden="true" size={16} />
-                  <span>
-                    {weather.condition} {weather.temperatureC}°C
-                  </span>
-                  <small>
-                    湿度{weather.humidityPct}% · 风{weather.windKph}km/h
-                  </small>
+                  {weatherMetrics.map((metric) => {
+                    const WeatherIcon = weatherMetricIcons[metric.icon];
+
+                    return (
+                      <span
+                        aria-label={`${metric.label} ${metric.value}`}
+                        className={`weather-metric weather-metric--${metric.id}`}
+                        key={metric.id}
+                      >
+                        <WeatherIcon aria-hidden="true" size={15} />
+                        <span className="weather-metric__copy">
+                          <strong>{metric.value}</strong>
+                          <small>{metric.label}</small>
+                        </span>
+                      </span>
+                    );
+                  })}
                 </div>
               </button>
             );

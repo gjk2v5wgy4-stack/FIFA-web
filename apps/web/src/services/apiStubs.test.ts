@@ -3,6 +3,7 @@ import {
   getAccountStatus,
   getAdminUsers,
   getMatchPrediction,
+  getTodayMatches,
   getTokenSummary,
   submitLogin,
   submitRegistration,
@@ -49,5 +50,14 @@ describe("frontend API stubs", () => {
     expect(users.some((user) => user.status === "pending_approval")).toBe(true);
     expect(users[0].availableActions).toContain("approve_user");
     expect(users[0].tokenBalance).toBe(0);
+  });
+
+  it("returns today schedule rows using the checked date", async () => {
+    const matches = await getTodayMatches(new Date(2026, 5, 9, 8));
+
+    expect(matches).toHaveLength(3);
+    expect(matches[0].homeTeam.code).toBe("USA");
+    expect(matches[0].awayTeam.code).toBe("WAL");
+    expect(matches[0].kickoffAt.startsWith("2026-06-09")).toBe(true);
   });
 });

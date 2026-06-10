@@ -1,12 +1,12 @@
 import {
   AlertTriangle,
   BarChart3,
-  FileText,
   Lock,
   ShieldCheck,
   Users,
   WalletCards,
 } from "lucide-react";
+import { TeamDisplayName } from "../components/TeamDisplayName";
 import type {
   AccountStatusSummary,
   MatchPredictionStub,
@@ -29,15 +29,11 @@ interface AccessPageProps {
   tokenSummary: TokenSummary | null;
 }
 
-function formatPercent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
-
 const statusRows = [
   {
     status: "pending_approval",
     title: "等待管理员审批",
-    text: "注册后默认进入待审批状态，审批前不能使用 AI/RAG/预测/报告接口。",
+    text: "注册后默认进入待审批状态，审批前不能使用 AI/RAG/预测接口。",
   },
   {
     status: "approved",
@@ -74,9 +70,15 @@ export function MatchesPage({ onOpenMatch, prediction }: MatchesPageProps) {
           <div className="section-heading">
             <p className="eyebrow">Featured Match</p>
             <h2>
-              {prediction
-                ? `${prediction.homeTeam.name} vs ${prediction.awayTeam.name}`
-                : "加载比赛 stub..."}
+              {prediction ? (
+                <span className="inline-match-title">
+                  <TeamDisplayName team={prediction.homeTeam} />
+                  <strong>对阵</strong>
+                  <TeamDisplayName team={prediction.awayTeam} />
+                </span>
+              ) : (
+                "加载比赛 stub..."
+              )}
             </h2>
           </div>
           <p className="muted">
@@ -164,36 +166,6 @@ export function SimulatorPage({ mode }: { mode: "group" | "knockout" }) {
             <p className="muted">等待后端模拟接口接入，当前为 QA 路由覆盖 stub。</p>
           </article>
         ))}
-      </section>
-    </div>
-  );
-}
-
-export function ReportsPage({ prediction }: { prediction: MatchPredictionStub | null }) {
-  return (
-    <div className="page-stack">
-      <section className="page-header">
-        <div>
-          <p className="eyebrow">Reports</p>
-          <h1>分析报告中心</h1>
-          <p className="muted">
-            报告聚合概率预测、RAG 引用、模型依据和风险因素，访问前需要账户通过审批。
-          </p>
-        </div>
-      </section>
-
-      <section className="info-panel">
-        <FileText aria-hidden="true" size={24} />
-        <h2>赛前报告预览</h2>
-        <p className="muted">
-          {prediction
-            ? `${prediction.homeTeam.name} vs ${prediction.awayTeam.name}，主胜 ${formatPercent(
-                prediction.probabilities.homeWin,
-              )}，平局 ${formatPercent(prediction.probabilities.draw)}，客胜 ${formatPercent(
-                prediction.probabilities.awayWin,
-              )}。`
-            : "加载报告 stub..."}
-        </p>
       </section>
     </div>
   );

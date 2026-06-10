@@ -6,7 +6,6 @@ export type RouteId =
   | "playerDetail"
   | "groupSimulator"
   | "knockoutSimulator"
-  | "reports"
   | "access"
   | "account"
   | "admin"
@@ -27,7 +26,7 @@ const staticPathRoutes: Record<string, RouteId> = {
   "/matches": "matches",
   "/simulator/group": "groupSimulator",
   "/simulator/knockout": "knockoutSimulator",
-  "/reports": "reports",
+  "/reports": "matchDetail",
   "/access": "access",
   "/account": "account",
   "/admin": "admin",
@@ -43,7 +42,6 @@ const canonicalPaths: Record<RouteId, string> = {
   playerDetail: "/players/player_010",
   groupSimulator: "/simulator/group",
   knockoutSimulator: "/simulator/knockout",
-  reports: "/reports",
   access: "/access",
   account: "/account",
   admin: "/admin",

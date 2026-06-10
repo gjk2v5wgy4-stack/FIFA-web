@@ -119,6 +119,25 @@ export interface AdminUserStub {
   availableActions: AdminAction[];
 }
 
+export interface TodayMatchStub {
+  matchId: string;
+  stage: string;
+  group: string;
+  status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
+  kickoffAt: string;
+  venue: string;
+  homeTeam: {
+    teamId: string;
+    name: string;
+    code: string;
+  };
+  awayTeam: {
+    teamId: string;
+    name: string;
+    code: string;
+  };
+}
+
 const demoUser: AuthUser = {
   userId: "user_demo",
   email: "demo@example.com",
@@ -279,6 +298,75 @@ export async function getMatchPrediction(
       lowBalance: false,
     },
   };
+}
+
+function kickoffOnDate(referenceDate: Date, hours: number, minutes = 0) {
+  const kickoff = new Date(referenceDate);
+  kickoff.setHours(hours, minutes, 0, 0);
+  return kickoff.toISOString();
+}
+
+export async function getTodayMatches(
+  referenceDate = new Date(),
+): Promise<TodayMatchStub[]> {
+  await waitForStub();
+
+  return [
+    {
+      matchId: "match_today_001",
+      stage: "group",
+      group: "A",
+      status: "scheduled",
+      kickoffAt: kickoffOnDate(referenceDate, 18, 0),
+      venue: "MetLife Stadium",
+      homeTeam: {
+        teamId: "team_usa",
+        name: "United States",
+        code: "USA",
+      },
+      awayTeam: {
+        teamId: "team_wal",
+        name: "Wales",
+        code: "WAL",
+      },
+    },
+    {
+      matchId: "match_today_002",
+      stage: "group",
+      group: "B",
+      status: "scheduled",
+      kickoffAt: kickoffOnDate(referenceDate, 21, 0),
+      venue: "SoFi Stadium",
+      homeTeam: {
+        teamId: "team_arg",
+        name: "Argentina",
+        code: "ARG",
+      },
+      awayTeam: {
+        teamId: "team_jpn",
+        name: "Japan",
+        code: "JPN",
+      },
+    },
+    {
+      matchId: "match_today_003",
+      stage: "group",
+      group: "C",
+      status: "scheduled",
+      kickoffAt: kickoffOnDate(referenceDate, 23, 30),
+      venue: "Lumen Field",
+      homeTeam: {
+        teamId: "team_bra",
+        name: "Brazil",
+        code: "BRA",
+      },
+      awayTeam: {
+        teamId: "team_mar",
+        name: "Morocco",
+        code: "MAR",
+      },
+    },
+  ];
 }
 
 export async function getAdminUsers(): Promise<AdminUserStub[]> {

@@ -1,7 +1,6 @@
 import {
   BarChart3,
   CheckCircle2,
-  FileText,
   Home,
   Layers,
   ListChecks,
@@ -10,6 +9,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import type { RouteId } from "../routes";
+import { AiPetAssistant } from "./AiPetAssistant";
 
 interface AppShellProps {
   activeRoute: RouteId;
@@ -25,7 +25,6 @@ const navItems: Array<{
   { route: "home", label: "首页", icon: Home },
   { route: "matches", label: "比赛", icon: ListChecks },
   { route: "groupSimulator", label: "模拟器", icon: Layers },
-  { route: "reports", label: "报告", icon: FileText },
   { route: "access", label: "访问", icon: ShieldCheck },
   { route: "account", label: "账户", icon: UserCircle },
   { route: "matchDetail", label: "概率预测", icon: BarChart3 },
@@ -41,12 +40,13 @@ export function AppShell({
     <div className="app-shell">
       <aside className="sidebar" aria-label="主导航">
         <div className="brand-mark" aria-label="World Cup AI Prediction">
-          <span className="brand-mark__icon">AI</span>
+          <span className="brand-mark__icon">FIFA</span>
           <span>
-            <strong>WorldCup AI</strong>
-            <small>Football intelligence</small>
+            <strong>2026世界杯预测ragAI</strong>
+            <small>赛前数据智能</small>
           </span>
         </div>
+        <div className="nav-section-title">功能区</div>
         <nav className="nav-list">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -71,6 +71,7 @@ export function AppShell({
         </div>
       </aside>
       <main className="main-view">{children}</main>
+      <AiPetAssistant />
     </div>
   );
 }

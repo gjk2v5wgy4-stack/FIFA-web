@@ -1,105 +1,123 @@
-import {
-  BadgeCheck,
-  Clock3,
-  FileSearch,
-  MessageSquareText,
-  ShieldCheck,
-  WalletCards,
-} from "lucide-react";
-import { CoverPreview } from "../components/CoverPreview";
+import { CalendarDays, CloudSun, Clock3, MapPin } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { ResultPreview } from "../components/ResultPreview";
-import type {
-  AccountStatusSummary,
-  MatchPredictionStub,
-  TokenSummary,
-} from "../services/apiStubs";
+import { TeamDisplayName } from "../components/TeamDisplayName";
+import type { MatchPredictionStub } from "../services/apiStubs";
+import { getVenueDisplay } from "../services/teamDisplay";
+import { createMatchWeatherForecast } from "../services/weatherForecast";
+import {
+  createPredictionFromSchedule,
+  type TournamentMatchStub,
+} from "../services/worldCupSchedule";
 
 interface HomePageProps {
-  accountStatus: AccountStatusSummary | null;
   prediction: MatchPredictionStub | null;
-  tokenSummary: TokenSummary | null;
-  onOpenPrediction: () => void;
+  tournamentMatches: TournamentMatchStub[];
 }
 
-export function HomePage({
-  accountStatus,
-  prediction,
-  tokenSummary,
-  onOpenPrediction,
-}: HomePageProps) {
+function formatMatchDate(kickoffAt: string) {
+  const dateLabel = new Date(kickoffAt).toLocaleDateString("zh-CN", {
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
+  });
+
+  return `${dateLabel} 北京时间`;
+}
+
+function formatMatchTime(kickoffAt: string) {
+  return new Date(kickoffAt).toLocaleTimeString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
+  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+  const [weatherRefreshedAt, setWeatherRefreshedAt] = useState(() => new Date());
+  const selectedMatch =
+    tournamentMatches.find((match) => match.matchId === selectedMatchId) ??
+    tournamentMatches[0] ??
+    null;
+  const selectedPrediction = useMemo(
+    () => (selectedMatch ? createPredictionFromSchedule(selectedMatch) : prediction),
+    [prediction, selectedMatch],
+  );
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setWeatherRefreshedAt(new Date());
+    }, 60 * 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   return (
     <div className="page-stack">
-      <section className="dashboard-hero">
-        <div className="dashboard-hero__content">
-          <p className="eyebrow">World Cup AI/RAG Intelligence</p>
-          <h1>世界杯赛前数据分析工作台</h1>
-          <p className="hero-copy">
-            面向审批用户的概率预测、风险因素、RAG 引用和报告预览。当前页面使用前端 stub 数据，等待后端合同接入。
-          </p>
-          <div className="hero-actions">
-            <button className="primary-button" onClick={onOpenPrediction} type="button">
-              <FileSearch aria-hidden="true" size={18} />
-              查看预测 stub
-            </button>
-            <span className="inline-status">
-              <BadgeCheck aria-hidden="true" size={18} />
-              {accountStatus?.message ?? "正在读取账号状态"}
-            </span>
+      <section
+        aria-label="近期比赛信息"
+        className="tournament-schedule"
+      >
+        <div className="tournament-schedule__header">
+          <div>
+            <p className="eyebrow">世界杯赛程</p>
+            <h1>近期比赛信息</h1>
           </div>
+          <span>{tournamentMatches.length} 场比赛</span>
         </div>
-        <CoverPreview />
+
+        <div className="tournament-carousel" aria-label="左右滑动查看全部比赛">
+          {tournamentMatches.map((match) => {
+            const isSelected = selectedMatch?.matchId === match.matchId;
+            const weather = createMatchWeatherForecast(match, weatherRefreshedAt);
+
+            return (
+              <button
+                aria-pressed={isSelected}
+                className={`tournament-card${isSelected ? " tournament-card--active" : ""}`}
+                key={match.matchId}
+                onClick={() => setSelectedMatchId(match.matchId)}
+                type="button"
+              >
+                <div className="tournament-card__time">
+                  <span>
+                    <CalendarDays aria-hidden="true" size={16} />
+                    {formatMatchDate(match.kickoffAt)}
+                  </span>
+                  <strong>
+                    <Clock3 aria-hidden="true" size={16} />
+                    {formatMatchTime(match.kickoffAt)}
+                  </strong>
+                </div>
+
+                <div className="tournament-card__teams">
+                  <TeamDisplayName team={match.homeTeam} />
+                  <strong>对阵</strong>
+                  <TeamDisplayName team={match.awayTeam} />
+                </div>
+
+                <div className="tournament-card__region">
+                  <MapPin aria-hidden="true" size={16} />
+                  <span>{getVenueDisplay(match.region)}</span>
+                  <small>{match.stage}</small>
+                </div>
+
+                <div className="tournament-card__weather" aria-label="天气预测">
+                  <CloudSun aria-hidden="true" size={16} />
+                  <span>
+                    {weather.condition} {weather.temperatureC}°C
+                  </span>
+                  <small>
+                    湿度{weather.humidityPct}% · 风{weather.windKph}km/h
+                  </small>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </section>
 
-      <section className="metric-grid" aria-label="账户与工作流状态">
-        <article className="metric-card">
-          <ShieldCheck aria-hidden="true" size={22} />
-          <span>账户状态</span>
-          <strong>{accountStatus?.status ?? "loading"}</strong>
-        </article>
-        <article className="metric-card">
-          <WalletCards aria-hidden="true" size={22} />
-          <span>Token 余额</span>
-          <strong>{tokenSummary?.balanceTokens.toLocaleString() ?? "--"}</strong>
-        </article>
-        <article className="metric-card">
-          <Clock3 aria-hidden="true" size={22} />
-          <span>最近扣减</span>
-          <strong>{tokenSummary?.ledger.at(-1)?.amountTokens ?? "--"}</strong>
-        </article>
-        <article className="metric-card">
-          <MessageSquareText aria-hidden="true" size={22} />
-          <span>低余额提醒</span>
-          <strong>{tokenSummary?.lowBalance ? "联系管理员" : "正常"}</strong>
-        </article>
-      </section>
-
-      <div className="two-column">
-        <ResultPreview prediction={prediction} />
-        <section className="workflow-panel">
-          <div className="section-heading">
-            <p className="eyebrow">MVP Flow</p>
-            <h2>审批访问流程</h2>
-          </div>
-          <ol className="timeline-list">
-            <li>
-              <span>1</span>
-              用户注册，默认进入 pending_approval。
-            </li>
-            <li>
-              <span>2</span>
-              管理员审批账号并授予初始 token 配额。
-            </li>
-            <li>
-              <span>3</span>
-              受保护的 RAG、预测、报告接口按请求扣减 token。
-            </li>
-            <li>
-              <span>4</span>
-              余额较低时提示联系管理员调整配额。
-            </li>
-          </ol>
-        </section>
-      </div>
+      <ResultPreview prediction={selectedPrediction} />
     </div>
   );
 }

@@ -4,7 +4,6 @@ import {
   Home,
   LogIn,
   ShieldCheck,
-  UserPlus,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import type { RouteId } from "../routes";
@@ -21,8 +20,6 @@ const navItems: Array<{
   icon: typeof Home;
 }> = [
   { route: "home", label: "首页", icon: Home },
-  { route: "login", label: "登录", icon: LogIn },
-  { route: "register", label: "注册", icon: UserPlus },
   { route: "prediction", label: "预测结果", icon: BarChart3 },
   { route: "admin", label: "审批后台", icon: ShieldCheck },
 ];
@@ -65,7 +62,23 @@ export function AppShell({
           <span>管理员审批 + token 配额模式</span>
         </div>
       </aside>
-      <main className="main-view">{children}</main>
+      <main className="main-view">
+        <header className="topbar" aria-label="用户操作">
+          <div className="topbar__context">
+            <span>前端预览</span>
+            <strong>审批访问模式</strong>
+          </div>
+          <button
+            className={`topbar-login${activeRoute === "login" ? " topbar-login--active" : ""}`}
+            onClick={() => onNavigate("login")}
+            type="button"
+          >
+            <LogIn aria-hidden="true" size={18} />
+            登录
+          </button>
+        </header>
+        {children}
+      </main>
     </div>
   );
 }

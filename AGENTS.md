@@ -1,38 +1,38 @@
 # AGENTS.md
 
-## Project
+## 项目
 
-This is a single-repository monorepo project.
+本项目是单一 Git 仓库 monorepo 项目。
 
-Project name:
+项目名称：
 worldcup-ai-prediction
 
-Product:
-A paid-access World Cup AI/RAG football data prediction web system.
+产品定位：
+一个需要授权访问的世界杯 AI/RAG 足球数据预测网页系统。
 
-The product is not a simple chatbot.
-It is a football data intelligence platform with:
-- Frontend web app
-- FastAPI backend
-- RAG vector retrieval
-- Football prediction engine
-- Admin approval
-- Token quota metering
-- Reports
+本产品不是普通聊天机器人。
+它是一个足球数据智能平台，包含：
+- 前端 Web 应用
+- FastAPI 后端
+- RAG 向量检索
+- 足球预测引擎
+- 管理员审批
+- token 配额计量
+- 报告系统
 - QA
 - DevOps
 
-## Repository Rule
+## 仓库规则
 
-This project must stay as one Git repository.
+本项目必须保持为一个 Git 仓库。
 
-Do not create separate repositories.
-Do not create separate projects for frontend, backend, RAG, prediction, admin, QA, or DevOps.
-Do not run git init inside subdirectories.
-Do not create Git submodules.
-Do not create sibling project folders as independent projects.
+不要创建独立仓库。
+不要为前端、后端、RAG、预测、管理端、QA 或 DevOps 创建独立项目。
+不要在任何子目录中执行 `git init`。
+不要创建 Git submodule。
+不要把兄弟目录作为独立项目创建。
 
-All modules must live inside this repository:
+所有模块都必须位于当前仓库内：
 
 apps/web
 apps/api
@@ -42,11 +42,11 @@ packages/football-models
 docs
 infra
 
-## Branch Rule
+## 分支规则
 
-Each board/module must be developed on a feature branch inside the same repository.
+每个看板或模块都必须在同一个仓库内的 feature 分支上开发。
 
-Branches:
+分支列表：
 
 - feature/00-architecture-contracts
 - feature/01-frontend-ui
@@ -57,49 +57,49 @@ Branches:
 - feature/06-qa-integration
 - feature/07-devops-deployment
 
-A Codex thread may use a worktree, but the worktree must point to a branch of this same repository.
-A worktree is allowed only as an isolated working directory for the same Git repo.
+Codex 线程可以使用 worktree，但该 worktree 必须指向当前同一个仓库中的分支。
+worktree 只允许作为同一 Git 仓库的隔离工作目录使用。
 
-## Main Branch Rule
+## main 分支规则
 
-main must remain stable.
+`main` 必须保持稳定。
 
-Do not merge your feature branch into main.
-Do not rebase main.
-Do not force push.
-Do not delete branches.
-Do not delete worktrees.
-Do not archive or close the task automatically.
+不要把自己的 feature 分支合并到 `main`。
+不要 rebase `main`。
+不要 force push。
+不要删除分支。
+不要删除 worktree。
+不要自动归档或关闭任务。
 
-Only the human project owner may approve:
-- merge
-- archive
-- branch deletion
-- worktree cleanup
+只有人工项目负责人可以批准：
+- 合并
+- 归档
+- 删除分支
+- 清理 worktree
 
-## MVP Access Model
+## MVP 访问模型
 
-This MVP does not implement Stripe, subscriptions, checkout, public recharge, or self-service paid plans.
+本 MVP 不实现 Stripe、订阅、checkout、公共充值或自助付费套餐。
 
-Access model:
+访问模型：
 
-1. User registers an account.
-2. Account status is pending_approval by default.
-3. Admin approves the user.
-4. Admin grants initial free token quota.
-5. User can use AI/RAG/prediction/report APIs only after approval.
-6. Each API request is metered.
-7. Token usage is deducted from user token balance.
-8. Low token balance triggers a reminder to contact admin.
-9. Admin manually grants or adjusts tokens.
+1. 用户注册账号。
+2. 账号默认状态为 `pending_approval`。
+3. 管理员审批用户。
+4. 管理员发放初始免费 token 配额。
+5. 用户只有在审批通过后，才可以使用 AI/RAG/预测/报告 API。
+6. 每次 API 请求都必须计量。
+7. 用户使用 token 后，从 token 余额中扣减。
+8. token 余额较低时，前端必须提示用户联系管理员。
+9. 管理员手动发放或调整 token。
 
-Required user statuses:
+必需的用户状态：
 - pending_approval
 - approved
 - rejected
 - suspended
 
-Required admin actions:
+必需的管理员操作：
 - approve_user
 - reject_user
 - suspend_user
@@ -108,21 +108,21 @@ Required admin actions:
 - adjust_tokens
 - revoke_tokens
 
-All token changes must be recorded in token_ledger.
-Never overwrite token balance without a ledger entry.
+所有 token 变化都必须记录在 `token_ledger` 中。
+不得在没有 ledger 记录的情况下直接覆盖用户 token 余额。
 
-## Safety Rules
+## 安全规则
 
-Do not implement gambling or betting functionality.
-Do not promise guaranteed predictions.
-Do not use wording such as:
+不要实现赌博或体育投注功能。
+不要承诺预测结果一定命中。
+不要使用以下措辞：
 - 必胜
 - 稳赚
 - 包中
 - 投注建议
 - 跟单
 
-Use wording such as:
+应使用以下措辞：
 - 概率预测
 - 数据分析
 - 风险因素
@@ -130,17 +130,17 @@ Use wording such as:
 - 模型依据
 - 赛前情报
 
-## Completion Rule
+## 完成规则
 
-When a task is complete, do not auto-archive.
+任务完成后不要自动归档。
 
-The final response must include:
-1. Summary
-2. Branch name
-3. Files changed
-4. Commands run
-5. Test results
-6. Known issues
-7. Merge readiness
-8. Manual verification steps
-9. The exact sentence: 等待人工验收，未归档
+最终回复必须包含：
+1. 完成摘要
+2. 分支名称
+3. 变更文件
+4. 运行命令
+5. 测试结果
+6. 已知问题
+7. 合并准备状态
+8. 人工验证步骤
+9. 精确句子：等待人工验收，未归档

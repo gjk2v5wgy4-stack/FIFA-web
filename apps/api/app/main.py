@@ -197,9 +197,10 @@ def create_app(store: InMemoryStore | None = None) -> FastAPI:
             "data": {
                 "userId": user.id,
                 "balanceTokens": balance,
+                "totalConsumedTokens": services.tokens.getTotalConsumed(user.id),
                 "lowBalance": services.tokens.isLowBalance(user.id),
                 "lowBalanceThreshold": services.tokens.getLowThreshold(user.id),
-                "contactAdminMessage": "Token balance is low. Please contact the admin.",
+                "contactAdminMessage": "账号余额不足，请联系管理员充值。",
                 "ledger": [
                     serialize_ledger(entry) for entry in services.tokens.listLedger(user.id)
                 ],
@@ -394,7 +395,7 @@ def create_app(store: InMemoryStore | None = None) -> FastAPI:
         body: RagAskRequest,
         user: UserRecord = Depends(current_user),
     ) -> dict[str, Any]:
-        services.access.requireApproved(user)
+        services.metering.ensureCanStartAiConversation(user.id)
         provider_usage = _rag_provider_usage(body.mock_usage)
         rag_result = rag_service.ask(
             question=body.question,

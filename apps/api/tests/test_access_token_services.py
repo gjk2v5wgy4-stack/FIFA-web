@@ -175,7 +175,7 @@ def test_api_usage_logs_include_contract_fields_for_rag_usage() -> None:
     assert usage.embedding_tokens == 200
     assert usage.total_provider_tokens == 600
     assert usage.estimated_cost == 0.004
-    assert usage.internal_tokens_charged == 600
+    assert usage.internal_tokens_charged == 1200
     assert usage.related_entity_type == "rag_query"
     assert usage.related_entity_id == "ragq_contract_001"
 

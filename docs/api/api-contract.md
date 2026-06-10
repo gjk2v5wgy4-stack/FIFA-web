@@ -126,9 +126,10 @@ Response `200`:
   "data": {
     "userId": "user_001",
     "balanceTokens": 78000,
+    "totalConsumedTokens": 22000,
     "lowBalance": false,
     "lowBalanceThreshold": 10000,
-    "contactAdminMessage": "Token balance is low. Please contact the admin.",
+    "contactAdminMessage": "账号余额不足，请联系管理员充值。",
     "ledger": [
       {
         "ledgerId": "tl_001",
@@ -352,13 +353,16 @@ RAG metering rule:
 
 - The RAG service returns `usage.providerUsage`.
 - The API metering layer converts `usage.providerUsage.totalProviderTokens` to internal token
-  quota for MVP.
+  quota with a 2x multiplier for MVP:
+  `internalTokensCharged = totalProviderTokens * 2`.
 - Successful RAG calls write `token_ledger.reason = rag_query`.
 - Successful RAG calls write `ai_usage_logs.usage_type = rag`.
 - Retryable RAG requests must use `requestId` as the idempotency key so the same request is not
   charged twice.
 - If the account is not approved or token balance is insufficient, the API returns the common
   error shape and does not write a RAG usage log.
+- If the token balance is zero, AI/RAG interaction is stopped before the answer is generated and
+  the API returns `账号余额不足，请联系管理员充值。`.
 
 ## Prediction And Simulation
 

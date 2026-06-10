@@ -86,6 +86,8 @@ Never overwrite a stored balance without a ledger entry. Balance is `sum(amount_
 For RAG requests, `usage_type = rag`, `related_entity_type = rag_query`, and
 `related_entity_id` points to the RAG query ID returned by the RAG service. The RAG service returns
 provider usage; the API metering layer writes `ai_usage_logs` and `token_ledger`.
+`total_provider_tokens` stores actual model/provider consumption. `internal_tokens_charged` stores
+the user-facing internal charge and is `total_provider_tokens * 2` for MVP RAG usage.
 
 ### teams
 

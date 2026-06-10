@@ -36,6 +36,14 @@ class TokenQuotaService:
     def getLowThreshold(self, userId: str) -> int:
         return self._store.get_user(userId).low_balance_threshold
 
+    def getTotalConsumed(self, userId: str) -> int:
+        self._store.get_user(userId)
+        return sum(
+            abs(entry.amount_tokens)
+            for entry in self._store.token_ledger
+            if entry.user_id == userId and entry.amount_tokens < 0
+        )
+
     def isLowBalance(self, userId: str) -> bool:
         return self.getBalance(userId) <= self.getLowThreshold(userId)
 

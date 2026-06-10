@@ -42,15 +42,18 @@ def insufficient_tokens(
     *,
     include_contact_admin: bool = False,
 ) -> AppError:
+    contact_admin_message = "账号余额不足，请联系管理员充值。"
     details: dict[str, object] = {
         "requiredTokens": required_tokens,
         "availableTokens": available_tokens,
     }
     if include_contact_admin:
-        details["contactAdminMessage"] = "Token balance is low. Please contact the admin."
+        details["contactAdminMessage"] = contact_admin_message
     return AppError(
         code="INSUFFICIENT_TOKENS",
-        message="Not enough tokens for this action. Please contact the admin.",
+        message=contact_admin_message
+        if include_contact_admin
+        else "Not enough tokens for this action.",
         status_code=402,
         details=details,
     )

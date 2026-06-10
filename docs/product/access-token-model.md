@@ -79,18 +79,28 @@ Internal quota deduction may use:
 - A fixed minimum token charge per API class
 
 For MVP RAG queries, the RAG service returns provider usage only. The API layer calls token
-metering after the RAG response and deducts internal quota from `usage.totalProviderTokens`.
-The RAG service and RAG core must not mutate token balance directly.
+metering after the RAG response and deducts internal quota with this rule:
+
+```text
+internal_tokens_charged = usage.totalProviderTokens * 2
+```
+
+This means provider/model API usage is still recorded exactly, while user-facing internal token
+usage is charged at a 2x multiplier. The RAG service and RAG core must not mutate token balance
+directly.
 
 ## Low Balance Behavior
 
 The backend returns:
 
 - `remainingTokens`
+- `totalConsumedTokens`
 - `lowBalance`
 - `lowBalanceThreshold`
 
-When `lowBalance` is true, the frontend must remind the user to contact admin. It must not show a checkout, recharge, or subscription flow in the MVP.
+When `lowBalance` is true, the frontend must remind the user to contact admin. When balance is
+zero, AI/RAG/prediction/report interaction must stop and return: `账号余额不足，请联系管理员充值。`
+It must not show a checkout, recharge, or subscription flow in the MVP.
 
 ## Forbidden MVP Flows
 

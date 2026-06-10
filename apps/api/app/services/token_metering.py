@@ -6,6 +6,8 @@ from app.services.access_control import AccessControlService
 from app.services.token_quota import TokenQuotaService
 from app.store import InMemoryStore
 
+RAG_INTERNAL_TOKEN_MULTIPLIER = 2
+
 
 class TokenMeteringService:
     def __init__(
@@ -101,8 +103,19 @@ class TokenMeteringService:
             duplicate=False,
         )
 
+    def ensureCanStartAiConversation(self, userId: str) -> None:
+        user = self._store.get_user(userId)
+        self._access.requireApproved(user)
+        available = self._tokens.getBalance(userId)
+        if available <= 0:
+            raise insufficient_tokens(
+                required_tokens=1,
+                available_tokens=available,
+                include_contact_admin=True,
+            )
+
     def _internal_tokens_for_rag(self, usage: RagProviderUsage) -> int:
-        return max(1, usage.total_provider_tokens)
+        return max(1, usage.total_provider_tokens * RAG_INTERNAL_TOKEN_MULTIPLIER)
 
     def _normalize_rag_usage(self, usage: RagProviderUsage | dict[str, object]) -> RagProviderUsage:
         if isinstance(usage, RagProviderUsage):

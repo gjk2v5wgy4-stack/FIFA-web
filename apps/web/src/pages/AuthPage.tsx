@@ -57,7 +57,7 @@ export function AuthPage({ mode }: AuthPageProps) {
         <ul className="check-list">
           <li>新用户默认 pending_approval</li>
           <li>管理员审批后授予 token 配额</li>
-          <li>预测、RAG、报告接口按次计量</li>
+          <li>预测和 RAG 接口按次计量</li>
           <li>余额提醒只引导联系管理员</li>
         </ul>
       </aside>

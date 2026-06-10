@@ -9,7 +9,6 @@ import {
   AccessPage,
   EntityDetailPage,
   MatchesPage,
-  ReportsPage,
   SimulatorPage,
 } from "./pages/RouteCoveragePages";
 import { routeFromLocation, routeToPath, type RouteId, type RouteMatch } from "./routes";
@@ -117,7 +116,6 @@ export function App() {
       )}
       {route.id === "groupSimulator" && <SimulatorPage mode="group" />}
       {route.id === "knockoutSimulator" && <SimulatorPage mode="knockout" />}
-      {route.id === "reports" && <ReportsPage prediction={prediction} />}
       {route.id === "access" && (
         <AccessPage accountStatus={accountStatus} tokenSummary={tokenSummary} />
       )}

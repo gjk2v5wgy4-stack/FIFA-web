@@ -10,7 +10,7 @@ describe("frontend route coverage", () => {
     ["/players/player_010", "playerDetail"],
     ["/simulator/group", "groupSimulator"],
     ["/simulator/knockout", "knockoutSimulator"],
-    ["/reports", "reports"],
+    ["/reports", "matchDetail"],
     ["/access", "access"],
     ["/account", "account"],
     ["/admin", "admin"],

@@ -1,7 +1,6 @@
 import {
   BarChart3,
   CheckCircle2,
-  FileText,
   Home,
   Layers,
   ListChecks,
@@ -26,7 +25,6 @@ const navItems: Array<{
   { route: "home", label: "首页", icon: Home },
   { route: "matches", label: "比赛", icon: ListChecks },
   { route: "groupSimulator", label: "模拟器", icon: Layers },
-  { route: "reports", label: "报告", icon: FileText },
   { route: "access", label: "访问", icon: ShieldCheck },
   { route: "account", label: "账户", icon: UserCircle },
   { route: "matchDetail", label: "概率预测", icon: BarChart3 },

@@ -21,7 +21,7 @@ export function PredictionPage({ prediction }: PredictionPageProps) {
       <section className="page-header">
         <div>
           <p className="eyebrow">高阶预测</p>
-          <h1>单场概率预测报告</h1>
+          <h1>单场概率预测详情</h1>
           <p className="muted">
             面向审批用户展示比分参考、历史交锋、阵容置信度、关键对位、战术克制和模型分歧。
           </p>

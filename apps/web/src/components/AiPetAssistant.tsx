@@ -9,7 +9,7 @@ interface ChatMessage {
 const initialMessages: ChatMessage[] = [
   {
     role: "assistant",
-    text: "你好，我可以帮你解释赛程、概率预测、风险因素和报告摘要。",
+    text: "你好，我可以帮你解释赛程、概率预测、风险因素和数据摘要。",
   },
   {
     role: "assistant",
@@ -77,7 +77,7 @@ export function AiPetAssistant() {
 
         <div className="ai-drawer__tip">
           <Sparkles aria-hidden="true" size={16} />
-          <span>支持解释概率、风险因素、RAG引用和报告摘要。</span>
+          <span>支持解释概率、风险因素、RAG引用和分析摘要。</span>
         </div>
 
         <div className="ai-chat-log" aria-live="polite">

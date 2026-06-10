@@ -2,11 +2,12 @@ import { readFile } from "node:fs/promises";
 
 import { ingestDocument } from "../../packages/rag-core/index.js";
 
-const [ragDocument, usaDocument, historicalDocument, providerDirectoryDocument, manifest] = await Promise.all([
+const [ragDocument, usaDocument, historicalDocument, providerDirectoryDocument, h2hCoverageDocument, manifest] = await Promise.all([
   readFile("docs/rag/world-cup-2026-national-team-data-rag.md", "utf8"),
   readFile("docs/rag/teams/wc2026-usa-data.md", "utf8"),
   readFile("docs/rag/historical/world-cup-historical-matchups.md", "utf8"),
   readFile("docs/rag/world-cup-2026-provider-endpoint-directory.md", "utf8"),
+  readFile("docs/rag/world-cup-2026-h2h-public-data-coverage.md", "utf8"),
   readFile("docs/rag/world-cup-2026-source-manifest.json", "utf8")
 ]);
 const expandedSeeds = JSON.parse(
@@ -19,6 +20,7 @@ const historicalSeeds = JSON.parse(
 const providerDirectory = JSON.parse(
   await readFile("docs/rag/world-cup-2026-provider-endpoint-directory.json", "utf8")
 );
+const h2hCoverage = JSON.parse(await readFile("docs/rag/world-cup-2026-h2h-public-data-coverage.json", "utf8"));
 
 const parsedManifest = JSON.parse(manifest);
 
@@ -123,6 +125,31 @@ const providerDirectoryResult = await ingestDocument({
   }
 });
 
+const h2hCoverageResult = await ingestDocument({
+  dryRun: true,
+  document: {
+    documentId: "rag_wc2026_h2h_public_data_coverage_001",
+    sourceType: "analysis",
+    title: "2026世界杯一对一公开数据覆盖补充",
+    content: h2hCoverageDocument,
+    metadata: {
+      sourceType: "analysis",
+      title: "2026世界杯一对一公开数据覆盖补充",
+      competition: "2026 FIFA 世界杯",
+      publishedAt: parsedManifest.generatedAt,
+      url: "docs/rag/world-cup-2026-h2h-public-data-coverage.md",
+      reliability: "中等：公开H2H摘要已检索；最近五场和未来五场仍需继续补齐",
+      language: "zh-CN",
+      tags: ["world_cup_2026", "head_to_head", "h2h", "一对一", "public_data"],
+      page: 1
+    }
+  },
+  chunkOptions: {
+    chunkSize: 220,
+    overlap: 30
+  }
+});
+
 console.log(
   JSON.stringify(
     {
@@ -146,6 +173,10 @@ console.log(
       公开足球数据来源数量: providerDirectory["公开足球数据来源"].length,
       天气地点球场入口数量: providerDirectory["天气地点球场入口"].length,
       新闻发布会训练入口数量: providerDirectory["新闻发布会训练入口"].length,
+      一对一公开数据Chunk数量: h2hCoverageResult.diagnostics.chunkCount,
+      首轮H2H覆盖场次数量: h2hCoverage["覆盖汇总"]["已补充公开H2H摘要"],
+      首轮有历史交锋对阵数量: h2hCoverage["覆盖汇总"]["有既往交锋的对阵"],
+      首轮无公开历史交锋对阵数量: h2hCoverage["覆盖汇总"]["公开来源未列出既往交锋的对阵"],
       首个Chunk元数据: result.chunks[0]?.metadata
     },
     null,

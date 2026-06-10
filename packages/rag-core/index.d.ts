@@ -56,6 +56,7 @@ export declare class ChromaVectorStoreAdapter implements import("../shared/rag-t
 
 export declare class QdrantVectorStoreAdapter implements import("../shared/rag-types.js").VectorStoreAdapter {
   constructor(options?: Record<string, unknown>);
+  ensureCollection(): Promise<void>;
   upsert(chunks: import("../shared/rag-types.js").DocumentChunk[]): Promise<void>;
   search(
     queryEmbedding: number[],

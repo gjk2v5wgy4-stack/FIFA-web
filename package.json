@@ -9,6 +9,9 @@
     "test": "node --test packages/rag-core/tests/*.test.js",
     "rag:dry-run": "node scripts/rag/sample-ingestion-dry-run.mjs",
     "rag:worldcup-data-dry-run": "node scripts/rag/world-cup-data-rag-dry-run.mjs",
-    "rag:smoke": "node scripts/rag/retrieval-smoke-test.mjs"
+    "rag:smoke": "node scripts/rag/retrieval-smoke-test.mjs",
+    "rag:qdrant-smoke": "python scripts/rag/integration_smoke_test.py",
+    "docker:up": "docker compose -f infra/qdrant/docker-compose.yml up -d qdrant",
+    "docker:down": "docker compose -f infra/qdrant/docker-compose.yml down"
   }
 }

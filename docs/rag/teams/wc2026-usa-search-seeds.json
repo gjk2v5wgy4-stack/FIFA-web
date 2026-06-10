@@ -1,0 +1,65 @@
+{
+  "teamId": "team_usa",
+  "teamName": "美国",
+  "generatedAt": "2026-06-10T00:00:00+08:00",
+  "searchPurpose": "用于美国队 2026 世界杯 RAG 数据的百度/谷歌式公开网页检索种子。",
+  "officialSources": [
+    {
+      "name": "美国足协 U.S. Soccer 男足页面",
+      "url": "https://www.ussoccer.com/teams/usmnt",
+      "recommendedFor": ["球队概览", "赛程", "新闻"]
+    },
+    {
+      "name": "美国足协 U.S. Soccer 男足阵容页",
+      "url": "https://www.ussoccer.com/teams/usmnt/roster",
+      "recommendedFor": ["当前阵容", "国家队出场", "进球", "助攻"]
+    },
+    {
+      "name": "美国足协 U.S. Soccer 世界杯名单公告",
+      "url": "https://ussoccer.com/stories/2026/05/usmnt/us-mens-national-team-head-coach-mauricio-pochettino-names-26-player-roster-for-fifa-world-cup-2026",
+      "recommendedFor": ["世界杯名单", "小组对手", "赛程", "出场次数摘要"]
+    },
+    {
+      "name": "ESPN 美国队赛果",
+      "url": "https://www.espn.com/soccer/team/results/_/id/660/united-states",
+      "recommendedFor": ["近期赛果", "友谊赛", "赛事标签"]
+    }
+  ],
+  "publicStatsSources": [
+    {
+      "name": "FBref",
+      "url": "https://fbref.com/",
+      "recommendedFor": ["俱乐部出场时间", "球员每 90 分钟指标", "xG", "xA", "推进传球"]
+    },
+    {
+      "name": "FotMob",
+      "url": "https://www.fotmob.com/",
+      "recommendedFor": ["比赛统计", "球员状态", "俱乐部表现"]
+    },
+    {
+      "name": "Transfermarkt",
+      "url": "https://www.transfermarkt.com/",
+      "recommendedFor": ["伤病历史", "年龄", "俱乐部背景"]
+    }
+  ],
+  "chineseSearchSeeds": [
+    "美国队 2026 世界杯 阵容 美国男足",
+    "美国国家男子足球队 2026 世界杯 小组赛程",
+    "美国男足 最近10场 比赛 赛果",
+    "普利西奇 2025 2026 俱乐部 数据 xG",
+    "美国男足 伤病 停赛 2026 世界杯"
+  ],
+  "englishSearchSeeds": [
+    "美国男足 2026 世界杯名单 数据 波切蒂诺",
+    "美国男足 最近10场 赛果 2026",
+    "美国男足 德国 塞内加尔 葡萄牙 比利时 战报 射正",
+    "普利西奇 2025-2026 FBref xG xA",
+    "美国男足 2026 世界杯 伤病报告"
+  ],
+  "collectionGuards": [
+    "不要在未打开目标来源页面前把搜索结果摘要存为事实。",
+    "伤病和停赛声明必须与国家队、俱乐部或赛事官方来源交叉核验。",
+    "市场数据只能作为背景信息。",
+    "xG 拆分和跟踪数据若没有可核验公开页面，应标记为需授权。"
+  ]
+}

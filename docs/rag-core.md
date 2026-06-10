@@ -14,6 +14,7 @@
 - Citation extraction.
 - Prompt building with source-safety rules.
 - Provider usage estimation.
+- Live score and market snapshot context for risk analysis only.
 
 It does not own authentication, account approval, internal quota deduction, `token_ledger`, `ai_usage_logs`, admin actions, Stripe, checkout, or self-service recharge.
 
@@ -77,6 +78,20 @@ The memory adapter applies metadata filters before vector scoring. `matchId`, `t
 
 RAG core does not return internal quota charges and does not mutate token balances. The FastAPI backend can consume this usage object later and decide how to meter approved requests.
 
+## Live Context
+
+`packages/rag-core/live` provides pure, testable helpers for live match context:
+
+- `normalizeLiveMatchSnapshot()` normalizes authorized live score, event, stats, and market snapshots.
+- `createLiveSnapshotPoller()` runs fixed-interval captures through a caller-provided `fetchSnapshot()` function.
+- `detectLiveSnapshotChanges()` compares two snapshots for score, red/yellow card, stat, and market-context movement.
+- `buildLiveSnapshotRagDocument()` converts a snapshot into a citable RAG document.
+- `buildLiveMatchRiskReport()` returns a risk-analysis-only report.
+
+The live module does not log in to external websites, store credentials, bypass anti-bot controls, click market actions, or write backend metering records. The caller must provide an authorized feed or manually captured snapshot.
+
+Market data is stored with `usage: "market_context_only"` and may only be used to explain uncertainty, market movement, and evidence quality. Reports explicitly block stake sizing, market-side selection, live chasing decisions, and guaranteed outcomes.
+
 ## Safety
 
 The prompt builder always includes these rules:
@@ -102,4 +117,10 @@ Run a retrieval smoke test:
 
 ```bash
 npm run rag:smoke
+```
+
+Run a live-context smoke test:
+
+```bash
+node scripts/rag/live-context-smoke-test.mjs
 ```

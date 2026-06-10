@@ -13,6 +13,7 @@
     "test": "node --test packages/rag-core/tests/*.test.js",
     "build": "npm run build:web",
     "rag:dry-run": "node scripts/rag/sample-ingestion-dry-run.mjs",
+    "rag:worldcup-data-dry-run": "node scripts/rag/world-cup-data-rag-dry-run.mjs",
     "rag:smoke": "node scripts/rag/retrieval-smoke-test.mjs",
     "dev:web": "npm --workspace @worldcup-ai-prediction/web run dev",
     "build:web": "npm --workspace @worldcup-ai-prediction/web run build",

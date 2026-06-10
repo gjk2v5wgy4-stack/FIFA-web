@@ -1,0 +1,144 @@
+{
+  "目录ID": "wc2026_provider_endpoint_directory_2026_06_10",
+  "生成时间": "2026-06-10T00:00:00+08:00",
+  "用途": "世界杯 RAG 数据源、商业授权入口、公开网页入口和缺口状态目录。",
+  "商业数据与授权入口": [
+    {
+      "名称": "Sportradar 足球 API",
+      "网址": "https://developer.sportradar.com/soccer/reference/soccer-overview",
+      "备用入口": "https://sportradar.com/media-tech/data-content/sports-data-api/",
+      "已获取内容": ["Soccer v4 文档入口", "覆盖矩阵入口", "登录入口", "联系入口"],
+      "访问状态": "未获得正式 API key",
+      "适合字段": ["赛程", "阵容", "比赛技术统计", "伤停", "授权后的市场数据包"],
+      "限制": "需要供应商账号、套餐和授权；当前只可作为端点目录。"
+    },
+    {
+      "名称": "Stats Perform / Opta",
+      "网址": "https://www.statsperform.com/products/opta-data/",
+      "备用入口": "https://www.statsperform.com/products/opta-data-feeds/",
+      "已获取内容": ["Opta Data 产品页", "Opta Feeds 入口", "Dynamic Stats API 入口", "Opta Vision 入口"],
+      "访问状态": "未获得授权端点",
+      "适合字段": ["xG", "xGA", "非点球 xG", "定位球 xG", "开放战 xG", "大机会", "事件数据", "跟踪增强指标"],
+      "限制": "需要商务授权并确认 2026 世界杯覆盖范围。"
+    },
+    {
+      "名称": "Hudl StatsBomb 商业数据",
+      "网址": "https://www.hudl.com/products/statsbomb",
+      "备用入口": "https://statsbomb.com/",
+      "已获取内容": ["产品入口"],
+      "访问状态": "未获得商业端点",
+      "适合字段": ["事件数据", "xG", "xA", "压迫", "球探报告"],
+      "限制": "商业数据不可直接访问。"
+    },
+    {
+      "名称": "StatsBomb Open Data",
+      "网址": "https://github.com/statsbomb/open-data",
+      "已获取内容": ["开放 JSON 样本", "比赛文件", "事件文件", "阵容文件", "360 数据样本"],
+      "访问状态": "公开样本",
+      "适合字段": ["事件 schema", "xG 样例", "入库格式验证"],
+      "限制": "只覆盖部分公开赛事，不代表 2026 世界杯完整覆盖。"
+    },
+    {
+      "名称": "Hudl Wyscout Data API",
+      "网址": "https://apidocs.wyscout.com/",
+      "备用入口": "https://www.hudl.com/products/wyscout/data-api",
+      "已获取内容": ["API 文档入口", "Data API 产品入口"],
+      "访问状态": "未获得授权端点",
+      "适合字段": ["球员事件", "球队报告", "球探报告", "视频和战术分析入口"],
+      "限制": "需要 Hudl/Wyscout 授权。"
+    },
+    {
+      "名称": "SkillCorner 商业跟踪数据",
+      "网址": "https://skillcorner.com/api/docs/",
+      "备用入口": "https://skillcorner.com/sports/football",
+      "已获取内容": ["API 文档入口", "产品入口"],
+      "访问状态": "未获得商业端点",
+      "适合字段": ["广播跟踪", "冲刺", "高强度跑动", "体能负荷", "无球跑动"],
+      "限制": "需要商业授权。"
+    },
+    {
+      "名称": "SkillCorner Open Data",
+      "网址": "https://github.com/SkillCorner/opendata",
+      "已获取内容": ["开放样本", "广播跟踪数据", "赛季聚合体能数据"],
+      "访问状态": "公开样本",
+      "适合字段": ["跟踪数据格式", "体能数据格式", "解析器验证"],
+      "限制": "样本不是世界杯国家队完整覆盖。"
+    },
+    {
+      "名称": "The Odds API 历史市场端点",
+      "网址": "https://the-odds-api.com/liveapi/guides/v4/#historical-odds",
+      "已获取内容": ["历史 odds 端点", "历史 events 端点", "单场历史 odds 端点", "额度成本说明"],
+      "访问状态": "未获得 API key；历史端点需付费计划",
+      "适合字段": ["赛前市场快照", "24 小时价格变化", "隐含概率背景"],
+      "限制": "只作市场背景，不做市场操作建议。"
+    },
+    {
+      "名称": "Pinnacle API",
+      "网址": "https://github.com/pinnacleapi/pinnacleapi-documentation",
+      "已获取内容": ["API 文档", "认证方式", "申请说明", "频率限制说明"],
+      "访问状态": "未获得账号；公开访问已关闭，需单独申请",
+      "适合字段": ["odds", "fixtures", "delta/snapshot 市场变化"],
+      "限制": "需要账号、资金账户或商业合作；不在 RAG 包内调用。"
+    }
+  ],
+  "官方赛事入口": [
+    { "名称": "FIFA 2026 世界杯参赛队页", "网址": "https://www.fifa.com/en/articles/world-cup-2026-who-has-qualified?searchOverlay=1", "适合字段": ["48 队范围", "资格状态", "官方队伍口径"], "状态": "已获取网页入口" },
+    { "名称": "FIFA 2026 世界杯赛程页", "网址": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/updated-fifa-world-cup-2026-match-schedule-now-available?searchOverlay=1", "适合字段": ["比赛城市", "球场", "开球时间", "赛程路径"], "状态": "已获取网页入口" },
+    { "名称": "FIFA 男足世界排名", "网址": "https://inside.fifa.com/fifa-world-ranking/men", "适合字段": ["对手强度", "排名快照"], "状态": "已获取网页入口" },
+    { "名称": "UEFA European Qualifiers", "网址": "https://www.uefa.com/european-qualifiers/", "适合字段": ["欧洲区世预赛", "赛程", "结果", "积分", "新闻"], "状态": "已获取网页入口" },
+    { "名称": "UEFA Nations League", "网址": "https://www.uefa.com/uefanationsleague/", "适合字段": ["欧国联", "赛程", "结果", "技术统计", "新闻"], "状态": "已获取网页入口" },
+    { "名称": "CONMEBOL 世预赛", "网址": "https://www.conmebol.com/eliminatorias-sudamericanas/", "适合字段": ["南美区世预赛", "赛程", "结果", "积分"], "状态": "已获取网页入口" },
+    { "名称": "Copa America", "网址": "https://copaamerica.com/en", "适合字段": ["美洲杯", "赛程", "结果", "球队新闻"], "状态": "已获取网页入口" },
+    { "名称": "AFC FIFA World Cup 页面", "网址": "https://www.the-afc.com/en/national/fifa_world_cup.html", "适合字段": ["亚洲区世预赛", "赛程", "结果", "新闻"], "状态": "已获取网页入口" },
+    { "名称": "AFC Asian Cup", "网址": "https://www.the-afc.com/en/national/afc_asian_cup.html", "适合字段": ["亚洲杯", "赛程", "结果", "球队新闻"], "状态": "已获取网页入口" },
+    { "名称": "CAF FIFA World Cup 页面", "网址": "https://www.cafonline.com/fifa-world-cup/", "适合字段": ["非洲区世预赛", "官方新闻", "官方文档"], "状态": "已获取网页入口" },
+    { "名称": "CAF Africa Cup of Nations", "网址": "https://www.cafonline.com/caf-africa-cup-of-nations/", "适合字段": ["非洲杯", "赛程", "结果", "球队新闻"], "状态": "已获取网页入口" },
+    { "名称": "Concacaf World Cup", "网址": "https://www.concacaf.com/competitions/concacaf-qualifiers/index", "适合字段": ["中北美及加勒比世预赛", "赛程", "结果"], "状态": "已获取入口待逐页核验" },
+    { "名称": "Concacaf Gold Cup", "网址": "https://www.concacaf.com/competitions/gold-cup/index", "适合字段": ["金杯赛", "赛程", "结果", "新闻"], "状态": "已获取网页入口" },
+    { "名称": "OFC 官方站", "网址": "https://www.oceaniafootball.com/", "适合字段": ["大洋洲世预赛", "国家队新闻", "赛程入口"], "状态": "已获取网页入口" }
+  ],
+  "公开足球数据来源": [
+    { "名称": "ESPN Soccer", "网址": "https://www.espn.com/soccer/", "适合字段": ["国家队赛程", "结果", "新闻", "基础技术统计"], "采集注意": "逐队逐赛页面核验，保留 URL。" },
+    { "名称": "FBref", "网址": "https://fbref.com/", "适合字段": ["球员俱乐部分钟", "per90", "xG", "xA", "比赛报告"], "采集注意": "页面访问和覆盖不稳定；遵守网站条款。" },
+    { "名称": "FotMob", "网址": "https://www.fotmob.com/", "适合字段": ["赛程", "结果", "比赛技术统计", "球员页"], "采集注意": "只作为人工核验或合规接入入口。" },
+    { "名称": "Statbunker", "网址": "https://www.statbunker.com/", "适合字段": ["国际赛事统计", "牌", "出场", "进球", "积分"], "采集注意": "需和官方结果交叉验证。" },
+    { "名称": "National-Football-Teams", "网址": "https://www.national-football-teams.com/", "适合字段": ["国家队出场", "进球", "比赛历史", "友谊赛"], "采集注意": "适合历史清单，不适合高级事件数据。" },
+    { "名称": "Transfermarkt", "网址": "https://www.transfermarkt.com/", "适合字段": ["伤病历史", "年龄", "俱乐部", "阵容背景"], "采集注意": "伤病需和官方公告交叉验证。" },
+    { "名称": "WorldFootball.net", "网址": "https://www.worldfootball.net/", "适合字段": ["历史赛程", "世界杯正赛交锋", "国家队比赛记录"], "采集注意": "作为历史对战补充来源。" },
+    { "名称": "World Football Elo Ratings", "网址": "https://www.eloratings.net/", "适合字段": ["对手强度", "Elo 快照"], "采集注意": "非官方模型指标，必须标记来源。" }
+  ],
+  "天气地点球场入口": [
+    { "名称": "Open-Meteo 历史天气 API", "网址": "https://open-meteo.com/en/docs/historical-weather-api", "适合字段": ["温度", "湿度", "风速", "降水", "天气代码", "历史天气"], "状态": "公开文档入口" },
+    { "名称": "Open-Meteo 预报 API", "网址": "https://open-meteo.com/en/docs", "适合字段": ["未来天气预报", "温度", "湿度", "风速"], "状态": "公开文档入口" },
+    { "名称": "Open-Meteo Geocoding", "网址": "https://open-meteo.com/en/docs/geocoding-api", "适合字段": ["城市坐标", "地点搜索"], "状态": "公开文档入口" },
+    { "名称": "Open-Meteo Elevation", "网址": "https://open-meteo.com/en/docs/elevation-api", "适合字段": ["海拔"], "状态": "公开文档入口" },
+    { "名称": "OpenStreetMap Nominatim", "网址": "https://nominatim.org/release-docs/latest/api/Overview/", "适合字段": ["城市地理编码", "球场地理编码"], "状态": "公开文档入口" },
+    { "名称": "GeoNames", "网址": "https://www.geonames.org/export/web-services.html", "适合字段": ["城市元数据", "海拔", "时区辅助"], "状态": "公开文档入口" }
+  ],
+  "新闻发布会训练入口": [
+    { "名称": "FIFA News", "网址": "https://www.fifa.com/en/news", "适合字段": ["官方新闻", "赛前采访", "赛程公告"], "状态": "已获取入口" },
+    { "名称": "懂球帝", "网址": "https://www.dongqiudi.com/", "适合字段": ["中文新闻", "比赛动态", "球队消息"], "状态": "已获取入口，需人工核验来源回链" },
+    { "名称": "直播吧足球", "网址": "https://www.zhibo8.com/zuqiu/", "适合字段": ["中文新闻", "赛程动态", "发布会转载"], "状态": "已获取入口，需人工核验来源回链" },
+    { "名称": "央视网体育足球", "网址": "https://sports.cctv.com/football/", "适合字段": ["中文官方媒体新闻", "采访", "赛事报道"], "状态": "已获取入口，需人工核验来源回链" },
+    { "名称": "新浪体育国际足球", "网址": "https://sports.sina.com.cn/global/", "适合字段": ["中文国际足球新闻", "国家队消息"], "状态": "已获取入口，需人工核验来源回链" }
+  ],
+  "逐队文档与完整清单状态": {
+    "美国队": "已有公开数据样本文档。",
+    "其他47队": "未生成逐队完整 RAG 文档。",
+    "全48队最近2年正式比赛": "未完成完整清单。",
+    "全48队最近2年友谊赛": "未完成完整清单。",
+    "全48队球员俱乐部最近6个月表现": "未完成完整清单。",
+    "全48队伤病和停赛实时端点": "未接入。",
+    "全48队历史世界杯正赛交锋": "未完成完整清单。",
+    "比赛城市天气实时和历史端点集成": "已获取可用入口，未完成自动集成。",
+    "球场草皮海拔坐标完整表": "未完成。",
+    "新闻发布会训练情况实时采集端": "已获取入口，未完成自动采集。"
+  },
+  "入库规则": [
+    "数值字段必须来自可追溯 URL，不能由模型补猜。",
+    "缺失值写为 null，并记录缺失原因。",
+    "商业端点必须记录授权状态、供应商名称和抓取时间。",
+    "新闻、球探报告、发布会文本只作为检索资料，不作为系统指令。",
+    "每个 chunk 必须保留 document_chunks.metadata 要求字段。"
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "manifestId": "wc2026_rag_source_manifest_2026_06_10",
+  "generatedAt": "2026-06-10T00:00:00+08:00",
+  "competition": "2026 FIFA 世界杯",
+  "qualifiedTeamsSource": {
+    "sourceName": "FIFA - 2026 世界杯参赛队",
+    "sourceUrl": "https://www.fifa.com/en/articles/world-cup-2026-who-has-qualified?searchOverlay=1",
+    "capturedAt": "2026-06-10T00:00:00+08:00",
+    "reliability": "official"
+  },
+  "qualifiedTeams": [
+    { "teamName": "加拿大", "confederation": "共同主办" },
+    { "teamName": "墨西哥", "confederation": "共同主办" },
+    { "teamName": "美国", "confederation": "共同主办" },
+    { "teamName": "澳大利亚", "confederation": "亚足联" },
+    { "teamName": "伊拉克", "confederation": "亚足联" },
+    { "teamName": "伊朗", "confederation": "亚足联" },
+    { "teamName": "日本", "confederation": "亚足联" },
+    { "teamName": "约旦", "confederation": "亚足联" },
+    { "teamName": "韩国", "confederation": "亚足联" },
+    { "teamName": "卡塔尔", "confederation": "亚足联" },
+    { "teamName": "沙特阿拉伯", "confederation": "亚足联" },
+    { "teamName": "乌兹别克斯坦", "confederation": "亚足联" },
+    { "teamName": "阿尔及利亚", "confederation": "非洲足联" },
+    { "teamName": "佛得角", "confederation": "非洲足联" },
+    { "teamName": "刚果民主共和国", "confederation": "非洲足联" },
+    { "teamName": "科特迪瓦", "confederation": "非洲足联" },
+    { "teamName": "埃及", "confederation": "非洲足联" },
+    { "teamName": "加纳", "confederation": "非洲足联" },
+    { "teamName": "摩洛哥", "confederation": "非洲足联" },
+    { "teamName": "塞内加尔", "confederation": "非洲足联" },
+    { "teamName": "南非", "confederation": "非洲足联" },
+    { "teamName": "突尼斯", "confederation": "非洲足联" },
+    { "teamName": "库拉索", "confederation": "中北美及加勒比足联" },
+    { "teamName": "海地", "confederation": "中北美及加勒比足联" },
+    { "teamName": "巴拿马", "confederation": "中北美及加勒比足联" },
+    { "teamName": "阿根廷", "confederation": "南美足联" },
+    { "teamName": "巴西", "confederation": "南美足联" },
+    { "teamName": "哥伦比亚", "confederation": "南美足联" },
+    { "teamName": "厄瓜多尔", "confederation": "南美足联" },
+    { "teamName": "巴拉圭", "confederation": "南美足联" },
+    { "teamName": "乌拉圭", "confederation": "南美足联" },
+    { "teamName": "新西兰", "confederation": "大洋洲足联" },
+    { "teamName": "奥地利", "confederation": "欧足联" },
+    { "teamName": "比利时", "confederation": "欧足联" },
+    { "teamName": "波黑", "confederation": "欧足联" },
+    { "teamName": "克罗地亚", "confederation": "欧足联" },
+    { "teamName": "捷克", "confederation": "欧足联" },
+    { "teamName": "英格兰", "confederation": "欧足联" },
+    { "teamName": "法国", "confederation": "欧足联" },
+    { "teamName": "德国", "confederation": "欧足联" },
+    { "teamName": "荷兰", "confederation": "欧足联" },
+    { "teamName": "挪威", "confederation": "欧足联" },
+    { "teamName": "葡萄牙", "confederation": "欧足联" },
+    { "teamName": "苏格兰", "confederation": "欧足联" },
+    { "teamName": "西班牙", "confederation": "欧足联" },
+    { "teamName": "瑞典", "confederation": "欧足联" },
+    { "teamName": "瑞士", "confederation": "欧足联" },
+    { "teamName": "土耳其", "confederation": "欧足联" }
+  ],
+  "sourceCatalog": [
+    {
+      "sourceName": "FIFA qualified teams",
+      "sourceUrl": "https://www.fifa.com/en/articles/world-cup-2026-who-has-qualified?searchOverlay=1",
+      "sourceType": "official_release",
+      "recommendedFor": ["qualified_teams", "qualification_status", "team_scope"],
+      "coverageStatus": "公开核心数据"
+    },
+    {
+      "sourceName": "FIFA groups and tie-breakers",
+      "sourceUrl": "https://www.fifa.com/en/articles/groups-how-teams-qualify-tie-breakers",
+      "sourceType": "official_release",
+      "recommendedFor": ["groups", "knockout_qualification_rules", "tie_breakers"],
+      "coverageStatus": "公开核心数据"
+    },
+    {
+      "sourceName": "FIFA match schedule",
+      "sourceUrl": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/updated-fifa-world-cup-2026-match-schedule-now-available?searchOverlay=1",
+      "sourceType": "official_release",
+      "recommendedFor": ["fixtures", "venues", "kickoff_times"],
+      "coverageStatus": "公开核心数据"
+    },
+    {
+      "sourceName": "FIFA/Coca-Cola Men's World Ranking",
+      "sourceUrl": "https://inside.fifa.com/fifa-world-ranking/men",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["opponent_strength", "ranking_snapshot"],
+      "coverageStatus": "公开核心数据"
+    },
+    {
+      "sourceName": "StatsBomb Open Data",
+      "sourceUrl": "https://github.com/statsbomb/open-data",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["event_schema_reference", "xg_reference", "open_data_examples"],
+      "coverageStatus": "public_partial"
+    },
+    {
+      "sourceName": "Sportradar Soccer API",
+      "sourceUrl": "https://developer.sportradar.com/soccer/reference/soccer-overview",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["fixtures", "lineups", "match_statistics", "injuries", "odds_if_licensed"],
+      "coverageStatus": "需授权 API"
+    },
+    {
+      "sourceName": "SkillCorner Football",
+      "sourceUrl": "https://skillcorner.com/sports/football",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["xy_tracking", "physical_data", "high_intensity_runs", "sprints"],
+      "coverageStatus": "需授权 API"
+    },
+    {
+      "sourceName": "The Odds API",
+      "sourceUrl": "https://the-odds-api.com/",
+      "sourceType": "stats_feed",
+      "recommendedFor": ["market_prices", "historical_market_snapshots", "implied_probability"],
+      "coverageStatus": "历史数据需付费 API"
+    }
+  ],
+  "fieldCoveragePolicy": {
+    "公开核心数据": "可从官方或公开文档来源采集，必须保留来源 URL。",
+    "public_partial": "May be public for some matches or competitions; missing values must remain null.",
+    "需授权 API": "需要供应商凭证或付费数据合同。",
+    "requires_modeling": "Must be computed from validated event/tracking data and model version must be recorded.",
+    "历史数据需付费 API": "历史市场波动需要付费或计量 API。"
+  },
+  "safetyPolicy": {
+    "marketDataUse": "Market prices are context only.",
+    "forbiddenOutput": ["guaranteed_outcome", "market_action_recommendation", "follow_market_instruction"],
+    "requiredOutput": ["probability_analysis", "risk_factors", "uncertainty", "model_basis", "citations"]
+  }
+}

@@ -186,6 +186,15 @@ class TokenQuotaService:
     def getLowThreshold(self, userId: str) -> int:
         return self._require_store().get_user(userId).low_balance_threshold
 
+    def getTotalConsumed(self, userId: str) -> int:
+        store = self._require_store()
+        store.get_user(userId)
+        return sum(
+            abs(entry.amount_tokens)
+            for entry in store.token_ledger
+            if entry.user_id == userId and entry.amount_tokens < 0
+        )
+
     def isLowBalance(self, userId: str) -> bool:
         return self.getBalance(userId) <= self.getLowThreshold(userId)
 
@@ -433,6 +442,8 @@ class TokenQuotaService:
         return self._require_store().add_api_usage_log(
             user_id=userId,
             feature_type=featureType,
+            usage_type=self._usage_type_for_feature(featureType),
+            model="internal-metering",
             request_id=requestId,
             internal_tokens_charged=amount,
             token_ledger_id=ledger.id,
@@ -450,6 +461,15 @@ class TokenQuotaService:
         if self._access is None:
             raise RuntimeError("TokenQuotaService was not configured with access control.")
         return self._access
+
+    def _usage_type_for_feature(self, featureType: FeatureType) -> str:
+        if featureType == FeatureType.RAG_QUERY:
+            return "rag"
+        if featureType in {FeatureType.MATCH_PREDICTION, FeatureType.WHAT_IF_PREDICTION}:
+            return "prediction"
+        if featureType == FeatureType.GROUP_SIMULATION:
+            return "simulation"
+        return "report"
 
 
 token_quota_service = TokenQuotaService()

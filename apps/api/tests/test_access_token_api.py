@@ -95,6 +95,7 @@ def test_account_token_endpoint_returns_balance_threshold_and_ledger() -> None:
     body = response.json()["data"]
     assert body["userId"] == "user_approved"
     assert body["balanceTokens"] == 1500
+    assert body["totalConsumedTokens"] == 0
     assert body["lowBalance"] is False
     assert body["lowBalanceThreshold"] == 1000
     assert body["ledger"][0]["reason"] == "admin_initial_grant"

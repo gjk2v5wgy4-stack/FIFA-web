@@ -36,10 +36,24 @@ def validation_error(message: str, details: dict[str, Any] | None = None) -> App
     )
 
 
-def insufficient_tokens(required_tokens: int, available_tokens: int) -> AppError:
+def insufficient_tokens(
+    required_tokens: int,
+    available_tokens: int,
+    *,
+    include_contact_admin: bool = False,
+) -> AppError:
+    contact_admin_message = "账号余额不足，请联系管理员充值。"
+    details: dict[str, object] = {
+        "requiredTokens": required_tokens,
+        "availableTokens": available_tokens,
+    }
+    if include_contact_admin:
+        details["contactAdminMessage"] = contact_admin_message
     return AppError(
         code="INSUFFICIENT_TOKENS",
-        message="Not enough tokens for this action.",
+        message=contact_admin_message
+        if include_contact_admin
+        else "Not enough tokens for this action.",
         status_code=402,
-        details={"requiredTokens": required_tokens, "availableTokens": available_tokens},
+        details=details,
     )

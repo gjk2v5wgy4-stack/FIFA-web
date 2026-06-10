@@ -4,6 +4,7 @@ import {
   Home,
   Layers,
   ListChecks,
+  LogIn,
   ShieldCheck,
   UserCircle,
 } from "lucide-react";
@@ -70,7 +71,23 @@ export function AppShell({
           <span>管理员审批 + token 配额模式</span>
         </div>
       </aside>
-      <main className="main-view">{children}</main>
+      <main className="main-view">
+        <header className="topbar" aria-label="用户操作">
+          <div className="topbar__context">
+            <span>前端预览</span>
+            <strong>审批访问模式</strong>
+          </div>
+          <button
+            className={`topbar-login${activeRoute === "login" ? " topbar-login--active" : ""}`}
+            onClick={() => onNavigate("login")}
+            type="button"
+          >
+            <LogIn aria-hidden="true" size={18} />
+            登录
+          </button>
+        </header>
+        {children}
+      </main>
       <AiPetAssistant />
     </div>
   );

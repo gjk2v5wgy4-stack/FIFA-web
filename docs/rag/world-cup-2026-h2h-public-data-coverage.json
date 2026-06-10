@@ -1,0 +1,358 @@
+{
+  "文档类型": "2026世界杯一对一公开数据覆盖补充",
+  "生成日期": "2026-06-10",
+  "仓库用途": "RAG文档源",
+  "数据用途": "match_context_only",
+  "安全边界": [
+    "只用于球队历史交锋、赛前背景、检索引用和数据完整性分析",
+    "不生成投注建议",
+    "不生成追分建议",
+    "不生成跟单或加仓建议",
+    "不保证预测结果",
+    "盘口和赔率类数据只能作为market_context_only市场背景"
+  ],
+  "本地覆盖审计": {
+    "已有且未改动": [
+      "docs/rag/teams/wc2026-usa-data.md：美国队公开数据样本",
+      "docs/rag/historical/world-cup-historical-matchups.md：美国队世界杯历史交锋样本",
+      "docs/rag/world-cup-2026-market-context-expanded-visible.json：盘口页可见市场背景",
+      "docs/rag/world-cup-2026-market-context-coverage-104.json：104场市场覆盖状态"
+    ],
+    "缺失原因": "除美国队样本和盘口页首场截图外，仓库内没有全48队的一对一最近五场、状态、未来五场和完整历史交锋同粒度文档。",
+    "本轮处理": "不覆盖已有数据；新增首轮24场小组赛公开H2H数据和一对一类目缺口状态。"
+  },
+  "一对一类目覆盖": [
+    {
+      "类目": "球队基础对比",
+      "字段": ["主队", "客队", "小组", "开赛时间", "比赛城市或球场"],
+      "当前状态": "部分已覆盖",
+      "说明": "赛程和分组可由央视、FIFA、ESPN、worldfootball等公开页面核验；球场字段不是所有本地文档都已结构化。"
+    },
+    {
+      "类目": "联赛排名或实况状态",
+      "字段": ["页面状态百分比", "页面排名柱", "FIFA排名快照"],
+      "当前状态": "未全队覆盖",
+      "说明": "m510截图仅有墨西哥vs南非的页面状态；其余队伍需接FIFA排名或公开赛程页后再计算统一状态。"
+    },
+    {
+      "类目": "最近五场比赛",
+      "字段": ["结果", "比分", "主客场", "对手"],
+      "当前状态": "未全队覆盖",
+      "说明": "m510截图已采墨西哥和南非样本；其他队伍可从ESPN、Sky Sports、365Scores、Flashscore、各足协官网继续补齐。"
+    },
+    {
+      "类目": "过往对赛",
+      "字段": ["总场次", "主队胜", "平局", "客队胜", "总比分", "比赛明细来源"],
+      "当前状态": "本轮已补充24场小组首轮公开H2H摘要",
+      "说明": "优先采用worldfootball公开H2H页面；0场次表示公开页面未列出两队成年国家队既往交锋。"
+    },
+    {
+      "类目": "历史最大胜利",
+      "字段": ["主队最大胜利", "客队最大胜利", "日期", "赛事"],
+      "当前状态": "未全队覆盖",
+      "说明": "公开H2H页面提供可追溯入口，但本轮只入库摘要，未逐场展开所有最大胜利。"
+    },
+    {
+      "类目": "平均分与平均进球",
+      "字段": ["平均积分", "平均进球", "平均失球"],
+      "当前状态": "未全队统一计算",
+      "说明": "可由H2H摘要和比赛明细计算；为避免不同站点口径混用，本轮只记录源摘要。"
+    },
+    {
+      "类目": "未来五场比赛",
+      "字段": ["日期", "对手", "赛事", "主客场"],
+      "当前状态": "未全队覆盖",
+      "说明": "m510截图只露出墨西哥和南非的部分未来赛程；后续应从FIFA/ESPN/各足协官网接入。"
+    }
+  ],
+  "首轮24场公开H2H摘要": [
+    {
+      "场次编号": 1,
+      "小组": "A组",
+      "对阵": "墨西哥 vs 南非",
+      "开赛时间": "06月11日 15:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 4, "主队胜": 2, "平局": 1, "客队胜": 1, "总比分": "10:5" },
+      "盘口页截图补充": {
+        "状态": "已采集m510一对一截图样本",
+        "最近五场墨西哥": ["5:1胜塞尔维亚", "1:0胜澳大利亚", "2:0胜加拿大", "1:1平比利时", "0:0平葡萄牙"],
+        "最近五场南非": ["1:1平牙买加", "0:0平尼加拉瓜", "1:2负巴拿马", "1:1平巴哈马", "1:2负喀麦隆"],
+        "截图口径历史交锋": ["2010-06-11 南非 1:1 墨西哥", "2005-07-09 南非 2:1 墨西哥"]
+      },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10426784/mexico_south-africa/head-to-head/",
+      "可靠性": "公开来源摘要；截图样本为登录后页面可见数据"
+    },
+    {
+      "场次编号": 2,
+      "小组": "A组",
+      "对阵": "韩国 vs 捷克",
+      "开赛时间": "06月11日 22:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 3, "主队胜": 1, "平局": 1, "客队胜": 1, "总比分": "4:8" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10426787/south-korea_czech-republic/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 3,
+      "小组": "B组",
+      "对阵": "加拿大 vs 波黑",
+      "开赛时间": "06月12日 15:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10426802/canada_bosnia-herzegovina/head-to-head/",
+      "可靠性": "公开来源未列出既往交锋"
+    },
+    {
+      "场次编号": 4,
+      "小组": "D组",
+      "对阵": "美国 vs 巴拉圭",
+      "开赛时间": "06月12日 21:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 9, "主队胜": 6, "平局": 2, "客队胜": 1, "总比分": "12:4" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10426820/usa_paraguay/head-to-head/",
+      "可靠性": "公开来源摘要；仓库已有1930世界杯美国3:0巴拉圭样本"
+    },
+    {
+      "场次编号": 5,
+      "小组": "B组",
+      "对阵": "卡塔尔 vs 瑞士",
+      "开赛时间": "06月13日 15:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 1, "主队胜": 1, "平局": 0, "客队胜": 0, "总比分": "1:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10426805/qatar_switzerland/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 6,
+      "小组": "C组",
+      "对阵": "巴西 vs 摩洛哥",
+      "开赛时间": "06月13日 18:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 3, "主队胜": 2, "平局": 0, "客队胜": 1, "总比分": "6:2" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713797/brazil_morocco/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 7,
+      "小组": "C组",
+      "对阵": "海地 vs 苏格兰",
+      "开赛时间": "06月13日 21:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713800/haiti_scotland/head-to-head/",
+      "可靠性": "公开来源未列出既往交锋"
+    },
+    {
+      "场次编号": 8,
+      "小组": "D组",
+      "对阵": "澳大利亚 vs 土耳其",
+      "开赛时间": "06月13日 23:59（盘口页GMT-4）",
+      "公开H2H": { "总场次": 2, "主队胜": 0, "平局": 0, "客队胜": 2, "总比分": "1:4" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10426823/australia_turkey/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 9,
+      "小组": "E组",
+      "对阵": "德国 vs 库拉索",
+      "开赛时间": "06月14日 13:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713815/germany_curacao/head-to-head/",
+      "可靠性": "公开来源未列出既往交锋"
+    },
+    {
+      "场次编号": 10,
+      "小组": "F组",
+      "对阵": "荷兰 vs 日本",
+      "开赛时间": "06月14日 16:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 3, "主队胜": 2, "平局": 1, "客队胜": 0, "总比分": "6:2" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713833/netherlands_japan/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 11,
+      "小组": "E组",
+      "对阵": "科特迪瓦 vs 厄瓜多尔",
+      "开赛时间": "06月14日 19:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713818/ivory-coast_ecuador/head-to-head/",
+      "可靠性": "公开来源未列出既往交锋"
+    },
+    {
+      "场次编号": 12,
+      "小组": "F组",
+      "对阵": "瑞典 vs 突尼斯",
+      "开赛时间": "06月14日 22:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 4, "主队胜": 2, "平局": 1, "客队胜": 1, "总比分": "3:2" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713836/sweden_tunisia/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 13,
+      "小组": "H组",
+      "对阵": "西班牙 vs 佛得角",
+      "开赛时间": "06月15日 12:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713869/spain_cape-verde-islands/head-to-head/",
+      "可靠性": "公开来源未列出既往交锋"
+    },
+    {
+      "场次编号": 14,
+      "小组": "G组",
+      "对阵": "比利时 vs 埃及",
+      "开赛时间": "06月15日 15:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 4, "主队胜": 1, "平局": 0, "客队胜": 3, "总比分": "4:7" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713851/belgium_egypt/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 15,
+      "小组": "H组",
+      "对阵": "沙特阿拉伯 vs 乌拉圭",
+      "开赛时间": "06月15日 18:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 3, "主队胜": 1, "平局": 1, "客队胜": 1, "总比分": "4:4" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713872/saudi-arabia_uruguay/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 16,
+      "小组": "G组",
+      "对阵": "伊朗 vs 新西兰",
+      "开赛时间": "06月15日 21:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 2, "主队胜": 1, "平局": 1, "客队胜": 0, "总比分": "3:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713854/iran_new-zealand/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 17,
+      "小组": "I组",
+      "对阵": "法国 vs 塞内加尔",
+      "开赛时间": "06月16日 15:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 1, "主队胜": 0, "平局": 0, "客队胜": 1, "总比分": "0:1" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713887/france_senegal/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 18,
+      "小组": "I组",
+      "对阵": "伊拉克 vs 挪威",
+      "开赛时间": "06月16日 18:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713890/iraq_norway/head-to-head/",
+      "可靠性": "公开来源未列出成年国家队既往交锋"
+    },
+    {
+      "场次编号": 19,
+      "小组": "J组",
+      "对阵": "阿根廷 vs 阿尔及利亚",
+      "开赛时间": "06月16日 21:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 1, "主队胜": 1, "平局": 0, "客队胜": 0, "总比分": "4:3" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713905/argentina_algeria/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 20,
+      "小组": "J组",
+      "对阵": "奥地利 vs 约旦",
+      "开赛时间": "06月16日 23:59（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713908/austria_jordan/head-to-head/",
+      "可靠性": "公开来源未列出既往交锋"
+    },
+    {
+      "场次编号": 21,
+      "小组": "K组",
+      "对阵": "葡萄牙 vs 刚果民主共和国",
+      "开赛时间": "06月17日 13:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713923/portugal_dr-congo/head-to-head/",
+      "可靠性": "公开来源未列出既往交锋"
+    },
+    {
+      "场次编号": 22,
+      "小组": "L组",
+      "对阵": "英格兰 vs 克罗地亚",
+      "开赛时间": "06月17日 16:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 11, "主队胜": 6, "平局": 2, "客队胜": 3, "总比分": "22:13" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713941/england_croatia/head-to-head/",
+      "可靠性": "公开来源摘要"
+    },
+    {
+      "场次编号": 23,
+      "小组": "L组",
+      "对阵": "加纳 vs 巴拿马",
+      "开赛时间": "06月17日 19:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713944/ghana_panama/head-to-head/",
+      "可靠性": "公开来源未列出既往交锋"
+    },
+    {
+      "场次编号": 24,
+      "小组": "K组",
+      "对阵": "乌兹别克斯坦 vs 哥伦比亚",
+      "开赛时间": "06月17日 22:00（盘口页GMT-4）",
+      "公开H2H": { "总场次": 0, "主队胜": 0, "平局": 0, "客队胜": 0, "总比分": "0:0" },
+      "来源URL": "https://www.worldfootball.net/match-report/co139/fifa-world-cup/ma10713926/uzbekistan_colombia/head-to-head/",
+      "可靠性": "公开来源未列出既往交锋"
+    }
+  ],
+  "覆盖汇总": {
+    "首轮对阵数量": 24,
+    "已补充公开H2H摘要": 24,
+    "有既往交锋的对阵": 12,
+    "公开来源未列出既往交锋的对阵": 12,
+    "最近五场已结构化对阵": 1,
+    "未来五场已完整结构化对阵": 0,
+    "仍需补齐": [
+      "全48队最近五场正式比赛和友谊赛",
+      "全48队页面状态或统一状态评分",
+      "全48队未来五场赛程",
+      "H2H逐场明细、最大胜利、平均积分、平均进球",
+      "比赛城市、球场、天气、旅行距离与休息天数结构化字段"
+    ]
+  },
+  "中文来源补充": [
+    {
+      "来源": "央视体育",
+      "用途": "48队分组、赛程中文核验",
+      "URL": "https://sports.cctv.com/2026/04/01/ARTIdkDLAd4VoNMm6ZfWrmxW260401.shtml"
+    },
+    {
+      "来源": "懂球帝",
+      "用途": "48队12组、104场赛制中文核验",
+      "URL": "https://m.dongqiudi.com/article/3323569.html"
+    },
+    {
+      "来源": "新浪体育",
+      "用途": "赛程、分组、赛制中文补充入口",
+      "URL": "https://sports.sina.cn/2026-06-09/detail-iniavshp1673339.d.html?vt=4"
+    }
+  ],
+  "ragChunks": [
+    {
+      "chunkId": "wc2026_h2h_public_coverage_chunk_001",
+      "documentId": "rag_wc2026_h2h_public_data_coverage_001",
+      "sourceType": "analysis",
+      "title": "2026世界杯一对一公开H2H覆盖审计",
+      "teamId": null,
+      "playerId": null,
+      "matchId": null,
+      "competition": "2026 FIFA 世界杯",
+      "publishedAt": "2026-06-10T00:00:00+08:00",
+      "url": "docs/rag/world-cup-2026-h2h-public-data-coverage.json",
+      "reliability": "中等：公开H2H摘要已逐项检索；最近五场和未来五场仍需继续补齐",
+      "language": "zh-CN",
+      "tags": ["world_cup_2026", "head_to_head", "h2h", "一对一", "public_data", "rag"],
+      "page": 1
+    },
+    {
+      "chunkId": "wc2026_h2h_public_coverage_chunk_002",
+      "documentId": "rag_wc2026_h2h_public_data_coverage_001",
+      "sourceType": "stats_feed",
+      "title": "2026世界杯首轮24场公开H2H摘要",
+      "teamId": null,
+      "playerId": null,
+      "matchId": null,
+      "competition": "2026 FIFA 世界杯",
+      "publishedAt": "2026-06-10T00:00:00+08:00",
+      "url": "docs/rag/world-cup-2026-h2h-public-data-coverage.json",
+      "reliability": "中等：worldfootball公开摘要；需后续与FIFA/ESPN/各足协页面交叉核验逐场明细",
+      "language": "zh-CN",
+      "tags": ["world_cup_2026", "opening_matches", "head_to_head", "historical_matchups"],
+      "page": 2
+    }
+  ]
+}

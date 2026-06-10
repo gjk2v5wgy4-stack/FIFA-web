@@ -12,11 +12,13 @@ from app.models import (
     AdminActionLog,
     ApiUsageLog,
     FeatureType,
+    RagProviderUsage,
     TokenLedgerEntry,
     UserRecord,
     UserStatus,
 )
 from app.services.factory import create_services
+from app.services.rag_service import RagService
 from app.store import InMemoryStore
 
 
@@ -45,6 +47,28 @@ class MeteredConsumeRequest(BaseModel):
     request_id: str = Field(alias="requestId")
     amount_tokens: int | None = Field(default=None, alias="amountTokens")
     payload: dict[str, object] = Field(default_factory=dict)
+
+
+class RagUsageRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    model: str = "unknown-rag-model"
+    model_version: str | None = Field(default=None, alias="modelVersion")
+    prompt_tokens: int = Field(default=0, alias="promptTokens")
+    completion_tokens: int = Field(default=0, alias="completionTokens")
+    embedding_tokens: int = Field(default=0, alias="embeddingTokens")
+    total_provider_tokens: int = Field(default=0, alias="totalProviderTokens")
+    estimated_cost: float = Field(default=0.0, alias="estimatedCost")
+
+
+class RagAskRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    request_id: str = Field(alias="requestId")
+    question: str
+    context: dict[str, object] = Field(default_factory=dict)
+    retrieval: dict[str, object] = Field(default_factory=dict)
+    mock_usage: RagUsageRequest | None = Field(default=None, alias="mockUsage")
 
 
 def isoformat(value: datetime) -> str:
@@ -84,9 +108,19 @@ def serialize_usage(log: ApiUsageLog) -> dict[str, Any]:
         "usageId": log.id,
         "userId": log.user_id,
         "featureType": log.feature_type.value,
+        "usageType": log.usage_type,
+        "model": log.model,
+        "modelVersion": log.model_version,
         "requestId": log.request_id,
+        "promptTokens": log.prompt_tokens,
+        "completionTokens": log.completion_tokens,
+        "embeddingTokens": log.embedding_tokens,
+        "totalProviderTokens": log.total_provider_tokens,
+        "estimatedCost": log.estimated_cost,
         "internalTokensCharged": log.internal_tokens_charged,
         "tokenLedgerId": log.token_ledger_id,
+        "relatedEntityType": log.related_entity_type,
+        "relatedEntityId": log.related_entity_id,
         "createdAt": isoformat(log.created_at),
     }
 
@@ -106,6 +140,7 @@ def serialize_admin_action(log: AdminActionLog) -> dict[str, Any]:
 def create_app(store: InMemoryStore | None = None) -> FastAPI:
     app_store = store or InMemoryStore.seed_default()
     services = create_services(app_store)
+    rag_service = RagService(app_store)
     app = FastAPI(title="World Cup AI Prediction API", version="0.1.0")
     app.state.store = app_store
     app.state.services = services
@@ -354,6 +389,43 @@ def create_app(store: InMemoryStore | None = None) -> FastAPI:
             }
         }
 
+    @app.post("/api/rag/ask")
+    def ask_rag(
+        body: RagAskRequest,
+        user: UserRecord = Depends(current_user),
+    ) -> dict[str, Any]:
+        services.access.requireApproved(user)
+        provider_usage = _rag_provider_usage(body.mock_usage)
+        rag_result = rag_service.ask(
+            question=body.question,
+            context=body.context,
+            usage=provider_usage,
+        )
+        metering = services.metering.chargeRagUsage(
+            userId=user.id,
+            requestId=body.request_id,
+            relatedEntityId=rag_result.rag_query_id,
+            usage=rag_result.usage,
+        )
+        return {
+            "data": {
+                "ragQueryId": rag_result.rag_query_id,
+                "answer": rag_result.answer,
+                "confidence": rag_result.confidence,
+                "citations": rag_result.citations,
+                "usage": {
+                    "tokensCharged": metering.tokens_charged,
+                    "remainingTokens": metering.remaining_tokens,
+                    "lowBalance": metering.lowTokenWarning,
+                    "lowTokenWarning": metering.lowTokenWarning,
+                    "tokenLedgerId": metering.token_ledger_id,
+                    "apiUsageLogId": metering.api_usage_log_id,
+                    "duplicate": metering.duplicate,
+                    "providerUsage": _provider_usage_payload(rag_result.usage),
+                },
+            }
+        }
+
     return app
 
 
@@ -364,6 +436,38 @@ def _token_operation_payload(result: Any) -> dict[str, Any]:
         "tokenLedgerId": result.token_ledger_id,
         "amountTokens": result.amount_tokens,
         "tokenBalance": result.token_balance,
+    }
+
+
+def _rag_provider_usage(payload: RagUsageRequest | None) -> RagProviderUsage:
+    if payload is None:
+        return RagProviderUsage(
+            model="rag-mvp-adapter",
+            prompt_tokens=700,
+            completion_tokens=300,
+            embedding_tokens=200,
+            total_provider_tokens=1200,
+            estimated_cost=0.0,
+        )
+    return RagProviderUsage(
+        model=payload.model,
+        model_version=payload.model_version,
+        prompt_tokens=payload.prompt_tokens,
+        completion_tokens=payload.completion_tokens,
+        embedding_tokens=payload.embedding_tokens,
+        total_provider_tokens=payload.total_provider_tokens,
+        estimated_cost=payload.estimated_cost,
+    )
+
+
+def _provider_usage_payload(usage: RagProviderUsage) -> dict[str, Any]:
+    return {
+        "model": usage.model,
+        "promptTokens": usage.prompt_tokens,
+        "completionTokens": usage.completion_tokens,
+        "embeddingTokens": usage.embedding_tokens,
+        "totalProviderTokens": usage.total_provider_tokens,
+        "estimatedCost": usage.estimated_cost,
     }
 
 

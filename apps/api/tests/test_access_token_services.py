@@ -143,6 +143,43 @@ def test_duplicate_request_id_does_not_charge_tokens_twice() -> None:
     assert len(store.api_usage_logs) == 1
 
 
+def test_api_usage_logs_include_contract_fields_for_rag_usage() -> None:
+    services, store = make_services()
+    services.admin_users.approveUser(
+        adminId="admin_001",
+        userId="user_001",
+        initialTokens=2_500,
+        lowThreshold=500,
+        note="Approved for MVP access.",
+    )
+
+    services.metering.chargeRagUsage(
+        userId="user_001",
+        requestId="rag_contract_001",
+        relatedEntityId="ragq_contract_001",
+        usage={
+            "model": "rag-contract-model",
+            "promptTokens": 300,
+            "completionTokens": 100,
+            "embeddingTokens": 200,
+            "totalProviderTokens": 600,
+            "estimatedCost": 0.004,
+        },
+    )
+
+    usage = store.api_usage_logs[0]
+    assert usage.usage_type == "rag"
+    assert usage.model == "rag-contract-model"
+    assert usage.prompt_tokens == 300
+    assert usage.completion_tokens == 100
+    assert usage.embedding_tokens == 200
+    assert usage.total_provider_tokens == 600
+    assert usage.estimated_cost == 0.004
+    assert usage.internal_tokens_charged == 600
+    assert usage.related_entity_type == "rag_query"
+    assert usage.related_entity_id == "ragq_contract_001"
+
+
 def test_insufficient_tokens_raises_contract_error_without_negative_balance() -> None:
     services, _store = make_services()
     services.admin_users.approveUser(

@@ -78,6 +78,10 @@ Internal quota deduction may use:
 - A configured conversion rule
 - A fixed minimum token charge per API class
 
+For MVP RAG queries, the RAG service returns provider usage only. The API layer calls token
+metering after the RAG response and deducts internal quota from `usage.totalProviderTokens`.
+The RAG service and RAG core must not mutate token balance directly.
+
 ## Low Balance Behavior
 
 The backend returns:

@@ -280,6 +280,8 @@ class TokenQuotaService:
         return self._store.add_api_usage_log(
             user_id=userId,
             feature_type=featureType,
+            usage_type=self._usage_type_for_feature(featureType),
+            model="internal-metering",
             request_id=requestId,
             internal_tokens_charged=amount,
             token_ledger_id=ledger.id,
@@ -287,3 +289,12 @@ class TokenQuotaService:
             related_entity_id=requestId,
             total_provider_tokens=amount,
         )
+
+    def _usage_type_for_feature(self, featureType: FeatureType) -> str:
+        if featureType == FeatureType.RAG_QUERY:
+            return "rag"
+        if featureType in {FeatureType.MATCH_PREDICTION, FeatureType.WHAT_IF_PREDICTION}:
+            return "prediction"
+        if featureType == FeatureType.GROUP_SIMULATION:
+            return "simulation"
+        return "report"

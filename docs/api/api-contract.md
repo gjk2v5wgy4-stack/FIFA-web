@@ -348,6 +348,18 @@ Response `200`:
 }
 ```
 
+RAG metering rule:
+
+- The RAG service returns `usage.providerUsage`.
+- The API metering layer converts `usage.providerUsage.totalProviderTokens` to internal token
+  quota for MVP.
+- Successful RAG calls write `token_ledger.reason = rag_query`.
+- Successful RAG calls write `ai_usage_logs.usage_type = rag`.
+- Retryable RAG requests must use `requestId` as the idempotency key so the same request is not
+  charged twice.
+- If the account is not approved or token balance is insufficient, the API returns the common
+  error shape and does not write a RAG usage log.
+
 ## Prediction And Simulation
 
 ### POST /api/predictions/match

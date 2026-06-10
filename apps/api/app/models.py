@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from app.services.access_control import AccessControlService
     from app.services.admin_user import AdminUserService
+    from app.services.token_metering import TokenMeteringService
     from app.services.token_quota import TokenQuotaService
     from app.store import InMemoryStore
 
@@ -79,6 +80,9 @@ class ApiUsageLog:
     id: str
     user_id: str
     feature_type: FeatureType
+    usage_type: str
+    model: str
+    model_version: str | None
     request_id: str
     prompt_tokens: int
     completion_tokens: int
@@ -148,6 +152,26 @@ class TokenConsumptionResult:
 
 
 @dataclass
+class RagProviderUsage:
+    model: str
+    prompt_tokens: int
+    completion_tokens: int
+    embedding_tokens: int
+    total_provider_tokens: int
+    estimated_cost: float
+    model_version: str | None = None
+
+
+@dataclass
+class RagServiceResult:
+    rag_query_id: str
+    answer: str
+    confidence: float
+    citations: list[dict[str, Any]]
+    usage: RagProviderUsage
+
+
+@dataclass
 class PaginatedUsers:
     users: list[UserRecord]
     next_cursor: str | None
@@ -158,5 +182,6 @@ class PaginatedUsers:
 class ServiceBundle:
     access: AccessControlService
     tokens: TokenQuotaService
+    metering: TokenMeteringService
     admin_users: AdminUserService
     store: InMemoryStore = field(repr=False)

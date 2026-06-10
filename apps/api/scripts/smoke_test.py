@@ -34,6 +34,7 @@ def main() -> None:
                 json={"email": "approved@example.com", "password": "Approved123!"},
             )
             matches = client.get("/api/matches")
+            weather = client.get("/api/weather/forecast", params={"region": "beijing"})
 
             if health.status_code != 200:
                 raise SystemExit(f"health failed: {health.status_code} {health.text}")
@@ -41,6 +42,8 @@ def main() -> None:
                 raise SystemExit(f"login failed: {login.status_code} {login.text}")
             if matches.status_code != 200:
                 raise SystemExit(f"matches failed: {matches.status_code} {matches.text}")
+            if weather.status_code != 200:
+                raise SystemExit(f"weather failed: {weather.status_code} {weather.text}")
 
         get_engine().dispose()
         print("backend smoke test passed")

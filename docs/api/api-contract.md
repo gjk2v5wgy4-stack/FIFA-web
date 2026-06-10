@@ -279,6 +279,53 @@ Response `200`:
 }
 ```
 
+## Weather Forecast
+
+### GET /api/weather/forecast
+
+Query parameters:
+
+- `region`: Optional region name, such as `beijing`, `shanghai`, or `new york`.
+- `latitude`: Optional latitude. Must be provided with `longitude`.
+- `longitude`: Optional longitude. Must be provided with `latitude`.
+- `days`: Forecast horizon from 1 to 7 days. Default is 3.
+
+At least one of `region` or `latitude`/`longitude` is required.
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "region": "Beijing",
+    "latitude": 39.9042,
+    "longitude": 116.4074,
+    "timezone": "Asia/Shanghai",
+    "current": {
+      "observedAt": "2026-06-10T10:00:00Z",
+      "temperatureC": 24,
+      "apparentTemperatureC": 25,
+      "humidityPct": 62,
+      "windKph": 12,
+      "weatherCode": 2,
+      "condition": "Partly cloudy"
+    },
+    "daily": [
+      {
+        "date": "2026-06-10",
+        "maxTemperatureC": 26,
+        "minTemperatureC": 17,
+        "precipitationProbabilityPct": 20,
+        "weatherCode": 2,
+        "condition": "Partly cloudy"
+      }
+    ],
+    "source": "open-meteo",
+    "updatedAt": "2026-06-10T10:00:00Z"
+  }
+}
+```
+
 ## RAG
 
 ### POST /api/rag/ask

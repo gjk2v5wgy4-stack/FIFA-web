@@ -10,6 +10,7 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClie
     db_path = tmp_path / "api-test.db"
     monkeypatch.setenv("DATABASE_URL", f"sqlite+pysqlite:///{db_path.as_posix()}")
     monkeypatch.setenv("SECRET_KEY", "test-secret-key")
+    monkeypatch.setenv("WEATHER_PROVIDER", "local")
 
     from app.core.config import get_settings
     from app.db.base import Base
@@ -38,4 +39,3 @@ def auth_headers(client: TestClient, email: str, password: str = "Password123!")
 @pytest.fixture()
 def admin_headers(client: TestClient) -> dict[str, str]:
     return auth_headers(client, "admin@example.com", "Admin123!")
-

@@ -15,9 +15,13 @@ class Settings(BaseSettings):
     redis_url: str = Field(default="redis://localhost:6379/0", validation_alias="REDIS_URL")
     secret_key: str = Field(default="change-me-for-local-dev", validation_alias="SECRET_KEY")
     low_balance_threshold: int = Field(default=10_000, validation_alias="LOW_BALANCE_THRESHOLD")
+    weather_provider: str = Field(default="open-meteo", validation_alias="WEATHER_PROVIDER")
+    open_meteo_timeout_seconds: float = Field(
+        default=5.0,
+        validation_alias="OPEN_METEO_TIMEOUT_SECONDS",
+    )
 
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

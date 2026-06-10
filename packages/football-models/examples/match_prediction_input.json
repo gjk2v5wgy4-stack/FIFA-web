@@ -1,0 +1,23 @@
+{
+  "matchId": "match_001",
+  "home": {
+    "teamId": "team_usa",
+    "name": "United States",
+    "elo": 1824,
+    "xgFor90": 1.72,
+    "xgAgainst90": 1.08
+  },
+  "away": {
+    "teamId": "team_wal",
+    "name": "Wales",
+    "elo": 1762,
+    "xgFor90": 1.24,
+    "xgAgainst90": 1.31
+  },
+  "options": {
+    "includeScoreDistribution": true,
+    "maxGoals": 8,
+    "monteCarloIterations": 10000,
+    "randomSeed": 7
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "documentId": "rag_world_cup_historical_matchups_001",
+  "generatedAt": "2026-06-10T00:00:00+08:00",
+  "competitionScope": "仅 FIFA 世界杯正赛",
+  "sourcePolicy": {
+    "primary": ["FIFA 档案", "FIFA 赛事历史文章"],
+    "secondary": ["ESPN 历史比赛页面"],
+    "excludedAsFacts": ["搜索结果摘要", "社交媒体帖子", "论坛"],
+    "nonWorldCupCompetitionsExcluded": ["友谊赛", "预选赛", "联合会杯", "洲际杯赛"]
+  },
+  "usaGroupDWorldCupHeadToHead": [
+    {
+      "matchupId": "wc_1930_usa_paraguay",
+      "tournamentYear": 1930,
+      "round": "第 4 组",
+      "matchDate": "1930-07-17",
+      "teamAId": "team_usa",
+      "teamAName": "美国",
+      "teamBId": "team_paraguay",
+      "teamBName": "巴拉圭",
+      "score": "美国 3-0 巴拉圭",
+      "resultForTeamA": "胜",
+      "extraTime": false,
+      "penalties": false,
+      "venue": null,
+      "city": "蒙得维的亚",
+      "country": "乌拉圭",
+      "sourceUrls": [
+        "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/usa-team-profile-history",
+        "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/usa-paraguay-history",
+        "https://www.espn.com/soccer/match/_/gameId/197178/paraguay-united-states"
+      ],
+      "reliability": "公开来源交叉核验",
+      "notes": "伯特·帕特诺德帽子戏法；这是美国队与 2026 D 组对手巴拉圭的世界杯正赛直接历史交锋。"
+    },
+    {
+      "matchupId": "wc_history_usa_australia_none_found",
+      "teamAId": "team_usa",
+      "teamAName": "美国",
+      "teamBId": "team_australia",
+      "teamBName": "澳大利亚",
+      "worldCupFinalsMeetingsFound": 0,
+      "sourceUrls": [
+        "https://www.fifa.com/en/archive",
+        "https://socceroos.com.au/news/our-head-head-record-against-our-fifa-world-cuptm-2026-group-stage-opponents"
+      ],
+      "reliability": "需要交叉核验",
+      "notes": "存在全部赛事历史交锋资料，但没有 FIFA 档案核验前，不得写入世界杯正赛交锋表。"
+    },
+    {
+      "matchupId": "wc_history_usa_turkiye_none_found",
+      "teamAId": "team_usa",
+      "teamAName": "美国",
+      "teamBId": "team_turkiye",
+      "teamBName": "土耳其",
+      "worldCupFinalsMeetingsFound": 0,
+      "sourceUrls": [
+        "https://www.fifa.com/en/archive",
+        "https://www.espn.com/soccer/match/_/gameId/760470/united-states-turkiye"
+      ],
+      "reliability": "需要交叉核验",
+      "notes": "2003 年联合会杯不属于 FIFA 世界杯正赛，必须排除在此表之外。"
+    }
+  ],
+  "usaHistoricalAnchorMatches": [
+    {
+      "matchupId": "wc_1930_usa_belgium",
+      "tournamentYear": 1930,
+      "round": "第 4 组",
+      "teamAName": "美国",
+      "teamBName": "比利时",
+      "score": "美国 3-0 比利时",
+      "resultForTeamA": "胜",
+      "sourceUrls": [
+        "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/usa-team-profile-history"
+      ],
+      "reliability": "官方"
+    },
+    {
+      "matchupId": "wc_1950_usa_england",
+      "tournamentYear": 1950,
+      "round": "小组赛",
+      "matchDate": "1950-06-29",
+      "teamAName": "美国",
+      "teamBName": "英格兰",
+      "score": "美国 1-0 英格兰",
+      "resultForTeamA": "胜",
+      "sourceUrls": [
+        "https://www.fifa.com/en/tournaments/mens/worldcup/articles/glorious-gaetjens-upsets-old-order",
+        "https://www.espn.com/soccer/match/_/gameId/197565/england-united-states"
+      ],
+      "reliability": "公开来源交叉核验"
+    },
+    {
+      "matchupId": "wc_2002_usa_portugal",
+      "tournamentYear": 2002,
+      "round": "小组赛",
+      "matchDate": "2002-06-05",
+      "teamAName": "美国",
+      "teamBName": "葡萄牙",
+      "score": "美国 3-2 葡萄牙",
+      "resultForTeamA": "胜",
+      "sourceUrls": [
+        "https://www.fifa.com/en/tournaments/mens/worldcup/articles/usa-portugal-2002",
+        "https://www.espn.com/soccer/match/_/gameId/48823/portugal-united-states"
+      ],
+      "reliability": "公开来源交叉核验"
+    },
+    {
+      "matchupId": "wc_2002_mexico_usa",
+      "tournamentYear": 2002,
+      "round": "16 强",
+      "matchDate": "2002-06-17",
+      "teamAName": "墨西哥",
+      "teamBName": "美国",
+      "score": "墨西哥 0-2 美国",
+      "resultForTeamA": "负",
+      "sourceUrls": [
+        "https://www.espn.com/soccer/match/_/gameId/48889/united-states-mexico"
+      ],
+      "reliability": "公开来源交叉核验"
+    },
+    {
+      "matchupId": "wc_2010_ghana_usa",
+      "tournamentYear": 2010,
+      "round": "16 强",
+      "matchDate": "2010-06-26",
+      "teamAName": "加纳",
+      "teamBName": "美国",
+      "score": "加纳 2-1 美国",
+      "resultForTeamA": "胜",
+      "extraTime": true,
+      "sourceUrls": [
+        "https://www.espn.com/soccer/match/_/gameId/264108/ghana-united-states"
+      ],
+      "reliability": "公开来源交叉核验"
+    }
+  ],
+  "collectionGuards": [
+    "此表只收录 FIFA 世界杯正赛。",
+    "不要把友谊赛、预选赛、联合会杯或洲际杯赛合并进世界杯历史交锋。",
+    "每个比分至少保存一个来源 URL。",
+    "没有找到交锋的记录应作为待核验种子，不应伪造成隐藏事实。",
+    "不得从历史对战记录生成市场操作建议。"
+  ]
+}

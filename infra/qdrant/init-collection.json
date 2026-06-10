@@ -1,0 +1,8 @@
+{
+  "vectors": {
+    "size": 1536,
+    "distance": "Cosine"
+  },
+  "on_disk_payload": true
+}
+

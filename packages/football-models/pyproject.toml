@@ -1,0 +1,19 @@
+[project]
+name = "football-models"
+version = "0.1.0"
+description = "Pure football prediction models for worldcup-ai-prediction"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "src"

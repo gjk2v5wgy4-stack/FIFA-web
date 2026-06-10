@@ -279,6 +279,53 @@ Response `200`:
 }
 ```
 
+## Weather Forecast
+
+### GET /api/weather/forecast
+
+Query parameters:
+
+- `region`: Optional region name, such as `beijing`, `shanghai`, or `new york`.
+- `latitude`: Optional latitude. Must be provided with `longitude`.
+- `longitude`: Optional longitude. Must be provided with `latitude`.
+- `days`: Forecast horizon from 1 to 7 days. Default is 3.
+
+At least one of `region` or `latitude`/`longitude` is required.
+
+Response `200`:
+
+```json
+{
+  "data": {
+    "region": "Beijing",
+    "latitude": 39.9042,
+    "longitude": 116.4074,
+    "timezone": "Asia/Shanghai",
+    "current": {
+      "observedAt": "2026-06-10T10:00:00Z",
+      "temperatureC": 24,
+      "apparentTemperatureC": 25,
+      "humidityPct": 62,
+      "windKph": 12,
+      "weatherCode": 2,
+      "condition": "Partly cloudy"
+    },
+    "daily": [
+      {
+        "date": "2026-06-10",
+        "maxTemperatureC": 26,
+        "minTemperatureC": 17,
+        "precipitationProbabilityPct": 20,
+        "weatherCode": 2,
+        "condition": "Partly cloudy"
+      }
+    ],
+    "source": "open-meteo",
+    "updatedAt": "2026-06-10T10:00:00Z"
+  }
+}
+```
+
 ## RAG
 
 ### POST /api/rag/ask
@@ -373,22 +420,34 @@ Response `200`:
     "predictionId": "pred_001",
     "matchId": "match_001",
     "modelVersion": "football-models-0.1.0",
-    "probabilities": {
-      "homeWin": 0.43,
-      "draw": 0.28,
-      "awayWin": 0.29
+    "prediction": {
+      "homeWinProbability": 0.43,
+      "drawProbability": 0.28,
+      "awayWinProbability": 0.29,
+      "expectedGoals": {
+        "home": 1.42,
+        "away": 1.16
+      },
+      "scorelineProbabilities": [
+        {
+          "score": "1-1",
+          "probability": 0.12
+        }
+      ],
+      "confidence": "medium",
+      "riskFactors": [
+        "Draw probability is material and raises scenario uncertainty."
+      ],
+      "keyDrivers": [
+        "xG profile projects the home side at 1.42 and the away side at 1.16 expected goals.",
+        "Elo and Poisson score probabilities are blended for a probability estimate."
+      ]
     },
-    "expectedGoals": {
-      "home": 1.42,
-      "away": 1.16
+    "metering": {
+      "featureType": "match_full_prediction",
+      "complexity": "standard",
+      "estimatedInternalTokens": 800
     },
-    "scoreDistribution": [
-      {
-        "homeGoals": 1,
-        "awayGoals": 1,
-        "probability": 0.12
-      }
-    ],
     "usage": {
       "tokensCharged": 800,
       "remainingTokens": 76000,
@@ -428,7 +487,7 @@ Response `200`:
       "draw": 0.28,
       "awayWin": 0.29
     },
-    "scenario": {
+    "adjusted": {
       "homeWin": 0.36,
       "draw": 0.3,
       "awayWin": 0.34
@@ -437,6 +496,11 @@ Response `200`:
       "homeWin": -0.07,
       "draw": 0.02,
       "awayWin": 0.05
+    },
+    "metering": {
+      "featureType": "what_if_simulation",
+      "complexity": "standard",
+      "estimatedInternalTokens": 1000
     },
     "usage": {
       "tokensCharged": 1000,
@@ -484,6 +548,11 @@ Response `200`:
         "groupWinnerProbability": 0.42
       }
     ],
+    "metering": {
+      "featureType": "group_simulation",
+      "complexity": "standard",
+      "estimatedInternalTokens": 1500
+    },
     "usage": {
       "tokensCharged": 1500,
       "remainingTokens": 73500,

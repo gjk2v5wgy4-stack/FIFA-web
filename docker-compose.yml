@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: web-dev
+      target: web-prod
     container_name: worldcup-web
     depends_on:
       api:

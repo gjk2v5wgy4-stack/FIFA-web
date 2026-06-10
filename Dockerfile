@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 FROM python:3.12-alpine AS api-dev
 WORKDIR /app
 COPY infra/docker/api/health_server.py /app/health_server.py
@@ -11,6 +9,19 @@ CMD ["python", "/app/health_server.py"]
 
 FROM nginx:1.27-alpine AS web-dev
 COPY infra/docker/web/default.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=6 CMD wget -qO- http://127.0.0.1/healthz >/dev/null || exit 1
+
+FROM node:22-alpine AS web-build
+WORKDIR /app
+COPY apps/web/package.json apps/web/package-lock.json ./
+RUN npm ci
+COPY apps/web/ ./
+RUN npm run build
+
+FROM nginx:1.27-alpine AS web-prod
+COPY infra/docker/web/prod.conf /etc/nginx/conf.d/default.conf
+COPY --from=web-build /app/dist /usr/share/nginx/html
 EXPOSE 80
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=6 CMD wget -qO- http://127.0.0.1/healthz >/dev/null || exit 1
 

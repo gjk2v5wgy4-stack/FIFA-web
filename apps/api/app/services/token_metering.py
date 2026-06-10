@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from app.errors import insufficient_tokens, validation_error
-from app.models import FeatureType, RagProviderUsage, TokenConsumptionResult
+from app.models.access_contracts import FeatureType, RagProviderUsage, TokenConsumptionResult
 from app.services.access_control import AccessControlService
 from app.services.token_quota import TokenQuotaService
 from app.store import InMemoryStore

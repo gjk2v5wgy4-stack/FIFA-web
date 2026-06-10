@@ -16,7 +16,10 @@ from app.store import InMemoryStore
 def create_app() -> FastAPI:
     configure_database()
     fastapi_app = FastAPI(title="worldcup-ai-prediction API", version="0.1.0")
-    fastapi_app.state.compat_services = create_services(InMemoryStore.seed_default())
+    compat_services = create_services(InMemoryStore.seed_default())
+    fastapi_app.state.compat_services = compat_services
+    fastapi_app.state.services = compat_services
+    fastapi_app.state.store = compat_services.store
 
     @fastapi_app.middleware("http")
     async def request_id_middleware(

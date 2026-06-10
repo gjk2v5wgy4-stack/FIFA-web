@@ -39,6 +39,7 @@ def tokens(request: Request, user: CurrentUser, session: DbSession) -> dict[str,
             "data": {
                 "userId": user.id,
                 "balanceTokens": services.tokens.getBalance(user.id),
+                "totalConsumedTokens": services.tokens.getTotalConsumed(user.id),
                 "lowBalance": services.tokens.isLowBalance(user.id),
                 "lowBalanceThreshold": services.tokens.getLowThreshold(user.id),
                 "contactAdminMessage": "Token balance is low. Please contact the admin.",

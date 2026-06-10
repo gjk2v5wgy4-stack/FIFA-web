@@ -4,30 +4,32 @@ Date: 2026-06-10
 
 Branch: `feature/06-qa-integration`
 
-Overall risk status: `LOW_WITH_ENV_LIMITATION`
+Overall risk status: `LOW`
 
-## Remaining Limitation
+## Open Risks
 
 | Risk | Severity | Status | Mitigation |
 | --- | --- | --- | --- |
-| Docker CLI unavailable in current QA environment | Medium | OPEN_ENV_LIMITATION | Run `npm run docker:config --if-present` or `docker compose config` on a Docker-enabled host. |
-| Root `npm audit` has no lockfile to audit | Low | DOCUMENTED | `apps/web` audit is authoritative for frontend dependencies and reports 0 vulnerabilities. |
+| Stripe/checkout and forbidden-word scans match governance/test/disclaimer text | Low | DOCUMENTED | Matches are not product implementation or user-facing guarantee promises |
 
 ## Resolved Risks
 
 | Risk | Resolution |
 | --- | --- |
-| Frontend route coverage gap | Fixed by `fix/qa-frontend-route-coverage`; route tests and frontend build pass. |
-| Prediction contract missing fields | Fixed by `fix/qa-prediction-contract`; backend contract tests and prediction unittest pass. |
-| Frontend npm audit vulnerabilities | Fixed by `fix/qa-devops-audit-review`; `apps/web` audit reports 0 vulnerabilities. |
-| Latest backend update integration risk | Merged latest `feature/02-backend-api`; backend lint, mypy, pytest, and smoke test pass. |
-| Latest T3 RAG data/context integration risk | Merged latest `feature/03-rag-vector-pipeline`; RAG unit tests, dry-runs, and smoke test pass. |
-| Latest frontend route-fix update risk | Merged latest `fix/qa-frontend-route-coverage`; frontend lint, typecheck, build, and tests pass. |
+| Frontend route coverage gap | T1 route coverage and login topbar are merged; frontend tests/build pass |
+| 2026 World Cup background/UI polish not visible in T6 | `fix/web-ui-polish` merged into T6 |
+| Prediction contract missing fields | Existing QA prediction fix remains merged and backend contract tests pass |
+| RAG vector pipeline missing from backend integration | T3 Qdrant adapter and smoke scripts merged; RAG smoke passes |
+| T2/T5 RAG contract overlap | `/api/rag/query` keeps retrieval-only contract; `/api/rag/ask` supports metered compatibility calls |
+| Admin token model regression | Token API tests pass for approval, insufficient balance, low balance, ledger, usage log, idempotency, and suspended-user blocking |
+| Web audit vulnerabilities | `npm audit --prefix apps/web` reports 0 vulnerabilities |
+| Docker config environment limitation | Docker CLI is available and `docker compose config` passes |
+| DevOps lint dirty-diff limitation | After the QA integration commit, `npm run lint:devops --if-present` passes |
 
 ## Security And Compliance
 
-- No real API keys, private keys, live tokens, Stripe keys, or webhook secrets were found.
-- Third-party payment, hosted payment page, recurring plan, and self-service recharge references appear only as MVP exclusions or forbidden examples.
-- Prohibited guarantee or betting wording appears only in governance, lint guardrails, QA records, or RAG market-context documents that explicitly reject betting advice and guaranteed outcomes.
-- Admin token access model passes automated tests for approval, blocking, ledger, usage logs, low-balance warning, and insufficient-token behavior.
-- An untracked temporary HTML capture in the T3 worktree was removed before merge and was not committed.
+- No live API keys, private keys, Stripe keys, webhook secrets, or private tokens were found by pattern scan.
+- Payment terms appear only in MVP exclusion documentation and guardrail scripts.
+- Betting/guarantee wording appears only in safety rules, tests, and RAG context that explicitly rejects betting advice or guaranteed outcomes.
+- No nested `.git` directory was found.
+- No Git submodule is configured.

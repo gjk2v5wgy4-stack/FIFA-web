@@ -21,6 +21,7 @@ import {
   getTournamentSchedule as getStubTournamentSchedule,
   type TournamentMatchStub,
 } from "./worldCupSchedule";
+import { getTeamDisplay } from "./teamDisplay";
 
 const apiBaseUrl = "";
 
@@ -522,16 +523,42 @@ function mergeTournamentMatches(
   backendMatches: TournamentMatchStub[],
   fallbackMatches: TournamentMatchStub[],
 ): TournamentMatchStub[] {
-  const rows: TournamentMatchStub[] = [];
-  const seen = new Set<string>();
-  for (const match of [...backendMatches, ...fallbackMatches]) {
-    if (seen.has(match.matchId)) {
+  const rows = [...fallbackMatches];
+  const fallbackIndexByFixture = new Map<string, number>();
+
+  rows.forEach((match, index) => {
+    fallbackIndexByFixture.set(createFixtureKey(match), index);
+  });
+
+  for (const backendMatch of backendMatches) {
+    const fallbackIndex = fallbackIndexByFixture.get(createFixtureKey(backendMatch));
+    if (fallbackIndex === undefined) {
       continue;
     }
-    seen.add(match.matchId);
-    rows.push(match);
+
+    const fallbackMatch = rows[fallbackIndex];
+    if (!fallbackMatch) {
+      continue;
+    }
+
+    rows[fallbackIndex] = {
+      ...fallbackMatch,
+      matchId: backendMatch.matchId,
+      venue: backendMatch.venue || fallbackMatch.venue,
+      region: backendMatch.region || fallbackMatch.region,
+    };
   }
+
   return rows;
+}
+
+function createFixtureKey(match: TournamentMatchStub) {
+  return `${createTeamKey(match.homeTeam)}|${createTeamKey(match.awayTeam)}`;
+}
+
+function createTeamKey(team: string) {
+  const display = getTeamDisplay(team);
+  return (display.code || team).trim().toLowerCase();
 }
 
 function toScoreBuckets(

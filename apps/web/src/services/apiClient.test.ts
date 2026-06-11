@@ -21,7 +21,7 @@ describe("apiClient backend integration mapping", () => {
     vi.unstubAllGlobals();
   });
 
-  it("maps backend matches into tournament schedule cards", async () => {
+  it("maps backend matches into the official 104-match schedule without duplicating fixtures", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async (url: string) => {
@@ -42,6 +42,21 @@ describe("apiClient backend integration mapping", () => {
               homeTeam: { teamId: "team_mex", name: "Mexico", code: "MEX" },
               awayTeam: { teamId: "team_rsa", name: "South Africa", code: "RSA" },
             },
+            {
+              matchId: "match_002",
+              stage: "group",
+              group: "A",
+              status: "scheduled",
+              kickoffAt: "2026-06-12T03:00:00Z",
+              venue: {
+                venueId: "venue_002",
+                name: "Estadio Guadalajara",
+                city: "Zapopan",
+                country: "Mexico",
+              },
+              homeTeam: { teamId: "team_kor", name: "Korea Republic", code: "KOR" },
+              awayTeam: { teamId: "team_cze", name: "Czechia", code: "CZE" },
+            },
           ]);
         }
         throw new Error(`Unexpected request: ${url}`);
@@ -51,13 +66,21 @@ describe("apiClient backend integration mapping", () => {
     const { getTournamentSchedule } = await import("./apiClient");
     const matches = await getTournamentSchedule();
 
-    expect(matches.length).toBeGreaterThan(1);
+    expect(matches).toHaveLength(104);
     expect(matches[0]).toMatchObject({
       matchId: "match_001",
       homeTeam: "Mexico",
       awayTeam: "South Africa",
       venue: "Mexico City Stadium",
     });
+    expect(
+      matches.filter((match) => match.homeTeam === "Mexico" && match.awayTeam === "South Africa"),
+    ).toHaveLength(1);
+    expect(
+      matches.filter(
+        (match) => match.homeTeam === "South Korea" && match.awayTeam === "Czech Republic",
+      ),
+    ).toHaveLength(1);
   });
 
   it("maps prediction and RAG sources into UI prediction fields", async () => {

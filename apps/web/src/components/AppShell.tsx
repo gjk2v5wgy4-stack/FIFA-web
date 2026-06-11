@@ -12,6 +12,9 @@ import type { ReactNode } from "react";
 import type { RouteId } from "../routes";
 import { AiPetAssistant } from "./AiPetAssistant";
 
+export const LEGAL_DISCLAIMER_TEXT =
+  "本分析仅供体育数据娱乐和战术参考，不构成任何投注或赌博建议。严禁未经授权使用";
+
 interface AppShellProps {
   activeRoute: RouteId;
   children: ReactNode;
@@ -87,6 +90,9 @@ export function AppShell({
           </button>
         </header>
         {children}
+        <footer className="legal-disclaimer" role="contentinfo">
+          {LEGAL_DISCLAIMER_TEXT}
+        </footer>
       </main>
       <AiPetAssistant />
     </div>

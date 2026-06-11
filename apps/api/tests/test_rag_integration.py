@@ -23,10 +23,30 @@ class FakeVectorStore:
         return self.results[:top_k]
 
 
+class SequenceVectorStore(FakeVectorStore):
+    def __init__(self, result_batches: list[list[dict[str, Any]]]) -> None:
+        super().__init__([])
+        self.result_batches = result_batches
+
+    def search(
+        self,
+        query_embedding: list[float],
+        filters: dict[str, Any] | None = None,
+        top_k: int = 8,
+    ) -> list[dict[str, Any]]:
+        self.search_calls.append(
+            {"query_embedding": query_embedding, "filters": filters or {}, "top_k": top_k}
+        )
+        call_index = len(self.search_calls) - 1
+        if call_index >= len(self.result_batches):
+            return []
+        return self.result_batches[call_index][:top_k]
+
+
 def source_result(
     *,
     team_id: str = "team_usa",
-    match_id: str = "match_001",
+    match_id: str | None = "match_001",
     source_type: str = "scouting_report",
 ) -> dict[str, Any]:
     return {
@@ -111,6 +131,35 @@ def test_rag_query_applies_metadata_filters(client: TestClient, monkeypatch: Any
         "matchId": "match_mexico_south_africa",
         "teamId": "team_mexico",
         "playerId": "player_123",
+    }
+
+
+def test_rag_query_falls_back_to_team_context_when_match_filter_has_no_sources(
+    client: TestClient,
+    monkeypatch: Any,
+) -> None:
+    store = SequenceVectorStore([[], [source_result(match_id=None)]])
+    install_fake_rag_service(monkeypatch, store)
+    headers = auth_headers(client, "approved@example.com", "Approved123!")
+
+    response = client.post(
+        "/api/rag/query",
+        headers=headers,
+        json={
+            "question": "USA pre-match risk factors",
+            "matchId": "match_001",
+            "teamId": "team_usa",
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    data = response.json()["data"]
+    assert data["sources"][0]["chunkId"] == "chunk_001"
+    assert store.search_calls[0]["filters"] == {"matchId": "match_001", "teamId": "team_usa"}
+    assert store.search_calls[1]["filters"] == {"teamId": "team_usa"}
+    assert data["retrievalDiagnostics"]["fallbackFromFilters"] == {
+        "matchId": "match_001",
+        "teamId": "team_usa",
     }
 
 

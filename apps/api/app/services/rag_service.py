@@ -77,6 +77,8 @@ class RagQueryService:
             }
 
         filters = self._filters(payload)
+        effective_filters = filters
+        fallback_filters: dict[str, Any] | None = None
         try:
             store = self._vector_store()
             results = store.search(
@@ -84,6 +86,15 @@ class RagQueryService:
                 filters=filters,
                 top_k=payload.top_k,
             )
+            fallback_filters = self._match_filter_fallback(filters)
+            if not results and fallback_filters is not None:
+                results = store.search(
+                    query_embedding=self._embed_question(payload.question),
+                    filters=fallback_filters,
+                    top_k=payload.top_k,
+                )
+                if results:
+                    effective_filters = fallback_filters
         except Exception as exc:
             raise ApiException(
                 "RAG_RETRIEVAL_UNAVAILABLE",
@@ -101,21 +112,26 @@ class RagQueryService:
                     "status": "no_results",
                     "resultCount": 0,
                     "filtersApplied": filters,
+                    "fallbackFiltersTried": fallback_filters,
                     "provider": "qdrant",
                 },
                 "usage": usage.to_contract(),
             }
 
+        diagnostics: dict[str, object] = {
+            "status": "ok",
+            "resultCount": len(sources),
+            "filtersApplied": effective_filters,
+            "provider": "qdrant",
+            "collection": get_settings().qdrant_collection,
+        }
+        if effective_filters != filters:
+            diagnostics["fallbackFromFilters"] = filters
+
         return {
             "answer": self._answer_from_sources(payload.question, sources),
             "sources": sources,
-            "retrievalDiagnostics": {
-                "status": "ok",
-                "resultCount": len(sources),
-                "filtersApplied": filters,
-                "provider": "qdrant",
-                "collection": get_settings().qdrant_collection,
-            },
+            "retrievalDiagnostics": diagnostics,
             "usage": usage.to_contract(),
         }
 
@@ -158,6 +174,27 @@ class RagQueryService:
         if player_id is not None:
             filters["playerId"] = player_id
         return filters
+
+    def _match_filter_fallback(self, filters: dict[str, Any]) -> dict[str, Any] | None:
+        if "matchId" not in filters and "match_id" not in filters:
+            return None
+        fallback = {
+            key: value
+            for key, value in filters.items()
+            if key not in {"matchId", "match_id"}
+        }
+        context_keys = {
+            "teamId",
+            "team_id",
+            "playerId",
+            "player_id",
+            "sourceType",
+            "source_type",
+            "language",
+        }
+        if not any(key in fallback for key in context_keys):
+            return None
+        return fallback
 
     def _embed_question(self, question: str) -> list[float]:
         vector_dim = get_settings().vector_dim

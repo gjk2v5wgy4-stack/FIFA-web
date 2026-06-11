@@ -11,6 +11,8 @@ FROM python:3.12-alpine AS api-prod
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app/apps/api:/app/packages/football-models/src:/app/packages/rag-core/python
+ENV PIP_INDEX_URL=https://mirrors.cloud.tencent.com/pypi/simple
+ENV PIP_DEFAULT_TIMEOUT=120
 COPY apps/api /app/apps/api
 COPY packages/football-models /app/packages/football-models
 COPY packages/rag-core/python /app/packages/rag-core/python

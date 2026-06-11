@@ -331,9 +331,12 @@ export async function getMatchPrediction(
   match?: TournamentMatchStub,
 ): Promise<MatchPredictionStub> {
   const fallback = match ? createPredictionFromSchedule(match) : await getStubMatchPrediction(matchId);
+  const analysisContextPromise = buildPredictionAnalysisContext(fallback, match).catch(
+    () => undefined,
+  );
   try {
     const token = await getDemoToken();
-    const data = await apiRequest<ApiMatchPredictionResponse>(
+    const dataPromise = apiRequest<ApiMatchPredictionResponse>(
       "/api/predictions/match",
       {
         method: "POST",
@@ -350,7 +353,8 @@ export async function getMatchPrediction(
       },
       token,
     );
-    const [rag, analysisContext] = await Promise.all([
+    const [data, rag, analysisContext] = await Promise.all([
+      dataPromise,
       Promise.all([
         fetchRagEvidence({
           token,
@@ -367,7 +371,7 @@ export async function getMatchPrediction(
           topK: 4,
         }),
       ]).then(mergeRagResponses),
-      buildPredictionAnalysisContext(fallback, match),
+      analysisContextPromise,
     ]);
 
     return {
@@ -395,7 +399,15 @@ export async function getMatchPrediction(
       },
     };
   } catch {
-    return fallback;
+    const analysisContext = await analysisContextPromise;
+    return {
+      ...fallback,
+      analysisContext,
+      usage: {
+        ...fallback.usage,
+        lowBalance: true,
+      },
+    };
   }
 }
 
@@ -721,6 +733,8 @@ async function fetchTeamAnalysisContext(
     teamId: team.teamId,
     name: detail?.name ?? team.name,
     code: detail?.code ?? team.code,
+    confederation: detail?.confederation,
+    group: detail?.group,
     form: team.form,
     modelProfile: detail?.modelProfile,
     players: basePlayers.map((player, index) => {

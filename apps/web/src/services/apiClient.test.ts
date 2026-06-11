@@ -15,6 +15,14 @@ function response(data: unknown) {
   } as Response;
 }
 
+function errorResponse(status: number, error: unknown) {
+  return {
+    ok: false,
+    status,
+    json: async () => ({ error }),
+  } as Response;
+}
+
 describe("apiClient backend integration mapping", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -285,5 +293,121 @@ describe("apiClient backend integration mapping", () => {
     expect(
       calls.filter((call) => call.url.endsWith("/api/rag/query")).map((call) => call.body?.teamId),
     ).toEqual(["team_mex", "team_rsa"]);
+  });
+
+  it("keeps public team and environment analysis when metered prediction is blocked", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url.endsWith("/api/auth/login")) {
+          return response({ accessToken: "demo-token", user });
+        }
+
+        if (url.endsWith("/api/predictions/match")) {
+          return errorResponse(402, {
+            code: "INSUFFICIENT_TOKENS",
+            message: "Not enough tokens for this action.",
+          });
+        }
+
+        if (url.endsWith("/api/teams/team_mex")) {
+          return response({
+            teamId: "team_mex",
+            name: "Mexico",
+            code: "MEX",
+            confederation: "CONCACAF",
+            group: "A",
+            modelProfile: {
+              elo: 1798,
+              xgFor90: 1.46,
+              xgAgainst90: 1.1,
+              pathDifficulty: 0.58,
+            },
+            players: [
+              {
+                playerId: "player_mex_001",
+                name: "Santiago Gimenez",
+                position: "FW",
+                availabilityStatus: "available",
+              },
+            ],
+          });
+        }
+
+        if (url.endsWith("/api/teams/team_rsa")) {
+          return response({
+            teamId: "team_rsa",
+            name: "South Africa",
+            code: "RSA",
+            confederation: "CAF",
+            group: "A",
+            modelProfile: {
+              elo: 1640,
+              xgFor90: 1.08,
+              xgAgainst90: 1.33,
+              pathDifficulty: 0.67,
+            },
+            players: [
+              {
+                playerId: "player_rsa_001",
+                name: "Percy Tau",
+                position: "FW",
+                availabilityStatus: "available",
+              },
+            ],
+          });
+        }
+
+        if (url.endsWith("/api/players/player_mex_001")) {
+          return response({
+            playerId: "player_mex_001",
+            teamId: "team_mex",
+            name: "Santiago Gimenez",
+            position: "FW",
+            availabilityStatus: "available",
+            modelImpact: {
+              availabilityImpact: 0.05,
+              attackContribution: 0.08,
+              defenseContribution: 0.04,
+              minutesProjection: 72,
+            },
+          });
+        }
+
+        if (url.endsWith("/api/players/player_rsa_001")) {
+          return response({
+            playerId: "player_rsa_001",
+            teamId: "team_rsa",
+            name: "Percy Tau",
+            position: "FW",
+            availabilityStatus: "available",
+            modelImpact: {
+              availabilityImpact: 0.05,
+              attackContribution: 0.08,
+              defenseContribution: 0.04,
+              minutesProjection: 72,
+            },
+          });
+        }
+
+        throw new Error(`Unexpected request: ${url}`);
+      }),
+    );
+
+    const { getMatchPrediction } = await import("./apiClient");
+    const prediction = await getMatchPrediction("match_001", {
+      matchId: "match_001",
+      stage: "A组",
+      kickoffAt: "2026-06-12T03:00:00+08:00",
+      homeTeam: "Mexico",
+      awayTeam: "South Africa",
+      region: "Mexico City",
+      venue: "Mexico City Stadium",
+    });
+
+    expect(prediction.analysisContext?.home.players[0]?.name).toBe("Santiago Gimenez");
+    expect(prediction.analysisContext?.away.players[0]?.name).toBe("Percy Tau");
+    expect(prediction.analysisContext?.environment.altitudeMeters).toBe(2240);
+    expect(prediction.analysisContext?.environment.teams.away.travelDistanceKm).toBe(14600);
   });
 });

@@ -113,6 +113,19 @@ function buildStructuredAnalysisModules({
   const teamEnvironment = environment?.teams[selectedSide];
   const modules: AnalysisModule[] = [];
 
+  if (selectedContext) {
+    modules.push({
+      icon: ShieldCheck,
+      title: "球队历史表现数据",
+      points: [
+        `球队档案：${selectedContext.name}（${selectedContext.code}），${selectedContext.confederation ?? "赛区待更新"}，2026 小组：${selectedContext.group ?? "待更新"}`,
+        `近期战绩：${formatForm(selectedContext.form)}；Elo ${selectedContext.modelProfile?.elo ?? "待更新"}；晋级路径难度 ${selectedContext.modelProfile?.pathDifficulty?.toFixed(2) ?? "待更新"}`,
+        `攻防基线：进攻 xG/90 ${selectedContext.modelProfile?.xgFor90?.toFixed(2) ?? "待更新"}，防守 xGA/90 ${selectedContext.modelProfile?.xgAgainst90?.toFixed(2) ?? "待更新"}`,
+      ],
+      reason: "展示当前已入库的球队档案、近期状态和模型基线；更长周期历史成绩可随数据源扩展继续补充。",
+    });
+  }
+
   if (selectedContext?.players.length) {
     modules.push({
       icon: UsersRound,

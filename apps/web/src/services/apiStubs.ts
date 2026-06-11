@@ -103,6 +103,8 @@ export interface PredictionTeamAnalysisContext {
   teamId: string;
   name: string;
   code: string;
+  confederation?: string;
+  group?: string | null;
   form: string[];
   modelProfile?: {
     elo?: number;

@@ -158,7 +158,7 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
       points: [
         "最近热身赛、友谊赛和公开训练表现",
         "临时伤停、停赛、首发调整和天气更新",
-        "赛前新闻源与RAG资料的交叉复核",
+        "赛前新闻与RAG资料的交叉复核",
       ],
       reason: "最新动态会改变模型对状态和风险的判断。",
     },
@@ -178,7 +178,7 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
       icon: analysisIconById[section.id] ?? FileText,
       title: section.title,
       points: section.points,
-      reason: `${section.reason}（${section.sourceCount} 条来源）`,
+      reason: section.reason,
     })) ?? [];
   const analysisModules = ragAnalysisModules.length ? ragAnalysisModules : fallbackAnalysisModules;
 
@@ -230,7 +230,7 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
         </div>
         <div>
           <FileText aria-hidden="true" size={18} />
-          <span>{prediction.citations.length} 条模型依据</span>
+          <span>多维数据已整合</span>
         </div>
         <div>
           <AlertTriangle aria-hidden="true" size={18} />

@@ -266,18 +266,18 @@ export async function getMatchPrediction(
     predictionId: "pred_001",
     matchId,
     modelVersion: "football-models-0.1.0",
-    kickoffAt: "2026-06-12T20:00:00Z",
-    venue: "MetLife Stadium",
+    kickoffAt: "2026-06-12T03:00:00Z",
+    venue: "Mexico City Stadium",
     homeTeam: {
-      teamId: "team_usa",
-      name: "United States",
-      code: "USA",
+      teamId: "team_mex",
+      name: "Mexico",
+      code: "MEX",
       form: ["W", "D", "W", "L", "W"],
     },
     awayTeam: {
-      teamId: "team_wal",
-      name: "Wales",
-      code: "WAL",
+      teamId: "team_rsa",
+      name: "South Africa",
+      code: "RSA",
       form: ["D", "W", "L", "D", "W"],
     },
     probabilities: {
@@ -287,7 +287,7 @@ export async function getMatchPrediction(
     },
     expectedGoals: {
       home: 1.42,
-      away: 1.16,
+      away: 1.08,
     },
     scoreDistribution: [
       { homeGoals: 1, awayGoals: 1, probability: 0.12 },
@@ -300,22 +300,7 @@ export async function getMatchPrediction(
       "主要风险因素来自边路防守转换和关键前锋健康状态。",
       "模型结果存在不确定性，应结合赛前情报持续复核。",
     ],
-    citations: [
-      {
-        documentId: "doc_001",
-        chunkId: "chunk_001",
-        sourceName: "Team scouting report",
-        sourceUrl: "https://source.example.com/report",
-        publishedAt: "2026-06-01T00:00:00Z",
-      },
-      {
-        documentId: "doc_002",
-        chunkId: "chunk_004",
-        sourceName: "Injury status feed",
-        sourceUrl: "https://source.example.com/injury",
-        publishedAt: "2026-06-02T00:00:00Z",
-      },
-    ],
+    citations: [],
     usage: {
       tokensCharged: 800,
       remainingTokens: 76000,
@@ -342,16 +327,16 @@ export async function getTodayMatches(
       group: "A",
       status: "scheduled",
       kickoffAt: kickoffOnDate(referenceDate, 18, 0),
-      venue: "MetLife Stadium",
+      venue: "Mexico City Stadium",
       homeTeam: {
-        teamId: "team_usa",
-        name: "United States",
-        code: "USA",
+        teamId: "team_mex",
+        name: "Mexico",
+        code: "MEX",
       },
       awayTeam: {
-        teamId: "team_wal",
-        name: "Wales",
-        code: "WAL",
+        teamId: "team_rsa",
+        name: "South Africa",
+        code: "RSA",
       },
     },
     {

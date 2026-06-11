@@ -56,8 +56,8 @@ describe("frontend API stubs", () => {
     const matches = await getTodayMatches(new Date(2026, 5, 9, 8));
 
     expect(matches).toHaveLength(3);
-    expect(matches[0].homeTeam.code).toBe("USA");
-    expect(matches[0].awayTeam.code).toBe("WAL");
+    expect(matches[0].homeTeam.code).toBe("MEX");
+    expect(matches[0].awayTeam.code).toBe("RSA");
     expect(matches[0].kickoffAt.startsWith("2026-06-09")).toBe(true);
   });
 });

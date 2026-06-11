@@ -45,12 +45,12 @@ def seed_database(session: Session) -> None:
         confederation="CONCACAF",
         group_code="A",
     )
-    wal = Team(
-        id="team_wal",
-        name="Wales",
-        code="WAL",
-        confederation="UEFA",
-        group_code="A",
+    par = Team(
+        id="team_par",
+        name="Paraguay",
+        code="PAR",
+        confederation="CONMEBOL",
+        group_code="D",
     )
     player = Player(
         id="player_001",
@@ -64,7 +64,7 @@ def seed_database(session: Session) -> None:
         id="match_001",
         fixture_id=None,
         home_team_id=usa.id,
-        away_team_id=wal.id,
+        away_team_id=par.id,
         venue_id=venue.id,
         stage="group",
         group_code="A",
@@ -81,6 +81,6 @@ def seed_database(session: Session) -> None:
         related_entity_id="seed_approved_user",
         metadata_json={"source": "seed"},
     )
-    session.add_all([admin, approved, venue, usa, wal, player, match, ledger])
+    session.add_all([admin, approved, venue, usa, par, player, match, ledger])
     session.commit()
 

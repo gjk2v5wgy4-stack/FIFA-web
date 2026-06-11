@@ -291,10 +291,10 @@ function createModelDisagreement(
         note: "预计首发置信度、体能和关键位置可用性。",
       },
       {
-        confidence: prediction.citations.length >= 2 ? "中高" : "中",
+        confidence: "中",
         lean: probabilityLeader,
         model: "RAG 情报模型",
-        note: `${prediction.citations.length} 条模型依据等待赛前复核。`,
+        note: "赛前情报摘要已纳入分析，仍需结合临场变量复核。",
       },
     ] satisfies ModelViewInsight[],
   };

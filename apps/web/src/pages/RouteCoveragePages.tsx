@@ -138,10 +138,6 @@ export function MatchesPage({ matches, onOpenMatch, prediction }: MatchesPagePro
                 <dt>客胜</dt>
                 <dd>{percent(prediction.probabilities.awayWin)}</dd>
               </div>
-              <div>
-                <dt>RAG 引用</dt>
-                <dd>{prediction.citations.length}</dd>
-              </div>
             </dl>
           </article>
         )}
@@ -194,7 +190,7 @@ export function EntityDetailPage({ entityId, prediction, type }: DetailPageProps
           <p className="eyebrow">{isTeam ? "Team Detail" : "Player Detail"}</p>
           <h1>{isTeam ? "球队数据画像" : "球员赛前画像"}</h1>
           <p className="muted">
-            当前对象：{resolvedId}。结构化数据来自后端接口，历史表现、情报摘要和来源引用来自 RAG 数据库。
+            当前对象：{resolvedId}。结构化数据来自后端接口，历史表现和情报摘要来自 RAG 分析流程。
           </p>
         </div>
       </section>
@@ -210,21 +206,12 @@ export function EntityDetailPage({ entityId, prediction, type }: DetailPageProps
           <FileText aria-hidden="true" size={24} />
           <h2>RAG 情报摘要</h2>
           <p className="muted">
-            {rag?.answer ?? "正在从 Qdrant RAG 数据库读取历史表现、战术风险和公开来源依据。"}
+            {rag?.answer ?? "正在从 Qdrant RAG 数据库读取历史表现、战术风险和赛前情报摘要。"}
           </p>
           <small>
-            状态：{rag?.retrievalDiagnostics.status ?? "loading"}；来源：
-            {rag?.sources.length ?? 0}
+            状态：{rag?.retrievalDiagnostics.status ?? "loading"}
           </small>
         </article>
-        {(rag?.sources ?? []).slice(0, 4).map((source) => (
-          <article className="info-panel" key={source.chunkId ?? source.documentId}>
-            <FileText aria-hidden="true" size={24} />
-            <h2>{source.citation?.title ?? String(source.metadata?.title ?? "RAG source")}</h2>
-            <p className="muted">{source.contentPreview ?? "该来源提供球队或比赛上下文。"} </p>
-            <small>{source.citation?.sourceUrl ?? String(source.metadata?.source_url ?? "")}</small>
-          </article>
-        ))}
       </section>
     </div>
   );

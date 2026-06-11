@@ -198,23 +198,6 @@ CATALOG_TEAMS_BY_CODE: dict[str, CatalogTeam] = {
             ("player_par_003", "Julio Enciso", "FW"),
         ),
     ),
-    "WAL": _team(
-        "team_wal",
-        "Wales",
-        "WAL",
-        "UEFA",
-        "A",
-        1762,
-        1.24,
-        1.31,
-        0.63,
-        ("D", "W", "L", "D", "W"),
-        (
-            ("player_wal_001", "Brennan Johnson", "FW"),
-            ("player_wal_002", "Harry Wilson", "AM"),
-            ("player_wal_003", "Ben Davies", "DF"),
-        ),
-    ),
 }
 
 CATALOG_TEAMS_BY_ID = {team.team_id: team for team in CATALOG_TEAMS_BY_CODE.values()}

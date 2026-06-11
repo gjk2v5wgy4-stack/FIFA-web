@@ -77,7 +77,7 @@ export function AiPetAssistant() {
 
         <div className="ai-drawer__tip">
           <Sparkles aria-hidden="true" size={16} />
-          <span>支持解释概率、风险因素、RAG引用和分析摘要。</span>
+          <span>支持解释概率、风险因素和分析摘要。</span>
         </div>
 
         <div className="ai-chat-log" aria-live="polite">

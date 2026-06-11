@@ -35,12 +35,12 @@ describe("apiClient backend integration mapping", () => {
               kickoffAt: "2026-06-12T20:00:00Z",
               venue: {
                 venueId: "venue_001",
-                name: "MetLife Stadium",
-                city: "East Rutherford",
-                country: "USA",
+                name: "Mexico City Stadium",
+                city: "Mexico City",
+                country: "Mexico",
               },
-              homeTeam: { teamId: "team_usa", name: "United States", code: "USA" },
-              awayTeam: { teamId: "team_wal", name: "Wales", code: "WAL" },
+              homeTeam: { teamId: "team_mex", name: "Mexico", code: "MEX" },
+              awayTeam: { teamId: "team_rsa", name: "South Africa", code: "RSA" },
             },
           ]);
         }
@@ -54,9 +54,9 @@ describe("apiClient backend integration mapping", () => {
     expect(matches.length).toBeGreaterThan(1);
     expect(matches[0]).toMatchObject({
       matchId: "match_001",
-      homeTeam: "United States",
-      awayTeam: "Wales",
-      venue: "MetLife Stadium",
+      homeTeam: "Mexico",
+      awayTeam: "South Africa",
+      venue: "Mexico City Stadium",
     });
   });
 
@@ -163,9 +163,9 @@ describe("apiClient backend integration mapping", () => {
         }),
       ]),
     );
-    expect(prediction.explanations.join(" ")).toContain("RAG evidence summary");
+    expect(prediction.explanations.join(" ")).toContain("RAG analysis summary");
     expect(
       calls.filter((call) => call.url.endsWith("/api/rag/query")).map((call) => call.body?.teamId),
-    ).toEqual(["team_usa", "team_wal"]);
+    ).toEqual(["team_mex", "team_rsa"]);
   });
 });

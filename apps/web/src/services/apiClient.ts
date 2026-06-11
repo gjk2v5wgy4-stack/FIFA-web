@@ -553,35 +553,35 @@ const analysisSectionDefinitions: Record<
 > = {
   team_history: {
     title: "球队历史表现数据",
-    reason: "来自 RAG 来源的历史战绩、世界杯经历和近期状态证据。",
+    reason: "整合历史战绩、世界杯经历和近期状态，用于判断球队稳定性。",
   },
   player_profile: {
     title: "球员多维数据",
-    reason: "来自 RAG 来源的核心球员、可用性和近期贡献证据。",
+    reason: "整合核心球员、可用性和近期贡献，用于判断阵容影响。",
   },
   match_environment: {
     title: "比赛环境和外部因素",
-    reason: "来自 RAG 来源的场地、天气、旅途、休息天数和赛程密度证据。",
+    reason: "整合场地、天气、旅途、休息天数和赛程密度，用于评估环境变量。",
   },
   tactical_context: {
     title: "球队战术和阵型数据",
-    reason: "来自 RAG 来源的阵型、压迫、转换和攻防结构证据。",
+    reason: "整合阵型、压迫、转换和攻防结构，用于评估战术匹配度。",
   },
   opponent_context: {
     title: "对手信息",
-    reason: "来自 RAG 来源的对手强弱点、交锋关系和对位风险证据。",
+    reason: "整合对手强弱点、交锋关系和对位风险，用于评估比赛压力。",
   },
   live_updates: {
     title: "实时动态数据",
-    reason: "来自 RAG 来源的赛前新闻、训练、伤停和临场动态证据。",
+    reason: "整合赛前新闻、训练、伤停和临场动态，用于修正赛前判断。",
   },
   advanced_metrics: {
     title: "统计和高级指标",
-    reason: "来自 RAG 来源的 xG、射门质量、控球和防守指标证据。",
+    reason: "整合 xG、射门质量、控球和防守指标，用于补充概率模型。",
   },
   external_factors: {
-    title: "外部来源和数据覆盖",
-    reason: "来自 RAG 来源的数据覆盖状态、来源可靠性和授权限制说明。",
+    title: "外部因素与数据完整性",
+    reason: "整合数据完整性、可用范围和授权限制，用于提示模型边界。",
   },
 };
 
@@ -611,7 +611,7 @@ function buildAnalysisSections(rag: RagEvidenceSummary): PredictionAnalysisSecti
       return {
         id: id as PredictionAnalysisSection["id"],
         title: definition.title,
-        points: row.points.length ? row.points : ["RAG 已返回来源，但该来源缺少可展示摘要。"],
+        points: row.points.length ? row.points : ["已获取该维度数据，但摘要暂不可展示。"],
         reason: definition.reason,
         sourceCount: row.sourceCount,
       };
@@ -663,7 +663,7 @@ function sourceToAnalysisPoint(source: RagSource): string {
     source.contentPreview ??
       source.citation?.title ??
       source.metadata?.title ??
-      "RAG source returned evidence for this section.",
+      "RAG 已返回该维度的分析摘要。",
   );
   return raw
     .replace(/[`*_#|]/g, " ")
@@ -684,8 +684,8 @@ function buildExplanations(data: ApiMatchPredictionResponse, rag: RagEvidenceSum
     ...data.prediction.keyDrivers.map((item) => `Key driver: ${item}`),
     ...(meteringNote ? [meteringNote] : []),
     rag.answer
-      ? `RAG evidence summary: ${rag.answer}`
-      : "RAG retrieval did not return cited evidence for this query yet.",
+      ? `RAG analysis summary: ${rag.answer}`
+      : "RAG 暂未返回该查询的分析摘要。",
   ];
 }
 

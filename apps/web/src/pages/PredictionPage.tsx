@@ -1,4 +1,4 @@
-import { ArrowDownRight, CalendarDays, FileText, MapPin } from "lucide-react";
+import { ArrowDownRight, CalendarDays, MapPin } from "lucide-react";
 import { AdvancedPredictionInsights } from "../components/AdvancedPredictionInsights";
 import { ResultPreview } from "../components/ResultPreview";
 import type { MatchPredictionStub } from "../services/apiStubs";
@@ -23,7 +23,7 @@ export function PredictionPage({ prediction }: PredictionPageProps) {
           <p className="eyebrow">Prediction API</p>
           <h1>单场概率预测详情</h1>
           <p className="muted">
-            本页整合后端预测接口、token 计量、Qdrant RAG 引用和模型解释，不展示保证性结论。
+            本页整合后端预测接口、token 计量、Qdrant RAG 分析和模型解释，不展示保证性结论。
           </p>
         </div>
         <div className="header-facts">
@@ -106,21 +106,12 @@ export function PredictionPage({ prediction }: PredictionPageProps) {
 
         <article className="insight-panel">
           <div className="section-heading">
-            <p className="eyebrow">RAG Citations</p>
-            <h2>引用来源</h2>
+            <p className="eyebrow">RAG Summary</p>
+            <h2>数据分析摘要</h2>
           </div>
-          {prediction.ragAnswer && <p className="muted">{prediction.ragAnswer}</p>}
-          <ul className="plain-list">
-            {prediction.citations.map((citation) => (
-              <li key={citation.chunkId}>
-                <FileText aria-hidden="true" size={18} />
-                <span>
-                  {citation.sourceName}
-                  <small>{citation.publishedAt.slice(0, 10)}</small>
-                </span>
-              </li>
-            ))}
-          </ul>
+          <p className="muted">
+            {prediction.ragAnswer ?? "暂无额外摘要，当前展示模型概率、风险因素和关键驱动。"}
+          </p>
         </article>
       </section>
     </div>

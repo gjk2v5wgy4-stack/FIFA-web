@@ -160,22 +160,22 @@ Response `200`:
       "stage": "group",
       "group": "A",
       "status": "scheduled",
-      "kickoffAt": "2026-06-12T20:00:00Z",
+      "kickoffAt": "2026-06-12T03:00:00Z",
       "venue": {
-        "venueId": "venue_001",
-        "name": "MetLife Stadium",
-        "city": "East Rutherford",
-        "country": "USA"
+        "venueId": "venue_mexico_city",
+        "name": "Mexico City Stadium",
+        "city": "Mexico City",
+        "country": "Mexico"
       },
       "homeTeam": {
-        "teamId": "team_usa",
-        "name": "United States",
-        "code": "USA"
+        "teamId": "team_mex",
+        "name": "Mexico",
+        "code": "MEX"
       },
       "awayTeam": {
-        "teamId": "team_wal",
-        "name": "Wales",
-        "code": "WAL"
+        "teamId": "team_rsa",
+        "name": "South Africa",
+        "code": "RSA"
       },
       "latestPrediction": {
         "predictionId": "pred_001",
@@ -203,17 +203,17 @@ Response `200`:
     "stage": "group",
     "group": "A",
     "status": "scheduled",
-    "kickoffAt": "2026-06-12T20:00:00Z",
+    "kickoffAt": "2026-06-12T03:00:00Z",
     "homeTeam": {
-      "teamId": "team_usa",
-      "name": "United States",
-      "elo": 1824,
+      "teamId": "team_mex",
+      "name": "Mexico",
+      "elo": 1798,
       "recentForm": ["W", "D", "W", "L", "W"]
     },
     "awayTeam": {
-      "teamId": "team_wal",
-      "name": "Wales",
-      "elo": 1762,
+      "teamId": "team_rsa",
+      "name": "South Africa",
+      "elo": 1640,
       "recentForm": ["D", "W", "L", "D", "W"]
     },
     "availability": {
@@ -445,10 +445,10 @@ Request:
 
 ```json
 {
-  "question": "这场比赛美国队的主要风险因素是什么？",
+  "question": "这场比赛墨西哥队的主要风险因素是什么？",
   "context": {
     "matchId": "match_001",
-    "teamIds": ["team_usa", "team_wal"],
+    "teamIds": ["team_mex", "team_rsa"],
     "playerIds": [],
     "tournamentStage": "group"
   },
@@ -466,7 +466,7 @@ Response `200`:
 {
   "data": {
     "ragQueryId": "ragq_001",
-    "answer": "主要风险来自边路防守转换和关键前锋健康状态，模型依据见引用来源。",
+    "answer": "主要风险来自边路防守转换、关键前锋健康状态和比赛环境变量。",
     "confidence": 0.74,
     "citations": [
       {
@@ -480,7 +480,7 @@ Response `200`:
           "source_name": "Team scouting report",
           "source_url": "https://source.example.com/report",
           "published_at": "2026-06-01T00:00:00Z",
-          "team_ids": ["team_usa", "team_wal"],
+          "team_ids": ["team_mex", "team_rsa"],
           "player_ids": [],
           "match_ids": ["match_001"],
           "tournament_stage": "group",
@@ -699,7 +699,7 @@ Request:
   "reportType": "single_match",
   "context": {
     "matchId": "match_001",
-    "teamIds": ["team_usa", "team_wal"]
+    "teamIds": ["team_mex", "team_rsa"]
   },
   "format": "pdf",
   "language": "zh-CN",

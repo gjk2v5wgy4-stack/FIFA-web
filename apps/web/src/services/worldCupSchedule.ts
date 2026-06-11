@@ -230,7 +230,7 @@ export function createPredictionFromSchedule(
     explanations: [
       "概率预测基于近期状态、xG趋势、阵型稳定性和赛前情报。",
       "主要风险来自阵容临时变化、旅途恢复、场地气候和关键球员健康状况。",
-      "模型输出保留不确定性，需要结合最新球队动态和RAG引用复核。",
+      "模型输出保留不确定性，需要结合最新球队动态和RAG摘要复核。",
     ],
     citations: [
       {

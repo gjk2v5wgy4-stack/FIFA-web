@@ -42,7 +42,6 @@ def _require_db_user(user: CurrentUser) -> User:
 
 TEAM_MODEL_PROFILES: dict[str, dict[str, float]] = {
     "USA": {"elo": 1824, "xg_for90": 1.72, "xg_against90": 1.08},
-    "WAL": {"elo": 1762, "xg_for90": 1.24, "xg_against90": 1.31},
     "MEX": {"elo": 1798, "xg_for90": 1.46, "xg_against90": 1.10},
     "RSA": {"elo": 1640, "xg_for90": 1.08, "xg_against90": 1.33},
     "KOR": {"elo": 1768, "xg_for90": 1.38, "xg_against90": 1.16},
@@ -106,8 +105,8 @@ def _prediction_input_from_request(
 
     match = session.get(Match, payload.match_id)
     if match is None:
-        home_code = str(options.get("homeTeamCode", "USA"))
-        away_code = str(options.get("awayTeamCode", "WAL"))
+        home_code = str(options.get("homeTeamCode", "MEX"))
+        away_code = str(options.get("awayTeamCode", "RSA"))
         home_name = str(options.get("homeTeamName", home_code))
         away_name = str(options.get("awayTeamName", away_code))
         return (

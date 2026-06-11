@@ -80,15 +80,6 @@ const documents = [
     overlap: 25
   },
   {
-    path: "docs/rag/teams/wc2026-wales-data.md",
-    documentId: "wc2026_team_wales_data_001",
-    title: "Wales 2026 World Cup public data package",
-    teamId: "team_wal",
-    tags: ["world_cup_2026", "team_profile", "wales", "public_data"],
-    chunkSize: 160,
-    overlap: 25
-  },
-  {
     path: "docs/rag/teams/wc2026-paraguay-data.md",
     documentId: "wc2026_team_paraguay_data_001",
     title: "Paraguay 2026 World Cup public data package",

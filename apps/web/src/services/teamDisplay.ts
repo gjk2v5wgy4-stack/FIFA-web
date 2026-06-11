@@ -172,7 +172,6 @@ const teamDisplayMap: Record<string, TeamDisplaySource> = {
   USA: team("美国", "USA", "us"),
   "United States": team("美国", "USA", "us"),
   Uzbekistan: team("乌兹别克斯坦", "UZB", "uz"),
-  Wales: team("威尔士", "WAL", "gb-wls"),
 };
 
 const venueDisplayMap: Record<string, string> = {

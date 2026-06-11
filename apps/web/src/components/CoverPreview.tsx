@@ -25,7 +25,7 @@ export function CoverPreview() {
       <div className="preview-strip">
         <span>
           <Radio aria-hidden="true" size={16} />
-          RAG 引用
+          RAG 摘要
         </span>
         <span>
           <Sparkles aria-hidden="true" size={16} />

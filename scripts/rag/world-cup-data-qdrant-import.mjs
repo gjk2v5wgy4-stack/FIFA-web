@@ -44,6 +44,60 @@ const documents = [
     overlap: 25
   },
   {
+    path: "docs/rag/teams/wc2026-mexico-data.md",
+    documentId: "wc2026_team_mexico_data_001",
+    title: "Mexico 2026 World Cup public data package",
+    teamId: "team_mex",
+    tags: ["world_cup_2026", "team_profile", "mexico", "public_data"],
+    chunkSize: 160,
+    overlap: 25
+  },
+  {
+    path: "docs/rag/teams/wc2026-south-africa-data.md",
+    documentId: "wc2026_team_south_africa_data_001",
+    title: "South Africa 2026 World Cup public data package",
+    teamId: "team_rsa",
+    tags: ["world_cup_2026", "team_profile", "south_africa", "public_data"],
+    chunkSize: 160,
+    overlap: 25
+  },
+  {
+    path: "docs/rag/teams/wc2026-south-korea-data.md",
+    documentId: "wc2026_team_south_korea_data_001",
+    title: "South Korea 2026 World Cup public data package",
+    teamId: "team_kor",
+    tags: ["world_cup_2026", "team_profile", "south_korea", "public_data"],
+    chunkSize: 160,
+    overlap: 25
+  },
+  {
+    path: "docs/rag/teams/wc2026-czech-republic-data.md",
+    documentId: "wc2026_team_czech_republic_data_001",
+    title: "Czech Republic 2026 World Cup public data package",
+    teamId: "team_cze",
+    tags: ["world_cup_2026", "team_profile", "czech_republic", "public_data"],
+    chunkSize: 160,
+    overlap: 25
+  },
+  {
+    path: "docs/rag/teams/wc2026-wales-data.md",
+    documentId: "wc2026_team_wales_data_001",
+    title: "Wales 2026 World Cup public data package",
+    teamId: "team_wal",
+    tags: ["world_cup_2026", "team_profile", "wales", "public_data"],
+    chunkSize: 160,
+    overlap: 25
+  },
+  {
+    path: "docs/rag/teams/wc2026-paraguay-data.md",
+    documentId: "wc2026_team_paraguay_data_001",
+    title: "Paraguay 2026 World Cup public data package",
+    teamId: "team_par",
+    tags: ["world_cup_2026", "team_profile", "paraguay", "public_data"],
+    chunkSize: 160,
+    overlap: 25
+  },
+  {
     path: "docs/rag/historical/world-cup-historical-matchups.md",
     documentId: "rag_world_cup_historical_matchups_001",
     title: "World Cup historical matchup sample",

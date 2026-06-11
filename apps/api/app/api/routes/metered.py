@@ -7,6 +7,7 @@ from football_models import predict_match as run_match_prediction
 from app.api.deps import CurrentUser, DbSession
 from app.core.errors import ApiException
 from app.core.ids import new_id
+from app.data.world_cup_2026 import CatalogTeam, get_catalog_match, get_catalog_team
 from app.models import Match, Prediction, Report, Team, User
 from app.models.access_contracts import FeatureType, UserRecord
 from app.schemas.requests import (
@@ -68,15 +69,42 @@ def _profile_for_team(team: Team | None, fallback_code: str, fallback_name: str)
     )
 
 
+def _profile_for_catalog_team(team: CatalogTeam) -> TeamRating:
+    return TeamRating(
+        team_id=team.team_id,
+        name=team.name,
+        elo=team.elo,
+        xg_for90=team.xg_for90,
+        xg_against90=team.xg_against90,
+    )
+
+
 def _prediction_input_from_request(
     session: DbSession,
     payload: MatchPredictionRequest,
 ) -> tuple[MatchPredictionInput, Match | None]:
-    match = session.get(Match, payload.match_id)
     options = payload.options
     include_score_distribution = bool(options.get("includeScoreDistribution", True))
     random_seed = int(options.get("randomSeed", sum(ord(char) for char in payload.match_id)))
 
+    catalog_match = get_catalog_match(payload.match_id)
+    if catalog_match is not None:
+        home = get_catalog_team(catalog_match.home_code)
+        away = get_catalog_team(catalog_match.away_code)
+        if home is None or away is None:
+            raise ApiException("INTERNAL_ERROR", "Catalog match team data is incomplete.", 500)
+        return (
+            MatchPredictionInput(
+                match_id=payload.match_id,
+                home=_profile_for_catalog_team(home),
+                away=_profile_for_catalog_team(away),
+                include_score_distribution=include_score_distribution,
+                random_seed=random_seed,
+            ),
+            None,
+        )
+
+    match = session.get(Match, payload.match_id)
     if match is None:
         home_code = str(options.get("homeTeamCode", "USA"))
         away_code = str(options.get("awayTeamCode", "WAL"))

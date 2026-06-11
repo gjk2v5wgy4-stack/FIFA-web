@@ -10,6 +10,7 @@ import {
   type AuthUser,
   type LoginInput,
   type MatchPredictionStub,
+  type PredictionAnalysisSection,
   type PredictionCitation,
   type RegistrationInput,
   type ScoreBucket,
@@ -378,6 +379,7 @@ export async function getMatchPrediction(
       scoreDistribution: toScoreBuckets(data.prediction.scorelineProbabilities),
       explanations: buildExplanations(data, rag),
       citations: toCitations(rag.sources),
+      analysisSections: buildAnalysisSections(rag),
       ragAnswer: rag.answer,
       ragDiagnostics: rag.retrievalDiagnostics,
       usage: {
@@ -543,6 +545,131 @@ function toScoreBuckets(
       probability: row.probability,
     };
   });
+}
+
+const analysisSectionDefinitions: Record<
+  PredictionAnalysisSection["id"],
+  Pick<PredictionAnalysisSection, "title" | "reason">
+> = {
+  team_history: {
+    title: "球队历史表现数据",
+    reason: "来自 RAG 来源的历史战绩、世界杯经历和近期状态证据。",
+  },
+  player_profile: {
+    title: "球员多维数据",
+    reason: "来自 RAG 来源的核心球员、可用性和近期贡献证据。",
+  },
+  match_environment: {
+    title: "比赛环境和外部因素",
+    reason: "来自 RAG 来源的场地、天气、旅途、休息天数和赛程密度证据。",
+  },
+  tactical_context: {
+    title: "球队战术和阵型数据",
+    reason: "来自 RAG 来源的阵型、压迫、转换和攻防结构证据。",
+  },
+  opponent_context: {
+    title: "对手信息",
+    reason: "来自 RAG 来源的对手强弱点、交锋关系和对位风险证据。",
+  },
+  live_updates: {
+    title: "实时动态数据",
+    reason: "来自 RAG 来源的赛前新闻、训练、伤停和临场动态证据。",
+  },
+  advanced_metrics: {
+    title: "统计和高级指标",
+    reason: "来自 RAG 来源的 xG、射门质量、控球和防守指标证据。",
+  },
+  external_factors: {
+    title: "外部来源和数据覆盖",
+    reason: "来自 RAG 来源的数据覆盖状态、来源可靠性和授权限制说明。",
+  },
+};
+
+function buildAnalysisSections(rag: RagEvidenceSummary): PredictionAnalysisSection[] {
+  const sectionMap = new Map<
+    PredictionAnalysisSection["id"],
+    { points: string[]; sourceCount: number }
+  >();
+
+  for (const source of dedupeSources(rag.sources)) {
+    const id = classifyRagSource(source);
+    const current = sectionMap.get(id) ?? { points: [], sourceCount: 0 };
+    const point = sourceToAnalysisPoint(source);
+    current.sourceCount += 1;
+    if (point && !current.points.includes(point) && current.points.length < 4) {
+      current.points.push(point);
+    }
+    sectionMap.set(id, current);
+  }
+
+  return Object.entries(analysisSectionDefinitions)
+    .map(([id, definition]) => {
+      const row = sectionMap.get(id as PredictionAnalysisSection["id"]);
+      if (!row) {
+        return null;
+      }
+      return {
+        id: id as PredictionAnalysisSection["id"],
+        title: definition.title,
+        points: row.points.length ? row.points : ["RAG 已返回来源，但该来源缺少可展示摘要。"],
+        reason: definition.reason,
+        sourceCount: row.sourceCount,
+      };
+    })
+    .filter((section): section is PredictionAnalysisSection => section !== null);
+}
+
+function classifyRagSource(source: RagSource): PredictionAnalysisSection["id"] {
+  const metadata = source.metadata ?? {};
+  const haystack = [
+    source.contentPreview,
+    source.citation?.title,
+    metadata.title,
+    metadata.sourceType,
+    metadata.source_type,
+    metadata.tags,
+  ]
+    .flat()
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (/(weather|venue|travel|rest|altitude|environment|场地|天气|旅途|休息|海拔)/.test(haystack)) {
+    return "match_environment";
+  }
+  if (/(player|lineup|injury|availability|球员|阵容|伤停|可用性)/.test(haystack)) {
+    return "player_profile";
+  }
+  if (/(tactical|formation|press|transition|战术|阵型|压迫|转换)/.test(haystack)) {
+    return "tactical_context";
+  }
+  if (/(opponent|head-to-head|h2h|对手|交锋|对位)/.test(haystack)) {
+    return "opponent_context";
+  }
+  if (/(news|training|live|update|新闻|训练|动态|临场)/.test(haystack)) {
+    return "live_updates";
+  }
+  if (/(xg|xga|shot|possession|metric|advanced|指标|射门|控球)/.test(haystack)) {
+    return "advanced_metrics";
+  }
+  if (/(source|coverage|provider|reliability|market|来源|覆盖|授权|可靠性|市场)/.test(haystack)) {
+    return "external_factors";
+  }
+  return "team_history";
+}
+
+function sourceToAnalysisPoint(source: RagSource): string {
+  const raw = String(
+    source.contentPreview ??
+      source.citation?.title ??
+      source.metadata?.title ??
+      "RAG source returned evidence for this section.",
+  );
+  return raw
+    .replace(/[`*_#|]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 150);
 }
 
 function buildExplanations(data: ApiMatchPredictionResponse, rag: RagEvidenceSummary): string[] {

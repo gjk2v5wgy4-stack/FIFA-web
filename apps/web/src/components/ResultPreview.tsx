@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { TeamDisplayName } from "./TeamDisplayName";
-import type { MatchPredictionStub } from "../services/apiStubs";
+import type { MatchPredictionStub, PredictionAnalysisSection } from "../services/apiStubs";
 import { getTeamDisplay } from "../services/teamDisplay";
 import {
   buildOutcomePresentation,
@@ -26,6 +26,17 @@ interface ResultPreviewProps {
 }
 
 type AnalysisSide = "home" | "away";
+
+const analysisIconById: Record<PredictionAnalysisSection["id"], typeof ShieldCheck> = {
+  team_history: ShieldCheck,
+  player_profile: UsersRound,
+  match_environment: CloudSun,
+  tactical_context: LayoutPanelTop,
+  opponent_context: BrainCircuit,
+  live_updates: RadioTower,
+  advanced_metrics: LineChart,
+  external_factors: FileText,
+};
 
 export function ResultPreview({ prediction }: ResultPreviewProps) {
   const [analysisSelection, setAnalysisSelection] = useState<{
@@ -90,7 +101,7 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
   const analysisOptions = [homeAnalysisOption, awayAnalysisOption];
   const analysisTarget =
     selectedAnalysisSide === "home" ? homeAnalysisOption : awayAnalysisOption;
-  const analysisModules = [
+  const fallbackAnalysisModules = [
     {
       icon: ShieldCheck,
       title: "球队历史表现数据",
@@ -162,6 +173,14 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
       reason: "高级指标比传统进球助攻更能反映真实潜力。",
     },
   ];
+  const ragAnalysisModules =
+    prediction.analysisSections?.map((section) => ({
+      icon: analysisIconById[section.id] ?? FileText,
+      title: section.title,
+      points: section.points,
+      reason: `${section.reason}（${section.sourceCount} 条来源）`,
+    })) ?? [];
+  const analysisModules = ragAnalysisModules.length ? ragAnalysisModules : fallbackAnalysisModules;
 
   return (
     <section className="result-preview" aria-label="预测结果预览">

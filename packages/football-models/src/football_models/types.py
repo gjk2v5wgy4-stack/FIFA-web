@@ -50,10 +50,13 @@ class OutcomeProbabilities:
 
     def to_api_dict(self) -> dict[str, float]:
         normalized = self.normalized()
+        home = _rounded(normalized.home_win)
+        draw = _rounded(normalized.draw)
+        away = _rounded(1.0 - home - draw)
         return {
-            "homeWin": _rounded(normalized.home_win),
-            "draw": _rounded(normalized.draw),
-            "awayWin": _rounded(normalized.away_win),
+            "homeWin": home,
+            "draw": draw,
+            "awayWin": away,
         }
 
 

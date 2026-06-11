@@ -72,6 +72,22 @@ export interface PredictionCitation {
   publishedAt: string;
 }
 
+export interface PredictionAnalysisSection {
+  id:
+    | "team_history"
+    | "player_profile"
+    | "match_environment"
+    | "tactical_context"
+    | "opponent_context"
+    | "live_updates"
+    | "advanced_metrics"
+    | "external_factors";
+  title: string;
+  points: string[];
+  reason: string;
+  sourceCount: number;
+}
+
 export interface MatchPredictionStub {
   predictionId: string;
   matchId: string;
@@ -102,6 +118,7 @@ export interface MatchPredictionStub {
   scoreDistribution: ScoreBucket[];
   explanations: string[];
   citations: PredictionCitation[];
+  analysisSections?: PredictionAnalysisSection[];
   ragAnswer?: string | null;
   ragDiagnostics?: {
     status?: string;

@@ -102,25 +102,37 @@ describe("apiClient backend integration mapping", () => {
         }
 
         if (url.endsWith("/api/rag/query")) {
+          const teamId = String(body?.teamId);
           return response({
-            answer: `RAG answer for ${body?.teamId}`,
+            answer: `RAG answer for ${teamId}`,
             sources: [
               {
-                chunkId: `chunk_${body?.teamId}`,
-                documentId: `doc_${body?.teamId}`,
-                contentPreview: "Historical performance evidence",
+                chunkId: `history_${teamId}`,
+                documentId: `doc_${teamId}`,
+                contentPreview: "Historical performance evidence with World Cup knockout record.",
                 citation: {
                   title: "Team history report",
                   sourceUrl: "docs/rag/teams/sample.md",
                   publishedAt: "2026-06-10T00:00:00Z",
                 },
-                metadata: { teamId: body?.teamId },
+                metadata: { teamId, tags: ["team_history"] },
+              },
+              {
+                chunkId: `environment_${teamId}`,
+                documentId: `environment_${teamId}`,
+                contentPreview: "Match environment evidence covering venue, travel, weather, and rest days.",
+                citation: {
+                  title: "Match environment report",
+                  sourceUrl: "docs/rag/teams/environment.md",
+                  publishedAt: "2026-06-10T00:00:00Z",
+                },
+                metadata: { teamId, tags: ["match_environment"] },
               },
             ],
             retrievalDiagnostics: {
               status: "ok",
-              resultCount: 1,
-              filtersApplied: { teamId: body?.teamId },
+              resultCount: 2,
+              filtersApplied: { teamId },
             },
           });
         }
@@ -138,7 +150,19 @@ describe("apiClient backend integration mapping", () => {
       awayGoals: 0,
       probability: 0.14,
     });
-    expect(prediction.citations).toHaveLength(2);
+    expect(prediction.citations).toHaveLength(4);
+    expect(prediction.analysisSections).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "team_history",
+          sourceCount: 2,
+        }),
+        expect.objectContaining({
+          id: "match_environment",
+          sourceCount: 2,
+        }),
+      ]),
+    );
     expect(prediction.explanations.join(" ")).toContain("RAG evidence summary");
     expect(
       calls.filter((call) => call.url.endsWith("/api/rag/query")).map((call) => call.body?.teamId),

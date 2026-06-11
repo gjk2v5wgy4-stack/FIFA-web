@@ -23,10 +23,69 @@ function errorResponse(status: number, error: unknown) {
   } as Response;
 }
 
+function installMemoryLocalStorage() {
+  const storage = new Map<string, string>();
+  vi.stubGlobal("localStorage", {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => storage.set(key, value),
+    removeItem: (key: string) => storage.delete(key),
+  });
+  return storage;
+}
+
 describe("apiClient backend integration mapping", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.unstubAllGlobals();
+    installMemoryLocalStorage();
+  });
+
+  it("stores the logged-in admin token and uses it for protected requests", async () => {
+    const calls: Array<{ url: string; authorization?: string | null }> = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, options?: RequestInit) => {
+        const headers = new Headers(options?.headers);
+        calls.push({ url, authorization: headers.get("Authorization") });
+
+        if (url.endsWith("/api/auth/login")) {
+          return response({
+            accessToken: "admin-token",
+            user: {
+              ...user,
+              userId: "user_admin123",
+              email: "admin123@local.invalid",
+              displayName: "admin123",
+              role: "admin",
+            },
+          });
+        }
+
+        if (url.endsWith("/api/account/tokens")) {
+          return response({
+            userId: "user_admin123",
+            balanceTokens: 2_000_000_000,
+            lowBalance: false,
+            lowBalanceThreshold: 10_000,
+            contactAdminMessage: "",
+            ledger: [],
+          });
+        }
+
+        throw new Error(`Unexpected request: ${url}`);
+      }),
+    );
+
+    const { getStoredAuthSession, getTokenSummary, submitLogin } = await import("./apiClient");
+    const login = await submitLogin({ email: "admin123", password: "admin123" });
+    const tokens = await getTokenSummary();
+
+    expect(login.user.role).toBe("admin");
+    expect(getStoredAuthSession()?.accessToken).toBe("admin-token");
+    expect(tokens.balanceTokens).toBe(2_000_000_000);
+    expect(calls.find((call) => call.url.endsWith("/api/account/tokens"))?.authorization).toBe(
+      "Bearer admin-token",
+    );
   });
 
   it("maps backend matches into the official 104-match schedule without duplicating fixtures", async () => {
@@ -252,7 +311,8 @@ describe("apiClient backend integration mapping", () => {
       }),
     );
 
-    const { getMatchPrediction } = await import("./apiClient");
+    const { getMatchPrediction, submitLogin } = await import("./apiClient");
+    await submitLogin({ email: "approved@example.com", password: "Approved123!" });
     const prediction = await getMatchPrediction("match_001");
 
     expect(prediction.probabilities.homeWin).toBe(0.47);
@@ -394,7 +454,8 @@ describe("apiClient backend integration mapping", () => {
       }),
     );
 
-    const { getMatchPrediction } = await import("./apiClient");
+    const { getMatchPrediction, submitLogin } = await import("./apiClient");
+    await submitLogin({ email: "approved@example.com", password: "Approved123!" });
     const prediction = await getMatchPrediction("match_001", {
       matchId: "match_001",
       stage: "A组",

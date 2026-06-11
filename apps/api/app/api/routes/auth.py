@@ -35,9 +35,14 @@ def register(payload: RegisterRequest, session: DbSession) -> dict[str, object]:
 
 @router.post("/login")
 def login(payload: LoginRequest, session: DbSession) -> dict[str, object]:
-    user = session.scalar(select(User).where(User.email == payload.email.lower()))
+    credential = payload.email.strip()
+    user = session.scalar(
+        select(User).where(
+            (User.email == credential.lower()) | (User.display_name == credential)
+        )
+    )
     if user is None or not verify_password(payload.password, user.password_hash):
-        raise ApiException("UNAUTHORIZED", "Invalid email or password.", 401)
+        raise ApiException("UNAUTHORIZED", "Invalid account or password.", 401)
     return {
         "data": {
             "accessToken": create_access_token(user.id),

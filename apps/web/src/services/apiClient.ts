@@ -3,7 +3,6 @@ import {
   getAdminUsers as getStubAdminUsers,
   getMatchPrediction as getStubMatchPrediction,
   getTokenSummary as getStubTokenSummary,
-  submitLogin as submitStubLogin,
   submitRegistration as submitStubRegistration,
   type AccountStatusSummary,
   type AdminUserStub,
@@ -27,9 +26,7 @@ import { getTeamDisplay } from "./teamDisplay";
 import { createMatchWeatherForecast } from "./weatherForecast";
 
 const apiBaseUrl = "";
-
-let demoTokenPromise: Promise<string | null> | null = null;
-let adminTokenPromise: Promise<string | null> | null = null;
+const authSessionStorageKey = "worldcup-ai.auth-session";
 
 interface ApiEnvelope<T> {
   data: T;
@@ -39,6 +36,8 @@ interface ApiLoginResponse {
   accessToken: string;
   user: AuthUser;
 }
+
+export type AuthSession = ApiLoginResponse;
 
 interface ApiMatchSummary {
   matchId: string;
@@ -221,18 +220,38 @@ async function login(email: string, password: string): Promise<ApiLoginResponse 
   }
 }
 
+export function getStoredAuthSession(): AuthSession | null {
+  try {
+    const raw = globalThis.localStorage?.getItem(authSessionStorageKey);
+    if (!raw) {
+      return null;
+    }
+    const session = JSON.parse(raw) as AuthSession;
+    return session.accessToken && session.user ? session : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveAuthSession(session: AuthSession) {
+  globalThis.localStorage?.setItem(authSessionStorageKey, JSON.stringify(session));
+}
+
+export function clearAuthSession() {
+  globalThis.localStorage?.removeItem(authSessionStorageKey);
+}
+
+function getStoredAccessToken(): string | null {
+  return getStoredAuthSession()?.accessToken ?? null;
+}
+
 function getDemoToken(): Promise<string | null> {
-  demoTokenPromise ??= login("approved@example.com", "Approved123!").then(
-    (result) => result?.accessToken ?? null,
-  );
-  return demoTokenPromise;
+  return Promise.resolve(getStoredAccessToken());
 }
 
 function getAdminToken(): Promise<string | null> {
-  adminTokenPromise ??= login("admin@example.com", "Admin123!").then(
-    (result) => result?.accessToken ?? null,
-  );
-  return adminTokenPromise;
+  const session = getStoredAuthSession();
+  return Promise.resolve(session?.user.role === "admin" ? session.accessToken : null);
 }
 
 async function apiRequest<T>(
@@ -273,9 +292,10 @@ export async function submitRegistration(input: RegistrationInput) {
 export async function submitLogin(input: LoginInput) {
   const result = await login(input.email, input.password);
   if (result) {
+    saveAuthSession(result);
     return result;
   }
-  return submitStubLogin(input);
+  throw new Error("账号或密码错误，请检查后重试。");
 }
 
 export async function getAccountStatus(): Promise<AccountStatusSummary> {

@@ -4,13 +4,14 @@ import { submitLogin, submitRegistration } from "../services/apiClient";
 
 interface AuthPageProps {
   mode: "login" | "register";
+  onAuthenticated?: () => void;
 }
 
-export function AuthPage({ mode }: AuthPageProps) {
+export function AuthPage({ mode, onAuthenticated }: AuthPageProps) {
   const isRegister = mode === "register";
   const [displayName, setDisplayName] = useState("");
-  const [email, setEmail] = useState(isRegister ? "" : "approved@example.com");
-  const [password, setPassword] = useState(isRegister ? "" : "Approved123!");
+  const [email, setEmail] = useState(isRegister ? "" : "admin123");
+  const [password, setPassword] = useState(isRegister ? "" : "admin123");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -29,6 +30,7 @@ export function AuthPage({ mode }: AuthPageProps) {
       } else {
         const result = await submitLogin({ email, password });
         setMessage(`${result.user.displayName} 已登录，账号状态：${result.user.status}`);
+        onAuthenticated?.();
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "请求失败，请稍后重试。");
@@ -45,7 +47,7 @@ export function AuthPage({ mode }: AuthPageProps) {
         <p className="muted">
           {isRegister
             ? "注册会真实提交到后端，账号默认为 pending_approval，需管理员审批并授予 token 后才能使用受保护功能。"
-            : "登录表单连接真实认证接口。演示账号可使用 approved@example.com / Approved123!。"}
+            : "登录表单连接真实认证接口。管理员账号可使用 admin123 / admin123。"}
         </p>
 
         <form className="form-stack" onSubmit={handleSubmit}>
@@ -65,14 +67,14 @@ export function AuthPage({ mode }: AuthPageProps) {
           )}
 
           <label className="field-label">
-            <span>邮箱</span>
+            <span>{isRegister ? "邮箱" : "账号"}</span>
             <div className="input-shell">
               <Mail aria-hidden="true" size={18} />
               <input
                 onChange={(event) => setEmail(event.target.value)}
-                placeholder="analyst@example.com"
+                placeholder={isRegister ? "analyst@example.com" : "admin123"}
                 required
-                type="email"
+                type={isRegister ? "email" : "text"}
                 value={email}
               />
             </div>

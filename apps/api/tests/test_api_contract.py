@@ -29,6 +29,29 @@ def test_register_login_and_me_keep_new_user_pending(client: TestClient) -> None
     assert response.json()["data"]["status"] == "pending_approval"
 
 
+def test_seed_admin123_login_has_admin_role_and_large_token_balance(
+    client: TestClient,
+) -> None:
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "admin123", "password": "admin123"},
+    )
+
+    assert login_response.status_code == 200, login_response.text
+    login_data = login_response.json()["data"]
+    assert login_data["user"]["displayName"] == "admin123"
+    assert login_data["user"]["role"] == "admin"
+    assert login_data["user"]["status"] == "approved"
+
+    token_response = client.get(
+        "/api/account/tokens",
+        headers={"Authorization": f"Bearer {login_data['accessToken']}"},
+    )
+
+    assert token_response.status_code == 200, token_response.text
+    assert token_response.json()["data"]["balanceTokens"] >= 1_000_000_000
+
+
 def test_pending_user_can_login_but_cannot_call_protected_rag(client: TestClient) -> None:
     register_user(client, email="pending@example.com")
     headers = auth_headers(client, "pending@example.com")

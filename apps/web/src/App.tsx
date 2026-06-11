@@ -16,8 +16,10 @@ import {
   getAccountStatus,
   getAdminUsers,
   getMatchPrediction,
+  getStoredAuthSession,
   getTournamentSchedule,
   getTokenSummary,
+  type AuthSession,
 } from "./services/apiClient";
 import {
   type AccountStatusSummary,
@@ -30,6 +32,9 @@ import type { TournamentMatchStub } from "./services/worldCupSchedule";
 export function App() {
   const [route, setRoute] = useState<RouteMatch>(() =>
     routeFromLocation(window.location.pathname, window.location.hash),
+  );
+  const [authSession, setAuthSession] = useState<AuthSession | null>(() =>
+    getStoredAuthSession(),
   );
   const [accountStatus, setAccountStatus] = useState<AccountStatusSummary | null>(null);
   const [tokenSummary, setTokenSummary] = useState<TokenSummary | null>(null);
@@ -60,6 +65,15 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    if (!authSession) {
+      setAccountStatus(null);
+      setTokenSummary(null);
+      setTournamentMatches([]);
+      setAdminUsers([]);
+      setPrediction(null);
+      return;
+    }
+
     let isCurrent = true;
 
     Promise.all([
@@ -84,7 +98,7 @@ export function App() {
     return () => {
       isCurrent = false;
     };
-  }, [route.params.matchId]);
+  }, [authSession, route.params.matchId]);
 
   useEffect(() => {
     if (route.params.matchId && route.params.matchId !== activeMatchId) {
@@ -93,6 +107,10 @@ export function App() {
   }, [activeMatchId, route.params.matchId]);
 
   useEffect(() => {
+    if (!authSession) {
+      return;
+    }
+
     let isCurrent = true;
     const activeMatch = tournamentMatches.find((match) => match.matchId === activeMatchId);
 
@@ -105,7 +123,14 @@ export function App() {
     return () => {
       isCurrent = false;
     };
-  }, [activeMatchId, tournamentMatches]);
+  }, [activeMatchId, authSession, tournamentMatches]);
+
+  const handleAuthenticated = () => {
+    setAuthSession(getStoredAuthSession());
+    const nextPath = "/";
+    window.history.replaceState({}, "", nextPath);
+    setRoute(routeFromLocation(nextPath, ""));
+  };
 
   const navigate = (nextRoute: RouteId) => {
     const nextPath = routeToPath(nextRoute);
@@ -119,6 +144,15 @@ export function App() {
     setActiveMatchId(matchId);
     setRoute(routeFromLocation(nextPath, ""));
   };
+
+  if (!authSession) {
+    return (
+      <AuthPage
+        mode={route.id === "register" ? "register" : "login"}
+        onAuthenticated={handleAuthenticated}
+      />
+    );
+  }
 
   return (
     <AppShell activeRoute={route.id} onNavigate={navigate}>
@@ -160,8 +194,10 @@ export function App() {
       {route.id === "account" && (
         <AccountPage accountStatus={accountStatus} tokenSummary={tokenSummary} />
       )}
-      {route.id === "login" && <AuthPage mode="login" />}
-      {route.id === "register" && <AuthPage mode="register" />}
+      {route.id === "login" && <AuthPage mode="login" onAuthenticated={handleAuthenticated} />}
+      {route.id === "register" && (
+        <AuthPage mode="register" onAuthenticated={handleAuthenticated} />
+      )}
       {route.id === "admin" && <AdminPage users={adminUsers} />}
     </AppShell>
   );

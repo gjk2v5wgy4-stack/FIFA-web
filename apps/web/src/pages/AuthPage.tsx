@@ -1,4 +1,6 @@
 import { ArrowRight, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { type FormEvent, useState } from "react";
+import { submitLogin, submitRegistration } from "../services/apiClient";
 
 interface AuthPageProps {
   mode: "login" | "register";
@@ -6,6 +8,34 @@ interface AuthPageProps {
 
 export function AuthPage({ mode }: AuthPageProps) {
   const isRegister = mode === "register";
+  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState(isRegister ? "" : "approved@example.com");
+  const [password, setPassword] = useState(isRegister ? "" : "Approved123!");
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setMessage("");
+    try {
+      if (isRegister) {
+        const result = await submitRegistration({
+          email,
+          password,
+          displayName: displayName || email,
+        });
+        setMessage(`${result.user.status}: ${result.nextStep}`);
+      } else {
+        const result = await submitLogin({ email, password });
+        setMessage(`${result.user.displayName} 已登录，账号状态：${result.user.status}`);
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "请求失败，请稍后重试。");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="auth-layout">
@@ -14,17 +44,22 @@ export function AuthPage({ mode }: AuthPageProps) {
         <h1>{isRegister ? "申请访问分析平台" : "登录赛前分析工作台"}</h1>
         <p className="muted">
           {isRegister
-            ? "注册后账号将等待管理员审批，审批通过并授予 token 后可使用受保护功能。"
-            : "当前为前端布局 stub，不连接真实认证接口。"}
+            ? "注册会真实提交到后端，账号默认为 pending_approval，需管理员审批并授予 token 后才能使用受保护功能。"
+            : "登录表单连接真实认证接口。演示账号可使用 approved@example.com / Approved123!。"}
         </p>
 
-        <form className="form-stack">
+        <form className="form-stack" onSubmit={handleSubmit}>
           {isRegister && (
             <label className="field-label">
               <span>显示名称</span>
               <div className="input-shell">
                 <UserRound aria-hidden="true" size={18} />
-                <input placeholder="赛前分析用户" type="text" />
+                <input
+                  onChange={(event) => setDisplayName(event.target.value)}
+                  placeholder="赛前分析用户"
+                  type="text"
+                  value={displayName}
+                />
               </div>
             </label>
           )}
@@ -33,7 +68,13 @@ export function AuthPage({ mode }: AuthPageProps) {
             <span>邮箱</span>
             <div className="input-shell">
               <Mail aria-hidden="true" size={18} />
-              <input placeholder="analyst@example.com" type="email" />
+              <input
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="analyst@example.com"
+                required
+                type="email"
+                value={email}
+              />
             </div>
           </label>
 
@@ -41,14 +82,22 @@ export function AuthPage({ mode }: AuthPageProps) {
             <span>密码</span>
             <div className="input-shell">
               <LockKeyhole aria-hidden="true" size={18} />
-              <input placeholder="输入密码" type="password" />
+              <input
+                minLength={8}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="输入密码"
+                required
+                type="password"
+                value={password}
+              />
             </div>
           </label>
 
-          <button className="primary-button" type="button">
-            {isRegister ? "提交审批申请" : "进入工作台"}
+          <button className="primary-button" disabled={isSubmitting} type="submit">
+            {isSubmitting ? "提交中..." : isRegister ? "提交审批申请" : "进入工作台"}
             <ArrowRight aria-hidden="true" size={18} />
           </button>
+          {message && <p className="muted">{message}</p>}
         </form>
       </section>
 

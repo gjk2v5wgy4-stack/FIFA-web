@@ -102,6 +102,13 @@ export interface MatchPredictionStub {
   scoreDistribution: ScoreBucket[];
   explanations: string[];
   citations: PredictionCitation[];
+  ragAnswer?: string | null;
+  ragDiagnostics?: {
+    status?: string;
+    resultCount?: number;
+    filtersApplied?: Record<string, unknown>;
+    fallbackFromFilters?: Record<string, unknown>;
+  };
   usage: {
     tokensCharged: number;
     remainingTokens: number;

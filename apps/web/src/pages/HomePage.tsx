@@ -15,6 +15,8 @@ import {
 } from "../services/worldCupSchedule";
 
 interface HomePageProps {
+  activeMatchId: string;
+  onSelectMatch: (matchId: string) => void;
   prediction: MatchPredictionStub | null;
   tournamentMatches: TournamentMatchStub[];
 }
@@ -42,15 +44,22 @@ function formatMatchTime(kickoffAt: string) {
   });
 }
 
-export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
-  const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+export function HomePage({
+  activeMatchId,
+  onSelectMatch,
+  prediction,
+  tournamentMatches,
+}: HomePageProps) {
   const [weatherRefreshedAt, setWeatherRefreshedAt] = useState(() => new Date());
   const selectedMatch =
-    tournamentMatches.find((match) => match.matchId === selectedMatchId) ??
+    tournamentMatches.find((match) => match.matchId === activeMatchId) ??
     tournamentMatches[0] ??
     null;
   const selectedPrediction = useMemo(
-    () => (selectedMatch ? createPredictionFromSchedule(selectedMatch) : prediction),
+    () =>
+      prediction?.matchId === selectedMatch?.matchId || !selectedMatch
+        ? prediction
+        : createPredictionFromSchedule(selectedMatch),
     [prediction, selectedMatch],
   );
 
@@ -87,7 +96,7 @@ export function HomePage({ prediction, tournamentMatches }: HomePageProps) {
                 aria-pressed={isSelected}
                 className={`tournament-card${isSelected ? " tournament-card--active" : ""}`}
                 key={match.matchId}
-                onClick={() => setSelectedMatchId(match.matchId)}
+                onClick={() => onSelectMatch(match.matchId)}
                 type="button"
               >
                 <div className="tournament-card__time">

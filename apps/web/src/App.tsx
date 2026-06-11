@@ -16,6 +16,7 @@ import {
   getAccountStatus,
   getAdminUsers,
   getMatchPrediction,
+  getTournamentSchedule,
   getTokenSummary,
 } from "./services/apiClient";
 import {
@@ -24,10 +25,7 @@ import {
   type MatchPredictionStub,
   type TokenSummary,
 } from "./services/apiStubs";
-import {
-  getTournamentSchedule,
-  type TournamentMatchStub,
-} from "./services/worldCupSchedule";
+import type { TournamentMatchStub } from "./services/worldCupSchedule";
 
 export function App() {
   const [route, setRoute] = useState<RouteMatch>(() =>
@@ -38,6 +36,9 @@ export function App() {
   const [prediction, setPrediction] = useState<MatchPredictionStub | null>(null);
   const [tournamentMatches, setTournamentMatches] = useState<TournamentMatchStub[]>([]);
   const [adminUsers, setAdminUsers] = useState<AdminUserStub[]>([]);
+  const [activeMatchId, setActiveMatchId] = useState(
+    () => route.params.matchId ?? "match_001",
+  );
 
   useEffect(() => {
     const handleLocationChange = () =>
@@ -64,25 +65,47 @@ export function App() {
     Promise.all([
       getAccountStatus(),
       getTokenSummary(),
-      getMatchPrediction("match_001"),
       getTournamentSchedule(),
       getAdminUsers(),
-    ]).then(([nextStatus, nextTokens, nextPrediction, nextMatches, nextUsers]) => {
+    ]).then(([nextStatus, nextTokens, nextMatches, nextUsers]) => {
       if (!isCurrent) {
         return;
       }
 
       setAccountStatus(nextStatus);
       setTokenSummary(nextTokens);
-      setPrediction(nextPrediction);
       setTournamentMatches(nextMatches);
       setAdminUsers(nextUsers);
+      if (!route.params.matchId && nextMatches[0]) {
+        setActiveMatchId(nextMatches[0].matchId);
+      }
     });
 
     return () => {
       isCurrent = false;
     };
-  }, []);
+  }, [route.params.matchId]);
+
+  useEffect(() => {
+    if (route.params.matchId && route.params.matchId !== activeMatchId) {
+      setActiveMatchId(route.params.matchId);
+    }
+  }, [activeMatchId, route.params.matchId]);
+
+  useEffect(() => {
+    let isCurrent = true;
+    const activeMatch = tournamentMatches.find((match) => match.matchId === activeMatchId);
+
+    getMatchPrediction(activeMatchId, activeMatch).then((nextPrediction) => {
+      if (isCurrent) {
+        setPrediction(nextPrediction);
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [activeMatchId, tournamentMatches]);
 
   const navigate = (nextRoute: RouteId) => {
     const nextPath = routeToPath(nextRoute);
@@ -90,16 +113,29 @@ export function App() {
     setRoute(routeFromLocation(nextPath, ""));
   };
 
+  const openMatch = (matchId: string) => {
+    const nextPath = `/matches/${matchId}`;
+    window.history.pushState({}, "", nextPath);
+    setActiveMatchId(matchId);
+    setRoute(routeFromLocation(nextPath, ""));
+  };
+
   return (
     <AppShell activeRoute={route.id} onNavigate={navigate}>
       {route.id === "home" && (
         <HomePage
+          activeMatchId={activeMatchId}
+          onSelectMatch={setActiveMatchId}
           prediction={prediction}
           tournamentMatches={tournamentMatches}
         />
       )}
       {route.id === "matches" && (
-        <MatchesPage onOpenMatch={() => navigate("matchDetail")} prediction={prediction} />
+        <MatchesPage
+          matches={tournamentMatches}
+          onOpenMatch={openMatch}
+          prediction={prediction}
+        />
       )}
       {route.id === "matchDetail" && <PredictionPage prediction={prediction} />}
       {route.id === "teamDetail" && (

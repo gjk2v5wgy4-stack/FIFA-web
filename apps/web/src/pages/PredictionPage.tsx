@@ -13,17 +13,17 @@ function percent(value: number) {
 
 export function PredictionPage({ prediction }: PredictionPageProps) {
   if (!prediction) {
-    return <div className="page-stack">加载预测结果 stub...</div>;
+    return <div className="page-stack">正在读取后端预测与 RAG 数据...</div>;
   }
 
   return (
     <div className="page-stack">
       <section className="page-header">
         <div>
-          <p className="eyebrow">高阶预测</p>
+          <p className="eyebrow">Prediction API</p>
           <h1>单场概率预测详情</h1>
           <p className="muted">
-            面向审批用户展示比分参考、历史交锋、阵容置信度、关键对位、战术克制和模型分歧。
+            本页整合后端预测接口、token 计量、Qdrant RAG 引用和模型解释，不展示保证性结论。
           </p>
         </div>
         <div className="header-facts">
@@ -46,7 +46,7 @@ export function PredictionPage({ prediction }: PredictionPageProps) {
         <section className="usage-panel">
           <div className="section-heading">
             <p className="eyebrow">Metering</p>
-            <h2>本次计量</h2>
+            <h2>本次接口计量</h2>
           </div>
           <dl className="definition-list">
             <div>
@@ -61,6 +61,10 @@ export function PredictionPage({ prediction }: PredictionPageProps) {
               <dt>低余额</dt>
               <dd>{prediction.usage.lowBalance ? "联系管理员" : "否"}</dd>
             </div>
+            <div>
+              <dt>RAG 状态</dt>
+              <dd>{prediction.ragDiagnostics?.status ?? "unknown"}</dd>
+            </div>
           </dl>
         </section>
       </div>
@@ -70,12 +74,14 @@ export function PredictionPage({ prediction }: PredictionPageProps) {
       <section className="score-panel">
         <div className="section-heading">
           <p className="eyebrow">Score Distribution</p>
-          <h2>比分分布 stub</h2>
+          <h2>比分概率分布</h2>
         </div>
         <div className="score-grid">
           {prediction.scoreDistribution.map((score) => (
             <article className="score-card" key={`${score.homeGoals}-${score.awayGoals}`}>
-              <strong>{score.homeGoals} - {score.awayGoals}</strong>
+              <strong>
+                {score.homeGoals} - {score.awayGoals}
+              </strong>
               <span>{percent(score.probability)}</span>
             </article>
           ))}
@@ -103,6 +109,7 @@ export function PredictionPage({ prediction }: PredictionPageProps) {
             <p className="eyebrow">RAG Citations</p>
             <h2>引用来源</h2>
           </div>
+          {prediction.ragAnswer && <p className="muted">{prediction.ragAnswer}</p>}
           <ul className="plain-list">
             {prediction.citations.map((citation) => (
               <li key={citation.chunkId}>

@@ -3,13 +3,23 @@ import {
   getAdminUsers as getStubAdminUsers,
   getMatchPrediction as getStubMatchPrediction,
   getTokenSummary as getStubTokenSummary,
+  submitLogin as submitStubLogin,
+  submitRegistration as submitStubRegistration,
   type AccountStatusSummary,
   type AdminUserStub,
+  type AuthUser,
+  type LoginInput,
   type MatchPredictionStub,
   type PredictionCitation,
+  type RegistrationInput,
   type ScoreBucket,
   type TokenSummary,
 } from "./apiStubs";
+import {
+  createPredictionFromSchedule,
+  getTournamentSchedule as getStubTournamentSchedule,
+  type TournamentMatchStub,
+} from "./worldCupSchedule";
 
 const apiBaseUrl = "";
 
@@ -22,6 +32,31 @@ interface ApiEnvelope<T> {
 
 interface ApiLoginResponse {
   accessToken: string;
+  user: AuthUser;
+}
+
+interface ApiMatchSummary {
+  matchId: string;
+  stage: string;
+  group?: string | null;
+  status: string;
+  kickoffAt: string;
+  venue: {
+    venueId?: string;
+    name: string;
+    city?: string;
+    country?: string;
+  };
+  homeTeam: {
+    teamId: string;
+    name: string;
+    code: string;
+  };
+  awayTeam: {
+    teamId: string;
+    name: string;
+    code: string;
+  };
 }
 
 interface ApiMatchPredictionResponse {
@@ -45,30 +80,106 @@ interface ApiMatchPredictionResponse {
     keyDrivers: string[];
   };
   explanations: string[];
+  metering?: {
+    featureType: string;
+    complexity: string;
+    estimatedInternalTokens: number;
+  };
   usage: {
     tokensCharged: number;
     remainingTokens: number;
     lowBalance: boolean;
+    lowTokenWarning?: boolean;
   };
 }
 
 interface RagSource {
   chunkId?: string;
   documentId?: string;
+  contentPreview?: string;
   metadata?: Record<string, unknown>;
   citation?: {
     title?: string;
     sourceUrl?: string;
     publishedAt?: string;
+    language?: string;
   };
 }
 
-interface RagResponse {
+export interface RagEvidenceSummary {
   answer: string | null;
   sources: RagSource[];
   retrievalDiagnostics: {
     status?: string;
     resultCount?: number;
+    filtersApplied?: Record<string, unknown>;
+    fallbackFromFilters?: Record<string, unknown>;
+  };
+}
+
+export interface TeamDetail {
+  teamId: string;
+  name: string;
+  code: string;
+  confederation: string;
+  group?: string | null;
+  modelProfile?: {
+    elo?: number;
+    xgFor90?: number;
+    xgAgainst90?: number;
+    pathDifficulty?: number;
+  };
+  players: Array<{
+    playerId: string;
+    name: string;
+    position: string;
+    availabilityStatus: string;
+  }>;
+  rag: RagEvidenceSummary;
+}
+
+export interface PlayerDetail {
+  playerId: string;
+  teamId: string;
+  name: string;
+  position: string;
+  availabilityStatus: string;
+  modelImpact?: {
+    availabilityImpact?: number;
+    attackContribution?: number;
+    defenseContribution?: number;
+    minutesProjection?: number;
+  };
+  rag: RagEvidenceSummary;
+}
+
+export interface GroupSimulationSummary {
+  simulationId: string;
+  group: string;
+  modelVersion: string;
+  iterations: number;
+  table: Array<{
+    teamId: string;
+    projectedPoints: number;
+    qualifyProbability: number;
+    groupWinnerProbability: number;
+  }>;
+  usage?: {
+    tokensCharged: number;
+    remainingTokens: number;
+    lowBalance: boolean;
+  };
+}
+
+export interface WhatIfSummary {
+  scenarioId: string;
+  baseline: Record<string, number>;
+  adjusted: Record<string, number>;
+  delta: Record<string, number>;
+  usage?: {
+    tokensCharged: number;
+    remainingTokens: number;
+    lowBalance: boolean;
   };
 }
 
@@ -77,26 +188,45 @@ async function parseEnvelope<T>(response: Response): Promise<T> {
   return payload.data;
 }
 
-async function login(email: string, password: string): Promise<string | null> {
-  const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+async function publicRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const headers = new Headers(options.headers);
+  if (options.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers });
   if (!response.ok) {
+    throw new Error(`API request failed: ${response.status}`);
+  }
+  return parseEnvelope<T>(response);
+}
+
+async function login(email: string, password: string): Promise<ApiLoginResponse | null> {
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!response.ok) {
+      return null;
+    }
+    return await parseEnvelope<ApiLoginResponse>(response);
+  } catch {
     return null;
   }
-  const data = await parseEnvelope<ApiLoginResponse>(response);
-  return data.accessToken;
 }
 
 function getDemoToken(): Promise<string | null> {
-  demoTokenPromise ??= login("approved@example.com", "Approved123!");
+  demoTokenPromise ??= login("approved@example.com", "Approved123!").then(
+    (result) => result?.accessToken ?? null,
+  );
   return demoTokenPromise;
 }
 
 function getAdminToken(): Promise<string | null> {
-  adminTokenPromise ??= login("admin@example.com", "Admin123!");
+  adminTokenPromise ??= login("admin@example.com", "Admin123!").then(
+    (result) => result?.accessToken ?? null,
+  );
   return adminTokenPromise;
 }
 
@@ -118,6 +248,29 @@ async function apiRequest<T>(
     throw new Error(`API request failed: ${response.status}`);
   }
   return parseEnvelope<T>(response);
+}
+
+export async function submitRegistration(input: RegistrationInput) {
+  try {
+    const user = await publicRequest<AuthUser>("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+    return {
+      user,
+      nextStep: "Registration submitted. Please wait for admin approval and token allocation.",
+    };
+  } catch {
+    return submitStubRegistration(input);
+  }
+}
+
+export async function submitLogin(input: LoginInput) {
+  const result = await login(input.email, input.password);
+  if (result) {
+    return result;
+  }
+  return submitStubLogin(input);
 }
 
 export async function getAccountStatus(): Promise<AccountStatusSummary> {
@@ -153,8 +306,26 @@ export async function getAdminUsers(): Promise<AdminUserStub[]> {
   }
 }
 
-export async function getMatchPrediction(matchId = "match_001"): Promise<MatchPredictionStub> {
-  const fallback = await getStubMatchPrediction(matchId);
+export async function getTournamentSchedule(): Promise<TournamentMatchStub[]> {
+  try {
+    const matches = await publicRequest<ApiMatchSummary[]>("/api/matches");
+    if (!matches.length) {
+      throw new Error("No backend matches returned");
+    }
+    return mergeTournamentMatches(
+      matches.map(toTournamentMatch),
+      await getStubTournamentSchedule(),
+    );
+  } catch {
+    return getStubTournamentSchedule();
+  }
+}
+
+export async function getMatchPrediction(
+  matchId = "match_001",
+  match?: TournamentMatchStub,
+): Promise<MatchPredictionStub> {
+  const fallback = match ? createPredictionFromSchedule(match) : await getStubMatchPrediction(matchId);
   try {
     const token = await getDemoToken();
     const data = await apiRequest<ApiMatchPredictionResponse>(
@@ -174,7 +345,25 @@ export async function getMatchPrediction(matchId = "match_001"): Promise<MatchPr
       },
       token,
     );
-    const rag = await fetchRagContext(matchId, fallback.homeTeam.teamId, token);
+    const rag = mergeRagResponses(
+      await Promise.all([
+        fetchRagEvidence({
+          token,
+          matchId,
+          teamId: fallback.homeTeam.teamId,
+          question: "Summarize historical performance, form, tactical risks, and model evidence for the home team.",
+          topK: 4,
+        }),
+        fetchRagEvidence({
+          token,
+          matchId,
+          teamId: fallback.awayTeam.teamId,
+          question: "Summarize historical performance, form, tactical risks, and model evidence for the away team.",
+          topK: 4,
+        }),
+      ]),
+    );
+
     return {
       ...fallback,
       predictionId: data.predictionId,
@@ -189,10 +378,12 @@ export async function getMatchPrediction(matchId = "match_001"): Promise<MatchPr
       scoreDistribution: toScoreBuckets(data.prediction.scorelineProbabilities),
       explanations: buildExplanations(data, rag),
       citations: toCitations(rag.sources),
+      ragAnswer: rag.answer,
+      ragDiagnostics: rag.retrievalDiagnostics,
       usage: {
         tokensCharged: data.usage.tokensCharged,
         remainingTokens: data.usage.remainingTokens,
-        lowBalance: data.usage.lowBalance,
+        lowBalance: data.usage.lowBalance || Boolean(data.usage.lowTokenWarning),
       },
     };
   } catch {
@@ -200,26 +391,109 @@ export async function getMatchPrediction(matchId = "match_001"): Promise<MatchPr
   }
 }
 
-async function fetchRagContext(
-  matchId: string,
-  teamId: string,
-  token: string | null,
-): Promise<RagResponse> {
+export async function getTeamDetail(teamId: string): Promise<TeamDetail | null> {
   try {
-    return await apiRequest<RagResponse>(
+    const token = await getDemoToken();
+    const team = await publicRequest<Omit<TeamDetail, "rag">>(`/api/teams/${teamId}`);
+    const rag = await fetchRagEvidence({
+      token,
+      teamId,
+      question: "Summarize this national team's World Cup history, recent form, tactical profile, risk factors, and reliable data sources.",
+      topK: 6,
+    });
+    return { ...team, rag };
+  } catch {
+    return null;
+  }
+}
+
+export async function getPlayerDetail(playerId: string): Promise<PlayerDetail | null> {
+  try {
+    const token = await getDemoToken();
+    const player = await publicRequest<Omit<PlayerDetail, "rag">>(`/api/players/${playerId}`);
+    const rag = await fetchRagEvidence({
+      token,
+      playerId,
+      teamId: player.teamId,
+      question: "Summarize this player's availability, match impact, recent form, and risk factors.",
+      topK: 4,
+    });
+    return { ...player, rag };
+  } catch {
+    return null;
+  }
+}
+
+export async function getGroupSimulation(group = "A"): Promise<GroupSimulationSummary | null> {
+  try {
+    return await apiRequest<GroupSimulationSummary>(
+      "/api/simulations/group",
+      {
+        method: "POST",
+        body: JSON.stringify({ group, options: { iterations: 1000 } }),
+      },
+      await getDemoToken(),
+    );
+  } catch {
+    return null;
+  }
+}
+
+export async function getWhatIfPrediction(matchId = "match_001"): Promise<WhatIfSummary | null> {
+  try {
+    return await apiRequest<WhatIfSummary>(
+      "/api/predictions/what-if",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          matchId,
+          scenario: {
+            homeLineupChanges: [],
+            awayLineupChanges: [],
+            weatherAdjustment: "neutral",
+          },
+        }),
+      },
+      await getDemoToken(),
+    );
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchRagEvidence({
+  token,
+  question,
+  matchId,
+  teamId,
+  playerId,
+  topK = 4,
+  filters = {},
+}: {
+  token?: string | null;
+  question: string;
+  matchId?: string;
+  teamId?: string;
+  playerId?: string;
+  topK?: number;
+  filters?: Record<string, unknown>;
+}): Promise<RagEvidenceSummary> {
+  try {
+    return await apiRequest<RagEvidenceSummary>(
       "/api/rag/query",
       {
         method: "POST",
         body: JSON.stringify({
-          question: "What are the main data-driven risk factors and model evidence for this match?",
+          question,
           matchId,
           teamId,
-          topK: 4,
-          filters: {},
+          playerId,
+          topK,
+          filters,
           model: "worldcup-rag-qdrant",
         }),
       },
-      token,
+      token ?? (await getDemoToken()),
     );
   } catch {
     return {
@@ -228,6 +502,34 @@ async function fetchRagContext(
       retrievalDiagnostics: { status: "unavailable", resultCount: 0 },
     };
   }
+}
+
+function toTournamentMatch(match: ApiMatchSummary): TournamentMatchStub {
+  return {
+    matchId: match.matchId,
+    stage: match.group ? `${match.group} group` : match.stage,
+    kickoffAt: match.kickoffAt,
+    homeTeam: match.homeTeam.name,
+    awayTeam: match.awayTeam.name,
+    region: match.venue.city || match.venue.name,
+    venue: match.venue.name,
+  };
+}
+
+function mergeTournamentMatches(
+  backendMatches: TournamentMatchStub[],
+  fallbackMatches: TournamentMatchStub[],
+): TournamentMatchStub[] {
+  const rows: TournamentMatchStub[] = [];
+  const seen = new Set<string>();
+  for (const match of [...backendMatches, ...fallbackMatches]) {
+    if (seen.has(match.matchId)) {
+      continue;
+    }
+    seen.add(match.matchId);
+    rows.push(match);
+  }
+  return rows;
 }
 
 function toScoreBuckets(
@@ -243,12 +545,17 @@ function toScoreBuckets(
   });
 }
 
-function buildExplanations(data: ApiMatchPredictionResponse, rag: RagResponse): string[] {
+function buildExplanations(data: ApiMatchPredictionResponse, rag: RagEvidenceSummary): string[] {
+  const meteringNote = data.metering
+    ? `Metering estimate: ${data.metering.estimatedInternalTokens} internal tokens for ${data.metering.featureType}.`
+    : null;
+
   return [
     ...data.explanations,
     `Prediction confidence: ${data.prediction.confidence}.`,
     ...data.prediction.riskFactors.map((item) => `Risk factor: ${item}`),
     ...data.prediction.keyDrivers.map((item) => `Key driver: ${item}`),
+    ...(meteringNote ? [meteringNote] : []),
     rag.answer
       ? `RAG evidence summary: ${rag.answer}`
       : "RAG retrieval did not return cited evidence for this query yet.",
@@ -256,7 +563,7 @@ function buildExplanations(data: ApiMatchPredictionResponse, rag: RagResponse): 
 }
 
 function toCitations(sources: RagSource[]): PredictionCitation[] {
-  return sources.map((source, index) => {
+  return dedupeSources(sources).map((source, index) => {
     const metadata = source.metadata ?? {};
     const citation = source.citation ?? {};
     return {
@@ -269,4 +576,40 @@ function toCitations(sources: RagSource[]): PredictionCitation[] {
       publishedAt: String(citation.publishedAt ?? metadata.publishedAt ?? metadata.published_at ?? ""),
     };
   });
+}
+
+function mergeRagResponses(responses: RagEvidenceSummary[]): RagEvidenceSummary {
+  const sources = dedupeSources(responses.flatMap((response) => response.sources));
+  const answer = responses
+    .map((response) => response.answer)
+    .filter((value): value is string => Boolean(value))
+    .join("\n\n");
+
+  return {
+    answer: answer || null,
+    sources,
+    retrievalDiagnostics: {
+      status: sources.length ? "ok" : responses[0]?.retrievalDiagnostics.status,
+      resultCount: sources.length,
+      filtersApplied: responses.find((response) => response.retrievalDiagnostics.filtersApplied)
+        ?.retrievalDiagnostics.filtersApplied,
+      fallbackFromFilters: responses.find(
+        (response) => response.retrievalDiagnostics.fallbackFromFilters,
+      )?.retrievalDiagnostics.fallbackFromFilters,
+    },
+  };
+}
+
+function dedupeSources(sources: RagSource[]): RagSource[] {
+  const seen = new Set<string>();
+  const rows: RagSource[] = [];
+  for (const source of sources) {
+    const key = String(source.chunkId ?? source.documentId ?? JSON.stringify(source.metadata ?? {}));
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    rows.push(source);
+  }
+  return rows;
 }

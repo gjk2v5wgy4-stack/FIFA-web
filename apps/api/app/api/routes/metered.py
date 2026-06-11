@@ -1,11 +1,13 @@
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Request
+from football_models import MatchPredictionInput, TeamRating
+from football_models import predict_match as run_match_prediction
 
 from app.api.deps import CurrentUser, DbSession
 from app.core.errors import ApiException
 from app.core.ids import new_id
-from app.models import Prediction, Report, User
+from app.models import Match, Prediction, Report, Team, User
 from app.models.access_contracts import FeatureType, UserRecord
 from app.schemas.requests import (
     GroupSimulationRequest,
@@ -19,26 +21,6 @@ from app.services.token_quota import token_quota_service
 
 router = APIRouter(tags=["metered"])
 MODEL_VERSION = "football-models-0.1.0"
-MATCH_PREDICTION_OUTPUT = {
-    "homeWinProbability": 0.43,
-    "drawProbability": 0.28,
-    "awayWinProbability": 0.29,
-    "expectedGoals": {"home": 1.42, "away": 1.16},
-    "scorelineProbabilities": [{"score": "1-1", "probability": 0.12}],
-    "confidence": "medium",
-    "riskFactors": [
-        "Draw probability is material and raises scenario uncertainty.",
-    ],
-    "keyDrivers": [
-        "xG profile projects the home side at 1.42 and the away side at 1.16 expected goals.",
-        "Elo and Poisson score probabilities are blended for a probability estimate.",
-    ],
-}
-MATCH_PREDICTION_METERING = {
-    "featureType": "match_full_prediction",
-    "complexity": "standard",
-    "estimatedInternalTokens": 800,
-}
 WHAT_IF_METERING = {
     "featureType": "what_if_simulation",
     "complexity": "standard",
@@ -55,6 +37,77 @@ def _require_db_user(user: CurrentUser) -> User:
     if isinstance(user, UserRecord):
         raise ApiException("UNAUTHORIZED", "Bearer authentication is required for this API.", 401)
     return user
+
+
+TEAM_MODEL_PROFILES: dict[str, dict[str, float]] = {
+    "USA": {"elo": 1824, "xg_for90": 1.72, "xg_against90": 1.08},
+    "WAL": {"elo": 1762, "xg_for90": 1.24, "xg_against90": 1.31},
+    "MEX": {"elo": 1798, "xg_for90": 1.46, "xg_against90": 1.10},
+    "RSA": {"elo": 1640, "xg_for90": 1.08, "xg_against90": 1.33},
+    "KOR": {"elo": 1768, "xg_for90": 1.38, "xg_against90": 1.16},
+    "CZE": {"elo": 1714, "xg_for90": 1.22, "xg_against90": 1.24},
+}
+
+
+def _profile_for_team(team: Team | None, fallback_code: str, fallback_name: str) -> TeamRating:
+    code = (team.code if team is not None else fallback_code).upper()
+    profile = TEAM_MODEL_PROFILES.get(
+        code,
+        {
+            "elo": 1700 + (sum(ord(character) for character in code) % 120),
+            "xg_for90": 1.20 + (sum(ord(character) for character in code) % 35) / 100,
+            "xg_against90": 1.10 + (sum(ord(character) for character in code[::-1]) % 35) / 100,
+        },
+    )
+    return TeamRating(
+        team_id=team.id if team is not None else f"team_{code.lower()}",
+        name=team.name if team is not None else fallback_name,
+        elo=profile["elo"],
+        xg_for90=profile["xg_for90"],
+        xg_against90=profile["xg_against90"],
+    )
+
+
+def _prediction_input_from_request(
+    session: DbSession,
+    payload: MatchPredictionRequest,
+) -> tuple[MatchPredictionInput, Match | None]:
+    match = session.get(Match, payload.match_id)
+    options = payload.options
+    include_score_distribution = bool(options.get("includeScoreDistribution", True))
+    random_seed = int(options.get("randomSeed", sum(ord(char) for char in payload.match_id)))
+
+    if match is None:
+        home_code = str(options.get("homeTeamCode", "USA"))
+        away_code = str(options.get("awayTeamCode", "WAL"))
+        home_name = str(options.get("homeTeamName", home_code))
+        away_name = str(options.get("awayTeamName", away_code))
+        return (
+            MatchPredictionInput(
+                match_id=payload.match_id,
+                home=_profile_for_team(None, home_code, home_name),
+                away=_profile_for_team(None, away_code, away_name),
+                include_score_distribution=include_score_distribution,
+                random_seed=random_seed,
+            ),
+            None,
+        )
+
+    home_team = session.get(Team, match.home_team_id)
+    away_team = session.get(Team, match.away_team_id)
+    if home_team is None or away_team is None:
+        raise ApiException("INTERNAL_ERROR", "Match team data is incomplete.", 500)
+
+    return (
+        MatchPredictionInput(
+            match_id=payload.match_id,
+            home=_profile_for_team(home_team, home_team.code, home_team.name),
+            away=_profile_for_team(away_team, away_team.code, away_team.name),
+            include_score_distribution=include_score_distribution,
+            random_seed=random_seed,
+        ),
+        match,
+    )
 
 
 @router.post("/features/{feature_type}/consume")
@@ -135,15 +188,18 @@ def predict_match(
 ) -> dict[str, object]:
     db_user = _require_db_user(user)
     access_control_service.ensure_metered_access(db_user)
+    model_input, match = _prediction_input_from_request(session, payload)
+    model_payload = run_match_prediction(model_input).to_api_dict()
+    metering = model_payload["metering"]
     prediction = Prediction(
         id=new_id("pred"),
         user_id=db_user.id,
         prediction_type="match",
-        match_id=payload.match_id,
-        team_ids=[],
+        match_id=match.id if match is not None else None,
+        team_ids=[model_input.home.team_id, model_input.away.team_id],
         input_snapshot=payload.model_dump(by_alias=True),
-        result={"prediction": MATCH_PREDICTION_OUTPUT, "metering": MATCH_PREDICTION_METERING},
-        model_version=MODEL_VERSION,
+        result=model_payload,
+        model_version=str(model_payload["modelVersion"]),
     )
     session.add(prediction)
     session.flush()
@@ -153,8 +209,8 @@ def predict_match(
         "match_prediction",
         "prediction",
         prediction.id,
-        800,
-        MODEL_VERSION,
+        int(metering["estimatedInternalTokens"]),
+        str(model_payload["modelVersion"]),
     )
     prediction.ai_usage_log_id = charge.ai_usage_log_id
     session.commit()
@@ -162,9 +218,10 @@ def predict_match(
         "data": {
             "predictionId": prediction.id,
             "matchId": payload.match_id,
-            "modelVersion": MODEL_VERSION,
-            "prediction": MATCH_PREDICTION_OUTPUT,
-            "metering": MATCH_PREDICTION_METERING,
+            "modelVersion": model_payload["modelVersion"],
+            "prediction": model_payload["prediction"],
+            "explanations": model_payload["explanations"],
+            "metering": metering,
             "usage": charge.to_contract(),
         }
     }

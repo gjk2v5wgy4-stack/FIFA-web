@@ -23,6 +23,7 @@ class Settings(BaseSettings):
         default="worldcup_documents",
         validation_alias="QDRANT_COLLECTION",
     )
+    auto_create_schema: bool = Field(default=False, validation_alias="AUTO_CREATE_SCHEMA")
     weather_provider: str = Field(default="open-meteo", validation_alias="WEATHER_PROVIDER")
     open_meteo_timeout_seconds: float = Field(
         default=5.0,

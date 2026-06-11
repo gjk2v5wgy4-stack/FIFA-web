@@ -20,12 +20,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: api-dev
+      target: api-prod
     container_name: worldcup-api
     environment:
       API_HOST: 0.0.0.0
       API_PORT: 8000
-      DATABASE_URL: "postgresql://${POSTGRES_USER:-worldcup_app}:${POSTGRES_PASSWORD:-worldcup_app_dev_password}@postgres:5432/${POSTGRES_DB:-worldcup_ai_prediction}"
+      DATABASE_URL: "${DATABASE_URL:-sqlite+pysqlite:////app/data/worldcup_ai_prediction.db}"
+      AUTO_CREATE_SCHEMA: "${AUTO_CREATE_SCHEMA:-true}"
+      SECRET_KEY: "${SECRET_KEY:-change-me-before-public-production}"
       REDIS_URL: "redis://:${REDIS_PASSWORD:-worldcup_redis_dev_password}@redis:6379/0"
       QDRANT_URL: "http://qdrant:6333"
       QDRANT_HOST: "qdrant"
@@ -44,6 +46,8 @@ services:
         condition: service_started
     ports:
       - "${API_HOST_PORT:-8000}:8000"
+    volumes:
+      - api-data:/app/data
     networks:
       - worldcup-local
     restart: unless-stopped
@@ -108,6 +112,7 @@ networks:
     driver: bridge
 
 volumes:
+  api-data:
   postgres-data:
   redis-data:
   qdrant-data:

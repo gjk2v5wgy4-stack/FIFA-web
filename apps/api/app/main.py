@@ -5,9 +5,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.api.router import api_router
+from app.core.config import get_settings
 from app.core.errors import ApiException, api_exception_handler, validation_exception_handler
 from app.core.ids import new_id
-from app.db.session import configure_database
+from app.db.base import Base
+from app.db.seed import seed_database
+from app.db.session import SessionLocal, configure_database, get_engine
 from app.errors import AppError
 from app.services.factory import create_services
 from app.store import InMemoryStore
@@ -15,6 +18,11 @@ from app.store import InMemoryStore
 
 def create_app() -> FastAPI:
     configure_database()
+    if get_settings().auto_create_schema:
+        Base.metadata.create_all(bind=get_engine())
+        with SessionLocal() as session:
+            seed_database(session)
+
     fastapi_app = FastAPI(title="worldcup-ai-prediction API", version="0.1.0")
     compat_services = create_services(InMemoryStore.seed_default())
     fastapi_app.state.compat_services = compat_services
@@ -63,6 +71,10 @@ def create_app() -> FastAPI:
 
     @fastapi_app.get("/health")
     def health() -> dict[str, object]:
+        return {"status": "ok"}
+
+    @fastapi_app.get("/healthz")
+    def healthz() -> dict[str, object]:
         return {"status": "ok"}
 
     @fastapi_app.get("/api/health")

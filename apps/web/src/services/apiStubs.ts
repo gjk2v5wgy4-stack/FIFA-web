@@ -88,6 +88,65 @@ export interface PredictionAnalysisSection {
   sourceCount: number;
 }
 
+export interface PredictionPlayerInsight {
+  playerId: string;
+  name: string;
+  position: string;
+  availabilityStatus: string;
+  minutesProjection?: number;
+  attackContribution?: number;
+  defenseContribution?: number;
+  availabilityImpact?: number;
+}
+
+export interface PredictionTeamAnalysisContext {
+  teamId: string;
+  name: string;
+  code: string;
+  form: string[];
+  modelProfile?: {
+    elo?: number;
+    xgFor90?: number;
+    xgAgainst90?: number;
+    pathDifficulty?: number;
+  };
+  players: PredictionPlayerInsight[];
+}
+
+export interface PredictionEnvironmentContext {
+  venue: string;
+  city: string;
+  altitudeMeters: number;
+  turf: string;
+  pitchCondition: string;
+  weather: {
+    condition: string;
+    temperatureC: number;
+    humidityPct: number;
+    windKph: number;
+  };
+  teams: {
+    home: {
+      trainingBase: string;
+      travelDistanceKm: number;
+      restDays: number;
+      timezoneAdjustment: string;
+    };
+    away: {
+      trainingBase: string;
+      travelDistanceKm: number;
+      restDays: number;
+      timezoneAdjustment: string;
+    };
+  };
+}
+
+export interface PredictionAnalysisContext {
+  home: PredictionTeamAnalysisContext;
+  away: PredictionTeamAnalysisContext;
+  environment: PredictionEnvironmentContext;
+}
+
 export interface MatchPredictionStub {
   predictionId: string;
   matchId: string;
@@ -119,6 +178,7 @@ export interface MatchPredictionStub {
   explanations: string[];
   citations: PredictionCitation[];
   analysisSections?: PredictionAnalysisSection[];
+  analysisContext?: PredictionAnalysisContext;
   ragAnswer?: string | null;
   ragDiagnostics?: {
     status?: string;

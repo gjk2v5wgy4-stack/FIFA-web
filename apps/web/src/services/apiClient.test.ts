@@ -124,6 +124,86 @@ describe("apiClient backend integration mapping", () => {
           });
         }
 
+        if (url.endsWith("/api/teams/team_mex")) {
+          return response({
+            teamId: "team_mex",
+            name: "Mexico",
+            code: "MEX",
+            confederation: "CONCACAF",
+            group: "A",
+            modelProfile: {
+              elo: 1798,
+              xgFor90: 1.46,
+              xgAgainst90: 1.1,
+              pathDifficulty: 0.58,
+            },
+            players: [
+              {
+                playerId: "player_mex_001",
+                name: "Santiago Gimenez",
+                position: "FW",
+                availabilityStatus: "available",
+              },
+            ],
+          });
+        }
+
+        if (url.endsWith("/api/teams/team_rsa")) {
+          return response({
+            teamId: "team_rsa",
+            name: "South Africa",
+            code: "RSA",
+            confederation: "CAF",
+            group: "A",
+            modelProfile: {
+              elo: 1640,
+              xgFor90: 1.08,
+              xgAgainst90: 1.33,
+              pathDifficulty: 0.67,
+            },
+            players: [
+              {
+                playerId: "player_rsa_001",
+                name: "Percy Tau",
+                position: "FW",
+                availabilityStatus: "available",
+              },
+            ],
+          });
+        }
+
+        if (url.endsWith("/api/players/player_mex_001")) {
+          return response({
+            playerId: "player_mex_001",
+            teamId: "team_mex",
+            name: "Santiago Gimenez",
+            position: "FW",
+            availabilityStatus: "available",
+            modelImpact: {
+              availabilityImpact: 0.05,
+              attackContribution: 0.08,
+              defenseContribution: 0.04,
+              minutesProjection: 72,
+            },
+          });
+        }
+
+        if (url.endsWith("/api/players/player_rsa_001")) {
+          return response({
+            playerId: "player_rsa_001",
+            teamId: "team_rsa",
+            name: "Percy Tau",
+            position: "FW",
+            availabilityStatus: "available",
+            modelImpact: {
+              availabilityImpact: 0.05,
+              attackContribution: 0.08,
+              defenseContribution: 0.04,
+              minutesProjection: 72,
+            },
+          });
+        }
+
         if (url.endsWith("/api/rag/query")) {
           const teamId = String(body?.teamId);
           return response({
@@ -186,6 +266,21 @@ describe("apiClient backend integration mapping", () => {
         }),
       ]),
     );
+    expect(prediction.analysisContext?.home.players[0]).toMatchObject({
+      name: "Santiago Gimenez",
+      position: "FW",
+      minutesProjection: 72,
+    });
+    expect(prediction.analysisContext?.away.players[0]).toMatchObject({
+      name: "Percy Tau",
+      position: "FW",
+      minutesProjection: 72,
+    });
+    expect(prediction.analysisContext?.environment).toMatchObject({
+      city: "Mexico City",
+      altitudeMeters: 2240,
+      turf: "天然草",
+    });
     expect(prediction.explanations.join(" ")).toContain("RAG analysis summary");
     expect(
       calls.filter((call) => call.url.endsWith("/api/rag/query")).map((call) => call.body?.teamId),

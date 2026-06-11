@@ -13,7 +13,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { TeamDisplayName } from "./TeamDisplayName";
-import type { MatchPredictionStub, PredictionAnalysisSection } from "../services/apiStubs";
+import type {
+  MatchPredictionStub,
+  PredictionAnalysisSection,
+  PredictionPlayerInsight,
+  PredictionTeamAnalysisContext,
+} from "../services/apiStubs";
 import { getTeamDisplay } from "../services/teamDisplay";
 import {
   buildOutcomePresentation,
@@ -26,6 +31,14 @@ interface ResultPreviewProps {
 }
 
 type AnalysisSide = "home" | "away";
+type AnalysisIcon = typeof ShieldCheck;
+
+interface AnalysisModule {
+  icon: AnalysisIcon;
+  title: string;
+  points: string[];
+  reason: string;
+}
 
 const analysisIconById: Record<PredictionAnalysisSection["id"], typeof ShieldCheck> = {
   team_history: ShieldCheck,
@@ -37,6 +50,99 @@ const analysisIconById: Record<PredictionAnalysisSection["id"], typeof ShieldChe
   advanced_metrics: LineChart,
   external_factors: FileText,
 };
+
+const positionLabels: Record<string, string> = {
+  GK: "门将",
+  DF: "后卫",
+  CB: "中卫",
+  LB: "左后卫",
+  RB: "右后卫",
+  DM: "防守型中场",
+  CM: "中场",
+  AM: "前腰",
+  FW: "前锋",
+};
+
+function formatAvailability(status: string) {
+  const statusMap: Record<string, string> = {
+    available: "可出场",
+    doubtful: "待观察",
+    injured: "伤停",
+    suspended: "停赛",
+  };
+
+  return statusMap[status] ?? status;
+}
+
+function formatSignedPercent(value?: number) {
+  if (typeof value !== "number") {
+    return "暂无量化";
+  }
+
+  return `${value >= 0 ? "+" : ""}${Math.round(value * 100)}%`;
+}
+
+function formatPlayerInsight(player: PredictionPlayerInsight) {
+  const position = positionLabels[player.position] ?? player.position;
+  const minutes =
+    typeof player.minutesProjection === "number"
+      ? `预计${player.minutesProjection}分钟`
+      : "预计时间待确认";
+  const attack = formatSignedPercent(player.attackContribution);
+  const defense = formatSignedPercent(player.defenseContribution);
+
+  return `${player.name} · ${position} · ${formatAvailability(
+    player.availabilityStatus,
+  )} · ${minutes} · 进攻影响${attack} / 防守影响${defense}`;
+}
+
+function formatForm(form: string[]) {
+  return form.length ? form.join("-") : "待更新";
+}
+
+function buildStructuredAnalysisModules({
+  selectedContext,
+  selectedSide,
+  prediction,
+}: {
+  selectedContext?: PredictionTeamAnalysisContext;
+  selectedSide: AnalysisSide;
+  prediction: MatchPredictionStub;
+}): AnalysisModule[] {
+  const environment = prediction.analysisContext?.environment;
+  const teamEnvironment = environment?.teams[selectedSide];
+  const modules: AnalysisModule[] = [];
+
+  if (selectedContext?.players.length) {
+    modules.push({
+      icon: UsersRound,
+      title: "球员多维数据",
+      points: [
+        ...selectedContext.players.slice(0, 6).map(formatPlayerInsight),
+        `球队近期状态：${formatForm(selectedContext.form)}；Elo ${
+          selectedContext.modelProfile?.elo ?? "待更新"
+        }；xG/90 ${selectedContext.modelProfile?.xgFor90?.toFixed(2) ?? "待更新"}`,
+      ],
+      reason: "结合具体球员、位置、可用性、预计出场时间和攻防影响，用于判断当前阵容对胜负概率的影响。",
+    });
+  }
+
+  if (environment && teamEnvironment) {
+    modules.push({
+      icon: CloudSun,
+      title: "比赛环境和外部因素",
+      points: [
+        `天气：${environment.weather.condition}，${environment.weather.temperatureC}°C，湿度${environment.weather.humidityPct}%，风速${environment.weather.windKph}km/h`,
+        `场地：${environment.venue}（${environment.city}），海拔${environment.altitudeMeters}米，草皮：${environment.turf}`,
+        `训练场地：${teamEnvironment.trainingBase}；旅途约${teamEnvironment.travelDistanceKm}km；休息${teamEnvironment.restDays}天；时差适应：${teamEnvironment.timezoneAdjustment}`,
+        `场地状态：${environment.pitchCondition}`,
+      ],
+      reason: "把天气、海拔、草皮、旅途、休息和训练场地作为环境变量展示，用于解释体能分配和战术执行的不确定性。",
+    });
+  }
+
+  return modules;
+}
 
 export function ResultPreview({ prediction }: ResultPreviewProps) {
   const [analysisSelection, setAnalysisSelection] = useState<{
@@ -101,6 +207,7 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
   const analysisOptions = [homeAnalysisOption, awayAnalysisOption];
   const analysisTarget =
     selectedAnalysisSide === "home" ? homeAnalysisOption : awayAnalysisOption;
+  const selectedAnalysisContext = prediction.analysisContext?.[selectedAnalysisSide];
   const fallbackAnalysisModules = [
     {
       icon: ShieldCheck,
@@ -173,14 +280,28 @@ export function ResultPreview({ prediction }: ResultPreviewProps) {
       reason: "高级指标比传统进球助攻更能反映真实潜力。",
     },
   ];
+  const structuredAnalysisModules = buildStructuredAnalysisModules({
+    selectedContext: selectedAnalysisContext,
+    selectedSide: selectedAnalysisSide,
+    prediction,
+  });
   const ragAnalysisModules =
-    prediction.analysisSections?.map((section) => ({
-      icon: analysisIconById[section.id] ?? FileText,
-      title: section.title,
-      points: section.points,
-      reason: section.reason,
-    })) ?? [];
-  const analysisModules = ragAnalysisModules.length ? ragAnalysisModules : fallbackAnalysisModules;
+    prediction.analysisSections
+      ?.filter(
+        (section) =>
+          !["player_profile", "match_environment", "external_factors"].includes(section.id),
+      )
+      .map((section) => ({
+        icon: analysisIconById[section.id] ?? FileText,
+        title: section.title,
+        points: section.points,
+        reason: section.reason,
+      })) ?? [];
+  const analysisModules = structuredAnalysisModules.length
+    ? [...structuredAnalysisModules, ...ragAnalysisModules].slice(0, 6)
+    : ragAnalysisModules.length
+      ? ragAnalysisModules
+      : fallbackAnalysisModules;
 
   return (
     <section className="result-preview" aria-label="预测结果预览">

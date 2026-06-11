@@ -10,7 +10,9 @@ import {
   type AuthUser,
   type LoginInput,
   type MatchPredictionStub,
+  type PredictionAnalysisContext,
   type PredictionAnalysisSection,
+  type PredictionTeamAnalysisContext,
   type PredictionCitation,
   type RegistrationInput,
   type ScoreBucket,
@@ -22,6 +24,7 @@ import {
   type TournamentMatchStub,
 } from "./worldCupSchedule";
 import { getTeamDisplay } from "./teamDisplay";
+import { createMatchWeatherForecast } from "./weatherForecast";
 
 const apiBaseUrl = "";
 
@@ -347,8 +350,8 @@ export async function getMatchPrediction(
       },
       token,
     );
-    const rag = mergeRagResponses(
-      await Promise.all([
+    const [rag, analysisContext] = await Promise.all([
+      Promise.all([
         fetchRagEvidence({
           token,
           matchId,
@@ -363,8 +366,9 @@ export async function getMatchPrediction(
           question: "Summarize historical performance, form, tactical risks, and model evidence for the away team.",
           topK: 4,
         }),
-      ]),
-    );
+      ]).then(mergeRagResponses),
+      buildPredictionAnalysisContext(fallback, match),
+    ]);
 
     return {
       ...fallback,
@@ -381,6 +385,7 @@ export async function getMatchPrediction(
       explanations: buildExplanations(data, rag),
       citations: toCitations(rag.sources),
       analysisSections: buildAnalysisSections(rag),
+      analysisContext,
       ragAnswer: rag.answer,
       ragDiagnostics: rag.retrievalDiagnostics,
       usage: {
@@ -574,6 +579,243 @@ function toScoreBuckets(
   });
 }
 
+type PredictionTeam = MatchPredictionStub["homeTeam"];
+
+interface VenueEnvironmentFacts {
+  city: string;
+  altitudeMeters: number;
+  turf: string;
+  pitchCondition: string;
+  defaultTrainingBase: string;
+  preparationByCode?: Record<
+    string,
+    {
+      trainingBase: string;
+      travelDistanceKm: number;
+      restDays: number;
+      timezoneAdjustment: string;
+    }
+  >;
+}
+
+const venueEnvironmentFacts: Record<string, VenueEnvironmentFacts> = {
+  "Mexico City": {
+    city: "Mexico City",
+    altitudeMeters: 2240,
+    turf: "天然草",
+    pitchCondition: "高海拔天然草场，控球节奏和体能分配需要重点监控",
+    defaultTrainingBase: "墨西哥城赛前适应训练场",
+    preparationByCode: {
+      MEX: {
+        trainingBase: "墨西哥城国家队赛前训练基地",
+        travelDistanceKm: 0,
+        restDays: 6,
+        timezoneAdjustment: "本土时区",
+      },
+      RSA: {
+        trainingBase: "墨西哥城高原适应训练场",
+        travelDistanceKm: 14600,
+        restDays: 6,
+        timezoneAdjustment: "约8小时",
+      },
+      CZE: {
+        trainingBase: "墨西哥城赛前适应训练场",
+        travelDistanceKm: 10100,
+        restDays: 5,
+        timezoneAdjustment: "约8小时",
+      },
+      UZB: {
+        trainingBase: "墨西哥城赛前适应训练场",
+        travelDistanceKm: 13600,
+        restDays: 5,
+        timezoneAdjustment: "约11小时",
+      },
+    },
+  },
+  Zapopan: {
+    city: "Zapopan",
+    altitudeMeters: 1566,
+    turf: "天然草",
+    pitchCondition: "中高海拔天然草场，午后热感和补水窗口需要纳入赛前计划",
+    defaultTrainingBase: "Zapopan 官方赛前训练场",
+    preparationByCode: {
+      KOR: {
+        trainingBase: "Zapopan 赛前训练基地",
+        travelDistanceKm: 12000,
+        restDays: 6,
+        timezoneAdjustment: "约15小时",
+      },
+      CZE: {
+        trainingBase: "Zapopan 赛前训练基地",
+        travelDistanceKm: 10300,
+        restDays: 6,
+        timezoneAdjustment: "约8小时",
+      },
+      MEX: {
+        trainingBase: "Guadalajara/Zapopan 本土适应训练场",
+        travelDistanceKm: 540,
+        restDays: 6,
+        timezoneAdjustment: "本土时区",
+      },
+    },
+  },
+  Toronto: {
+    city: "Toronto",
+    altitudeMeters: 76,
+    turf: "天然草",
+    pitchCondition: "低海拔城市球场，温度和风速对长传落点影响更明显",
+    defaultTrainingBase: "Toronto 赛前训练基地",
+  },
+  "Los Angeles": {
+    city: "Los Angeles",
+    altitudeMeters: 30,
+    turf: "天然草",
+    pitchCondition: "低海拔暖热环境，边路冲刺和补水节奏需要持续跟踪",
+    defaultTrainingBase: "Los Angeles 赛前训练基地",
+  },
+  Atlanta: {
+    city: "Atlanta",
+    altitudeMeters: 320,
+    turf: "天然草",
+    pitchCondition: "温热湿度环境，换人窗口和高强度压迫持续性需要评估",
+    defaultTrainingBase: "Atlanta 赛前训练基地",
+  },
+  Guadalupe: {
+    city: "Guadalupe",
+    altitudeMeters: 540,
+    turf: "天然草",
+    pitchCondition: "干热环境，体能恢复和比赛后段节奏变化需要重点观察",
+    defaultTrainingBase: "Guadalupe 赛前训练基地",
+  },
+};
+
+venueEnvironmentFacts["Mexico City Stadium"] = venueEnvironmentFacts["Mexico City"];
+venueEnvironmentFacts["Estadio Guadalajara"] = venueEnvironmentFacts.Zapopan;
+
+async function buildPredictionAnalysisContext(
+  prediction: MatchPredictionStub,
+  match?: TournamentMatchStub,
+): Promise<PredictionAnalysisContext> {
+  const [home, away] = await Promise.all([
+    fetchTeamAnalysisContext(prediction.homeTeam),
+    fetchTeamAnalysisContext(prediction.awayTeam),
+  ]);
+
+  return {
+    home,
+    away,
+    environment: buildEnvironmentContext(prediction, match),
+  };
+}
+
+async function fetchTeamAnalysisContext(
+  team: PredictionTeam,
+): Promise<PredictionTeamAnalysisContext> {
+  const detail = await fetchTeamDetailOnly(team.teamId);
+  const basePlayers = detail?.players ?? [];
+  const playerDetails = await Promise.all(
+    basePlayers.map((player) => fetchPlayerDetailOnly(player.playerId)),
+  );
+
+  return {
+    teamId: team.teamId,
+    name: detail?.name ?? team.name,
+    code: detail?.code ?? team.code,
+    form: team.form,
+    modelProfile: detail?.modelProfile,
+    players: basePlayers.map((player, index) => {
+      const playerDetail = playerDetails[index];
+      return {
+        playerId: player.playerId,
+        name: playerDetail?.name ?? player.name,
+        position: playerDetail?.position ?? player.position,
+        availabilityStatus: playerDetail?.availabilityStatus ?? player.availabilityStatus,
+        minutesProjection: playerDetail?.modelImpact?.minutesProjection,
+        attackContribution: playerDetail?.modelImpact?.attackContribution,
+        defenseContribution: playerDetail?.modelImpact?.defenseContribution,
+        availabilityImpact: playerDetail?.modelImpact?.availabilityImpact,
+      };
+    }),
+  };
+}
+
+async function fetchTeamDetailOnly(teamId: string): Promise<Omit<TeamDetail, "rag"> | null> {
+  try {
+    return await publicRequest<Omit<TeamDetail, "rag">>(`/api/teams/${teamId}`);
+  } catch {
+    return null;
+  }
+}
+
+async function fetchPlayerDetailOnly(playerId: string): Promise<Omit<PlayerDetail, "rag"> | null> {
+  try {
+    return await publicRequest<Omit<PlayerDetail, "rag">>(`/api/players/${playerId}`);
+  } catch {
+    return null;
+  }
+}
+
+function buildEnvironmentContext(
+  prediction: MatchPredictionStub,
+  match?: TournamentMatchStub,
+): PredictionAnalysisContext["environment"] {
+  const fallbackMatch: TournamentMatchStub = {
+    matchId: prediction.matchId,
+    stage: "",
+    kickoffAt: prediction.kickoffAt,
+    homeTeam: prediction.homeTeam.name,
+    awayTeam: prediction.awayTeam.name,
+    region: prediction.venue,
+    venue: prediction.venue,
+  };
+  const matchForEnvironment = match ?? fallbackMatch;
+  const weather = createMatchWeatherForecast(matchForEnvironment);
+  const facts = venueEnvironmentFacts[matchForEnvironment.region] ?? {
+    city: matchForEnvironment.region,
+    altitudeMeters: 120,
+    turf: "天然草",
+    pitchCondition: "赛前场地状态待官方最终确认",
+    defaultTrainingBase: `${matchForEnvironment.region} 赛前训练基地`,
+  };
+
+  return {
+    venue: matchForEnvironment.venue,
+    city: facts.city,
+    altitudeMeters: facts.altitudeMeters,
+    turf: facts.turf,
+    pitchCondition: facts.pitchCondition,
+    weather: {
+      condition: weather.condition,
+      temperatureC: weather.temperatureC,
+      humidityPct: weather.humidityPct,
+      windKph: weather.windKph,
+    },
+    teams: {
+      home: buildTeamEnvironment(facts, prediction.homeTeam, "home"),
+      away: buildTeamEnvironment(facts, prediction.awayTeam, "away"),
+    },
+  };
+}
+
+function buildTeamEnvironment(
+  facts: VenueEnvironmentFacts,
+  team: PredictionTeam,
+  side: "home" | "away",
+): PredictionAnalysisContext["environment"]["teams"]["home"] {
+  const code = team.code.toUpperCase();
+  const configured = facts.preparationByCode?.[code];
+  if (configured) {
+    return configured;
+  }
+
+  return {
+    trainingBase: `${facts.defaultTrainingBase}${side === "home" ? "（主队）" : "（客队）"}`,
+    travelDistanceKm: side === "home" ? 800 : 7800,
+    restDays: side === "home" ? 5 : 4,
+    timezoneAdjustment: side === "home" ? "较低" : "跨时区适应",
+  };
+}
+
 const analysisSectionDefinitions: Record<
   PredictionAnalysisSection["id"],
   Pick<PredictionAnalysisSection, "title" | "reason">
@@ -692,6 +934,14 @@ function sourceToAnalysisPoint(source: RagSource): string {
       source.metadata?.title ??
       "RAG 已返回该维度的分析摘要。",
   );
+  if (
+    /rag metadata|metadata json|documentId|sourceType|publishedAt|sourceUrl|source_name|source_url/i.test(
+      raw,
+    )
+  ) {
+    return "";
+  }
+
   return raw
     .replace(/[`*_#|]/g, " ")
     .replace(/\s+/g, " ")

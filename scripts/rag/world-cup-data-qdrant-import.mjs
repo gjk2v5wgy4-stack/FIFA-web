@@ -62,6 +62,32 @@ const documents = [
     overlap: 25
   },
   {
+    path: "docs/rag/teams/wc2026-canada-data.md",
+    documentId: "wc2026_team_canada_data_001",
+    title: "Canada 2026 World Cup public data package",
+    teamId: "team_can",
+    matchId: "match_003",
+    tags: ["world_cup_2026", "team_profile", "canada", "match_003", "public_data"],
+    chunkSize: 160,
+    overlap: 25
+  },
+  {
+    path: "docs/rag/teams/wc2026-bosnia-herzegovina-data.md",
+    documentId: "wc2026_team_bosnia_herzegovina_data_001",
+    title: "Bosnia & Herzegovina 2026 World Cup public data package",
+    teamId: "team_bih",
+    matchId: "match_003",
+    tags: [
+      "world_cup_2026",
+      "team_profile",
+      "bosnia_herzegovina",
+      "match_003",
+      "public_data"
+    ],
+    chunkSize: 160,
+    overlap: 25
+  },
+  {
     path: "docs/rag/teams/wc2026-south-korea-data.md",
     documentId: "wc2026_team_south_korea_data_001",
     title: "South Korea 2026 World Cup public data package",
@@ -139,6 +165,7 @@ for (const source of documents) {
         sourceType: "analysis",
         title: source.title,
         teamId: source.teamId,
+        matchId: source.matchId,
         competition: "2026 FIFA World Cup",
         publishedAt: manifest.generatedAt,
         url: source.path,
